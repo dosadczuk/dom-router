@@ -1,5 +1,5 @@
 /**
- * Dispatch custom event on given element.
+ * Dispatch custom event on given content.
  */
 export const dispatch = (element: Node, event: string, data?: any): void => {
   element.dispatchEvent(
