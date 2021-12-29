@@ -630,6 +630,11 @@ universalify@^0.1.2:
   resolved "https://registry.yarnpkg.com/universalify/-/universalify-0.1.2.tgz#b646f69be3942dabcecc9d6639c80dc105efaa66"
   integrity sha512-rBJeI5CXAlmy1pV+617WB9J63U6XcazHHF2f2dbJix4XzpUF0RS3Zbj0FGIOCAva5P/d/GBOYaACQ1w+0azUkg==
 
+urlpattern-polyfill@^1.0.0-rc1:
+  version "1.0.0-rc1"
+  resolved "https://registry.yarnpkg.com/urlpattern-polyfill/-/urlpattern-polyfill-1.0.0-rc1.tgz#88b89983c5f3b2ea4b1d6c75862e19f902d72d3c"
+  integrity sha512-OOH7VgVY4ShouTrd+raK3L6CpplYa24DfHTDW0t1OCeW8cSS4jkM62gvkHdKM4HKvU74klciKAq1SJ9rGFWX1g==
+
 vite@^2.7.2:
   version "2.7.9"
   resolved "https://registry.yarnpkg.com/vite/-/vite-2.7.9.tgz#c72d8817cdddbb127daed0c8f87fbca4e7754a81"

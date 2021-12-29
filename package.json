@@ -7,6 +7,9 @@
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
+  "dependencies": {
+    "urlpattern-polyfill": "^1.0.0-rc1"
+  },
   "devDependencies": {
     "@types/node": "^17.0.5",
     "jsdom": "^19.0.0",
