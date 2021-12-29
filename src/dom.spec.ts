@@ -1,11 +1,11 @@
-import { directive } from '@router/directives'
+import { setDirective } from '@router/directives'
 import { getHTMLElementsWithDirective, hideHTMLElement, showHTMLElement } from '@router/dom'
 import { afterEach, beforeEach, describe, expect, fn, it } from 'vitest'
 
 describe('dom', () => {
 
   beforeEach(() => {
-    directive('data-test', fn())
+    setDirective('data-test', fn())
   })
 
   afterEach(() => {

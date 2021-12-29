@@ -2,10 +2,46 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>DOM Router</title>
+
+    <style>
+        [data-router-cloak] {
+            display: none;
+        }
+    </style>
   </head>
   <body>
+<nav>
+      <button data-router-link="/">Index</button>
+      <button data-router-link="/page1">Page 1</button>
+      <button data-router-link="/page2">Page 2</button>
+      <button data-router-link="/page3">Page 3</button>
+      <button data-router-link="/page3/1">Page 3 (id=1)</button>
+    </nav>
+
+    <section data-router-cloak data-router-page="/" data-router-title="Homepage">
+      <h1>Index</h1>
+    </section>
+
+    <section data-router-cloak data-router-page="/page1">
+      <h1>Page 1</h1>
+    </section>
+
+    <section data-router-cloak data-router-page="/page2">
+      <h1>Page 2</h1>
+    </section>
+
+    <section data-router-cloak data-router-page="/page3">
+      <h1>Page 3</h1>
+    </section>
+
+    <section data-router-cloak data-router-page="/page3/:id">
+      <h1>Page 3 (with id)</h1>
+    </section>
+
     <script type="module" src="/src/index.ts"></script>
   </body>
 </html>
