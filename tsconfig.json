@@ -12,7 +12,11 @@
     "noEmit": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noImplicitReturns": true
+    "noImplicitReturns": true,
+    "rootDir": ".",
+    "paths": {
+      "@router/*": ["./src/*"]
+    }
   },
   "include": ["./src"]
 }
