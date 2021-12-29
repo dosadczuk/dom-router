@@ -1,0 +1,15 @@
+{
+  "name": "dom-router",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "jsdom": "^19.0.0",
+    "typescript": "^4.4.4",
+    "vite": "^2.7.2",
+    "vitest": "^0.0.120"
+  }
+}
