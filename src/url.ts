@@ -1,4 +1,4 @@
-import { URLPattern } from 'urlpattern-polyfill/dist'
+import { parse } from 'regexparam'
 
 /**
  * Get current URL, based on window object.
@@ -13,5 +13,5 @@ export const getCurrentURL = (): URL => {
  * Reference: {@link https://developer.mozilla.org/en-US/docs/Web/API/URL_Pattern_API}
  */
 export const isMatchingURL = (pattern: string, url: URL = getCurrentURL()): boolean => {
-  return new URLPattern(pattern, url.origin).test(url.toString())
+  return parse(pattern).pattern.test(url.pathname)
 }

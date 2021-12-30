@@ -1,6 +1,17 @@
 {
   "name": "dom-router",
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "files": [
+    "build"
+  ],
+  "main": "./build/dom-router.umd.js",
+  "module": "./build/dom-router.es.js",
+  "exports": {
+    ".": {
+      "import": "./build/dom-router.es.js",
+      "require": "./build/dom-router.umd.js"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "test": "vitest",
@@ -8,11 +19,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "urlpattern-polyfill": "^1.0.0-rc1"
+    "regexparam": "^2.0.0"
   },
   "devDependencies": {
     "@types/node": "^17.0.5",
     "jsdom": "^19.0.0",
+    "pretty-format": "^27.4.2",
     "typescript": "^4.4.4",
     "vite": "^2.7.2",
     "vitest": "^0.0.120"
