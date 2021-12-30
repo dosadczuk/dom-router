@@ -1,31 +1,17 @@
-import { runDirective } from '@router/directives'
+import { Directive, runDirective } from '@router/directives'
 import '@router/directives/index'
-import { dispatch, Event, subscribe } from '@router/events'
 
-runDirective('data-router-cloak')
-runDirective('data-router-title')
-runDirective('data-router-page')
-runDirective('data-router-link')
+(() => {
+  const canInitialize = document.documentElement.hasAttribute(Directive.Init)
+  if (!canInitialize) {
+    return console.warn(`Router cannot be initialized. Add '${Directive.Init}' attribute to <html></html> tag.`)
+  }
 
-// let app subscribe to "before init"
-dispatch(document, Event.Initialize)
+  runDirective(Directive.Cloak)
+  runDirective(Directive.Title)
+  runDirective(Directive.Page)
+  runDirective(Directive.Link)
 
-// update forced with link
-subscribe(document, Event.ChangePage, (event) => {
-  const { detail: route } = event as CustomEvent
-
-  history.pushState(null, '', route)
-
-  dispatch(document, Event.ChangeView)
-})
-
-// update forced with History API
-subscribe(window, 'popstate', () => {
-  dispatch(document, Event.ChangeView)
-})
-
-// force update view, let event set up app
-dispatch(document, Event.ChangeView)
-
-// let app subscribe to "after init"
-dispatch(document, Event.Initialized)
+// Init at the end
+  runDirective(Directive.Init)
+})()
