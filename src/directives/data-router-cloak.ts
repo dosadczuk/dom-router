@@ -1,10 +1,13 @@
 import { Directive, setDirective } from '@router/directives'
-import { getHTMLElementsWithDirective, HTMLElementWithDirectives } from '@router/dom'
+import { getHTMLElementsWithDirective } from '@router/dom'
 
 setDirective(Directive.Cloak, () => {
-  getHTMLElementsWithDirective(Directive.Cloak).forEach(removeCloakDirective)
-})
+  const elementsWithCloak = getHTMLElementsWithDirective(Directive.Cloak)
+  if (elementsWithCloak.length === 0) {
+    return
+  }
 
-const removeCloakDirective = (cloak: HTMLElementWithDirectives): void => {
-  cloak.content.removeAttribute(Directive.Cloak)
-}
+  for (const element of elementsWithCloak) {
+    element.content.removeAttribute(Directive.Cloak)
+  }
+})

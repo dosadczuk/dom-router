@@ -1,23 +1,28 @@
 import { Directive, setDirective } from '@router/directives'
-import { getHTMLElementsWithDirective, hideHTMLElement, HTMLElementWithDirectives, showHTMLElement } from '@router/dom'
+import { getHTMLElementsWithDirective, hideHTMLElement, showHTMLElement } from '@router/dom'
 import { Event, subscribe } from '@router/events'
-import { isMatchingURL } from '@router/url'
+import { getCurrentURL, isMatchingURL } from '@router/url'
 
 setDirective(Directive.Page, () => {
-  getHTMLElementsWithDirective(Directive.Page).forEach(subscribeToChangeView)
-})
-
-const subscribeToChangeView = (page: HTMLElementWithDirectives): void => {
-  const route = page.directives.get(Directive.Page)
-  if (route == null) {
+  const pages = getHTMLElementsWithDirective(Directive.Page)
+  if (pages.length === 0) {
     return
   }
 
   subscribe(document, Event.ChangeView, () => {
-    if (isMatchingURL(route)) {
-      showHTMLElement(page)
-    } else {
-      hideHTMLElement(page)
+    const url = getCurrentURL()
+
+    for (const page of pages) {
+      const route = page.directives.get(Directive.Page)
+      if (route == null) {
+        continue
+      }
+
+      if (isMatchingURL(route, url)) {
+        showHTMLElement(page)
+      } else {
+        hideHTMLElement(page)
+      }
     }
   })
-}
+})
