@@ -1,5 +1,6 @@
 export enum Directive {
   Cloak = 'data-router-cloak',
+  Title = 'data-router-title',
   Link = 'data-router-link',
   Page = 'data-router-page'
 }

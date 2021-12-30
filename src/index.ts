@@ -3,6 +3,7 @@ import '@router/directives/index'
 import { dispatch, Event, subscribe } from '@router/events'
 
 runDirective('data-router-cloak')
+runDirective('data-router-title')
 runDirective('data-router-page')
 runDirective('data-router-link')
 
