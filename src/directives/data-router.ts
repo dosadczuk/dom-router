@@ -1,5 +1,6 @@
 import { Directive, setDirective } from '@router/directives'
 import { dispatch, Event, subscribe } from '@router/events'
+import { getCurrentURL, isMatchingURL } from '@router/url'
 
 setDirective(Directive.Init, () => {
   // let app subscribe to "before init"
@@ -8,6 +9,11 @@ setDirective(Directive.Init, () => {
   // update forced with link
   subscribe(document, Event.ChangePage, (event) => {
     const { detail: route } = event as CustomEvent
+
+    // FIXME: In theory, may cause bugs
+    if (isMatchingURL(route, getCurrentURL())) {
+      return // same page, no need to change
+    }
 
     history.pushState(null, '', route)
 
