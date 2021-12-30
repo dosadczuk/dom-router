@@ -12,6 +12,6 @@ import '@router/directives/index'
   runDirective(Directive.Page)
   runDirective(Directive.Link)
 
-// Init at the end
+  // Init at the end
   runDirective(Directive.Init)
 })()

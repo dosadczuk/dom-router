@@ -9,6 +9,8 @@ setDirective(Directive.Title, () => {
     return
   }
 
+  const titleTemplate = document.documentElement.getAttribute(Directive.Title)
+
   subscribe(document, Event.ChangeView, () => {
     const url = getCurrentURL()
 
@@ -21,7 +23,11 @@ setDirective(Directive.Title, () => {
       }
 
       if (isMatchingURL(route, url)) {
-        document.title = title
+        if (titleTemplate != null) {
+          document.title = titleTemplate.replace('{title}', title)
+        } else {
+          document.title = title
+        }
 
         break // first match
       }
