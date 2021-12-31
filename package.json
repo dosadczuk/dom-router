@@ -1,6 +1,14 @@
 {
   "name": "dom-router",
+  "description": "Very basic, zero configuration router for single HTML file applications.",
   "version": "0.1.0",
+  "private": true,
+  "author": {
+    "name": "Damian Osadczuk",
+    "url": "https://github.com/dosadczuk"
+  },
+  "homepage": "https://github.com/dosadczuk/dom-router",
+  "keywords": ["router", "dom"],
   "files": [
     "build"
   ],
