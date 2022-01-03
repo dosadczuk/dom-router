@@ -27,8 +27,9 @@ var Event;
 (function(Event2) {
   Event2["Initialize"] = "router:initialize";
   Event2["Initialized"] = "router:initialized";
-  Event2["ChangePage"] = "router:change-page";
-  Event2["ChangeView"] = "router:change-view";
+  Event2["PageChange"] = "router:page-change";
+  Event2["PageChanged"] = "router:page-changed";
+  Event2["ViewChanged"] = "router:view-changed";
 })(Event || (Event = {}));
 const subscribe = (element, event, handler) => {
   element.addEventListener(event, handler);
@@ -84,12 +85,12 @@ setDirective(Directive.Init, () => {
       return;
     }
     history.pushState(null, "", route);
-    dispatch(document, Event.ViewChange);
+    dispatch(document, Event.PageChanged);
   });
   subscribe(window, "popstate", () => {
-    dispatch(document, Event.ViewChange);
+    dispatch(document, Event.PageChanged);
   });
-  dispatch(document, Event.ViewChange);
+  dispatch(document, Event.PageChanged);
   dispatch(document, Event.Initialized);
 });
 const isEmpty = (value) => {
@@ -181,7 +182,7 @@ setDirective(Directive.Page, () => {
   if (pages.length === 0) {
     return;
   }
-  subscribe(document, Event.ViewChange, () => {
+  subscribe(document, Event.PageChanged, () => {
     const url = getCurrentURL();
     for (const page of pages) {
       const route = page.directives.get(Directive.Page);
@@ -194,6 +195,7 @@ setDirective(Directive.Page, () => {
         hideHTMLElement(page);
       }
     }
+    dispatch(document, Event.ViewChanged);
   });
 });
 setDirective(Directive.Title, () => {
@@ -202,7 +204,7 @@ setDirective(Directive.Title, () => {
     return;
   }
   const titleTemplate = document.documentElement.getAttribute(Directive.Title);
-  subscribe(document, Event.ViewChange, () => {
+  subscribe(document, Event.PageChanged, () => {
     const url = getCurrentURL();
     for (const element of elementsWithTitle) {
       const route = element.directives.get(Directive.Page);
