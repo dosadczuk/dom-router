@@ -1,6 +1,6 @@
 {
   "name": "dom-router",
-  "description": "Very basic, zero configuration router for single HTML file applications.",
+  "description": "Very basic, zero configuration router for single HTML file websites.",
   "version": "0.1.0",
   "private": true,
   "author": {

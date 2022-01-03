@@ -1,6 +1,6 @@
 # DOM Router (WiP)
 
-Very basic, zero configuration router for single HTML file applications.
+Very basic, zero configuration router for single HTML file websites.
 
 To start using router, just put `script` tag in the HTML file:
 

@@ -11,7 +11,7 @@ setDirective(Directive.Title, () => {
 
   const titleTemplate = document.documentElement.getAttribute(Directive.Title)
 
-  subscribe(document, Event.ChangeView, () => {
+  subscribe(document, Event.PageChanged, () => {
     const url = getCurrentURL()
 
     for (const element of elementsWithTitle) {

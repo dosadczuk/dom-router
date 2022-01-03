@@ -25,7 +25,7 @@ setDirective(Directive.Link, () => {
     link.addEventListener('click', event => {
       event.preventDefault()
 
-      dispatch(document, Event.ChangePage, route)
+      dispatch(document, Event.PageChange, route)
     })
   })
 })

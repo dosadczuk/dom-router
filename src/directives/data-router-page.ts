@@ -1,6 +1,6 @@
 import { Directive, setDirective } from '@router/directives'
 import { getHTMLElementsWithDirective, hideHTMLElement, showHTMLElement } from '@router/dom'
-import { Event, subscribe } from '@router/events'
+import {dispatch, Event, subscribe} from '@router/events'
 import { getCurrentURL, isMatchingURL } from '@router/url'
 
 setDirective(Directive.Page, () => {
@@ -9,7 +9,7 @@ setDirective(Directive.Page, () => {
     return
   }
 
-  subscribe(document, Event.ChangeView, () => {
+  subscribe(document, Event.PageChanged, () => {
     const url = getCurrentURL()
 
     for (const page of pages) {
@@ -24,5 +24,7 @@ setDirective(Directive.Page, () => {
         hideHTMLElement(page)
       }
     }
+
+    dispatch(document, Event.ViewChanged)
   })
 })

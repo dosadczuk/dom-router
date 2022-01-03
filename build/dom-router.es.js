@@ -78,18 +78,18 @@ const isMatchingURL = (pattern, url = getCurrentURL()) => {
 };
 setDirective(Directive.Init, () => {
   dispatch(document, Event.Initialize);
-  subscribe(document, Event.ChangePage, (event) => {
+  subscribe(document, Event.PageChange, (event) => {
     const { detail: route } = event;
     if (isMatchingURL(route, getCurrentURL())) {
       return;
     }
     history.pushState(null, "", route);
-    dispatch(document, Event.ChangeView);
+    dispatch(document, Event.ViewChange);
   });
   subscribe(window, "popstate", () => {
-    dispatch(document, Event.ChangeView);
+    dispatch(document, Event.ViewChange);
   });
-  dispatch(document, Event.ChangeView);
+  dispatch(document, Event.ViewChange);
   dispatch(document, Event.Initialized);
 });
 const isEmpty = (value) => {
@@ -172,7 +172,7 @@ setDirective(Directive.Link, () => {
     }
     link.addEventListener("click", (event) => {
       event.preventDefault();
-      dispatch(document, Event.ChangePage, route);
+      dispatch(document, Event.PageChange, route);
     });
   });
 });
@@ -181,7 +181,7 @@ setDirective(Directive.Page, () => {
   if (pages.length === 0) {
     return;
   }
-  subscribe(document, Event.ChangeView, () => {
+  subscribe(document, Event.ViewChange, () => {
     const url = getCurrentURL();
     for (const page of pages) {
       const route = page.directives.get(Directive.Page);
@@ -202,7 +202,7 @@ setDirective(Directive.Title, () => {
     return;
   }
   const titleTemplate = document.documentElement.getAttribute(Directive.Title);
-  subscribe(document, Event.ChangeView, () => {
+  subscribe(document, Event.ViewChange, () => {
     const url = getCurrentURL();
     for (const element of elementsWithTitle) {
       const route = element.directives.get(Directive.Page);

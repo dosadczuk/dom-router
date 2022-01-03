@@ -7,7 +7,7 @@ setDirective(Directive.Init, () => {
   dispatch(document, Event.Initialize)
 
   // update forced with link
-  subscribe(document, Event.ChangePage, (event) => {
+  subscribe(document, Event.PageChange, (event) => {
     const { detail: route } = event as CustomEvent
 
     // FIXME: In theory, may cause bugs
@@ -17,16 +17,16 @@ setDirective(Directive.Init, () => {
 
     history.pushState(null, '', route)
 
-    dispatch(document, Event.ChangeView)
+    dispatch(document, Event.PageChanged)
   })
 
   // update forced with History API
   subscribe(window, 'popstate', () => {
-    dispatch(document, Event.ChangeView)
+    dispatch(document, Event.PageChanged)
   })
 
   // force update view, let event set up app
-  dispatch(document, Event.ChangeView)
+  dispatch(document, Event.PageChanged)
 
   // let app subscribe to "after init"
   dispatch(document, Event.Initialized)

@@ -2,8 +2,9 @@ export enum Event {
   Initialize = 'router:initialize',
   Initialized = 'router:initialized',
 
-  ChangePage = 'router:change-page',
-  ChangeView = 'router:change-view'
+  PageChange = 'router:page-change',
+  PageChanged = 'router:page-changed',
+  ViewChanged = 'router:view-changed'
 }
 
 type Subscriber = EventListenerOrEventListenerObject;
