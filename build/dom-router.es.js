@@ -23,12 +23,30 @@ const isDirective = (name) => {
 const getDirectives = () => {
   return Array.from(directives.keys());
 };
+const isEmpty = (value) => {
+  if (isString(value)) {
+    return value.length == 0;
+  }
+  return value == null;
+};
+const isString = (value) => {
+  return typeof value === "string";
+};
+const isEnumValue = (enumObject, value) => {
+  return Object.values(enumObject).includes(value);
+};
+const isHTMLTemplateElement = (element) => {
+  return element instanceof HTMLTemplateElement;
+};
+const isHTMLAnchorElement = (element) => {
+  return element instanceof HTMLAnchorElement;
+};
 var Event;
 (function(Event2) {
   Event2["Initialize"] = "router:initialize";
   Event2["Initialized"] = "router:initialized";
   Event2["PageChange"] = "router:page-change";
-  Event2["PageChanged"] = "router:page-changed";
+  Event2["ViewChange"] = "router:view-change";
   Event2["ViewChanged"] = "router:view-changed";
 })(Event || (Event = {}));
 const subscribe = (element, event, handler) => {
@@ -44,6 +62,14 @@ const dispatch = (element, event, data) => {
     composed: true,
     cancelable: true
   }));
+};
+var Mode;
+(function(Mode2) {
+  Mode2["Display"] = "display";
+  Mode2["Template"] = "template";
+})(Mode || (Mode = {}));
+const getModes = () => {
+  return Object.values(Mode);
 };
 function parse(str, loose) {
   if (str instanceof RegExp)
@@ -78,6 +104,11 @@ const isMatchingURL = (pattern, url = getCurrentURL()) => {
   return parse(pattern).pattern.test(url.pathname);
 };
 setDirective(Directive.Init, () => {
+  let mode = document.documentElement.getAttribute(Directive.Init);
+  if (isEmpty(mode) || !isEnumValue(Mode, mode)) {
+    mode = Mode.Display;
+    console.warn(`Setting default router mode: ${mode}. Available modes: ${getModes().join(", ")}.`);
+  }
   dispatch(document, Event.Initialize);
   subscribe(document, Event.PageChange, (event) => {
     const { detail: route } = event;
@@ -85,29 +116,14 @@ setDirective(Directive.Init, () => {
       return;
     }
     history.pushState(null, "", route);
-    dispatch(document, Event.ViewChange);
+    dispatch(document, Event.ViewChange, mode);
   });
   subscribe(window, "popstate", () => {
-    dispatch(document, Event.ViewChange);
+    dispatch(document, Event.ViewChange, mode);
   });
-  dispatch(document, Event.ViewChange);
+  dispatch(document, Event.ViewChange, mode);
   dispatch(document, Event.Initialized);
 });
-const isEmpty = (value) => {
-  if (isString(value)) {
-    return value.length == 0;
-  }
-  return value == null;
-};
-const isString = (value) => {
-  return typeof value === "string";
-};
-const isHTMLTemplateElement = (element) => {
-  return element instanceof HTMLTemplateElement;
-};
-const isHTMLAnchorElement = (element) => {
-  return element instanceof HTMLAnchorElement;
-};
 const getHTMLElementsWithDirective = (directive) => {
   const elements = document.querySelectorAll(`[${directive}]`);
   if (elements.length === 0) {
@@ -124,7 +140,27 @@ const getHTMLElementsWithDirective = (directive) => {
     return { content: element, directives: directives2 };
   });
 };
-const showHTMLElement = (element) => {
+const toggleDisplayElement = (canBeVisible, element) => {
+  if (canBeVisible) {
+    displayShowElement(element);
+  } else {
+    displayHideElement(element);
+  }
+};
+const displayShowElement = ({ content }) => {
+  content.style.display = "initial";
+};
+const displayHideElement = ({ content }) => {
+  content.style.display = "none";
+};
+const toggleTemplateElement = (canBeVisible, element) => {
+  if (canBeVisible) {
+    replaceTemplateWithElement(element);
+  } else {
+    replaceElementWithTemplate(element);
+  }
+};
+const replaceTemplateWithElement = (element) => {
   const { content: template } = element;
   if (!isHTMLTemplateElement(template)) {
     return;
@@ -136,7 +172,7 @@ const showHTMLElement = (element) => {
   element.content.replaceWith(content);
   element.content = content;
 };
-const hideHTMLElement = (element) => {
+const replaceElementWithTemplate = (element) => {
   const { content, directives: directives2 } = element;
   if (isHTMLTemplateElement(content)) {
     return;
@@ -182,17 +218,21 @@ setDirective(Directive.Page, () => {
   if (pages.length === 0) {
     return;
   }
-  subscribe(document, Event.ViewChange, () => {
+  subscribe(document, Event.ViewChange, (event) => {
+    const { detail: mode } = event;
     const url = getCurrentURL();
     for (const page of pages) {
       const route = page.directives.get(Directive.Page);
       if (route == null) {
         continue;
       }
-      if (isMatchingURL(route, url)) {
-        showHTMLElement(page);
-      } else {
-        hideHTMLElement(page);
+      switch (mode) {
+        case Mode.Display:
+          toggleDisplayElement(isMatchingURL(route, url), page);
+          break;
+        case Mode.Template:
+          toggleTemplateElement(isMatchingURL(route, url), page);
+          break;
       }
     }
     dispatch(document, Event.ViewChanged);
