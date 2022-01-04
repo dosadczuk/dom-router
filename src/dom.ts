@@ -44,7 +44,7 @@ export const toggleDisplayElement = (canBeVisible: boolean, element: HTMLElement
  * Show element using CSS display property.
  */
 export const displayShowElement = ({ content }: HTMLElementWithDirectives): void => {
-  content.style.display = 'initial'
+  content.style.display = 'revert'
 }
 
 /**

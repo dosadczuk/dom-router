@@ -51,7 +51,7 @@ describe('dom', () => {
     displayShowElement(element)
 
     // then
-    expect(element.content.style.display).toEqual('initial')
+    expect(element.content.style.display).toEqual('revert')
   })
 
   it('should hide element using CSS display property', function () {

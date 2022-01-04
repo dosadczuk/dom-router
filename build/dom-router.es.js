@@ -148,7 +148,7 @@ const toggleDisplayElement = (canBeVisible, element) => {
   }
 };
 const displayShowElement = ({ content }) => {
-  content.style.display = "initial";
+  content.style.display = "revert";
 };
 const displayHideElement = ({ content }) => {
   content.style.display = "none";
