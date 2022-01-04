@@ -1,4 +1,4 @@
-import { isEmpty, isHTMLAnchorElement, isHTMLTemplateElement, isString } from '@router/asserts'
+import { isEmpty, isEnumValue, isHTMLAnchorElement, isHTMLTemplateElement, isString } from '@router/asserts'
 import { describe, expect, it } from 'vitest'
 
 describe('asserts', () => {
@@ -36,6 +36,36 @@ describe('asserts', () => {
     // then
     expect(isValidString).toBeTruthy()
     expect(isInvalidString).toBeFalsy()
+  })
+
+  it('should assert is enum value', function () {
+    // given
+    enum Test {
+      Value = 'value'
+    }
+
+    const value = 'value'
+
+    // when
+    const isEnum = isEnumValue(Test, value)
+
+    // then
+    expect(isEnum).toBeTruthy()
+  })
+
+  it('should assert is not enum value', function () {
+    // given
+    enum Test {
+      Value = 'value'
+    }
+
+    const value = 'test'
+
+    // when
+    const isEnum = isEnumValue(Test, value)
+
+    // then
+    expect(isEnum).toBeFalsy()
   })
 
   it('should assert is HTMLTemplateElement', () => {

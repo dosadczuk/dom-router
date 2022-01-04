@@ -3,7 +3,7 @@ export enum Event {
   Initialized = 'router:initialized',
 
   PageChange = 'router:page-change',
-  PageChanged = 'router:page-changed',
+  ViewChange = 'router:view-change',
   ViewChanged = 'router:view-changed'
 }
 

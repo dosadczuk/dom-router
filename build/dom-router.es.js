@@ -85,12 +85,12 @@ setDirective(Directive.Init, () => {
       return;
     }
     history.pushState(null, "", route);
-    dispatch(document, Event.PageChanged);
+    dispatch(document, Event.ViewChange);
   });
   subscribe(window, "popstate", () => {
-    dispatch(document, Event.PageChanged);
+    dispatch(document, Event.ViewChange);
   });
-  dispatch(document, Event.PageChanged);
+  dispatch(document, Event.ViewChange);
   dispatch(document, Event.Initialized);
 });
 const isEmpty = (value) => {
@@ -182,7 +182,7 @@ setDirective(Directive.Page, () => {
   if (pages.length === 0) {
     return;
   }
-  subscribe(document, Event.PageChanged, () => {
+  subscribe(document, Event.ViewChange, () => {
     const url = getCurrentURL();
     for (const page of pages) {
       const route = page.directives.get(Directive.Page);
@@ -204,7 +204,7 @@ setDirective(Directive.Title, () => {
     return;
   }
   const titleTemplate = document.documentElement.getAttribute(Directive.Title);
-  subscribe(document, Event.PageChanged, () => {
+  subscribe(document, Event.ViewChange, () => {
     const url = getCurrentURL();
     for (const element of elementsWithTitle) {
       const route = element.directives.get(Directive.Page);

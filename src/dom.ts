@@ -30,9 +30,45 @@ export const getHTMLElementsWithDirective = (directive: string): HTMLElementWith
 }
 
 /**
+ * Toggle element visibility using CSS display property.
+ */
+export const toggleDisplayElement = (canBeVisible: boolean, element: HTMLElementWithDirectives): void => {
+  if (canBeVisible) {
+    displayShowElement(element)
+  } else {
+    displayHideElement(element)
+  }
+}
+
+/**
+ * Show element using CSS display property.
+ */
+export const displayShowElement = ({ content }: HTMLElementWithDirectives): void => {
+  content.style.display = 'initial'
+}
+
+/**
+ * Hide element using CSS display property.
+ */
+export const displayHideElement = ({ content }: HTMLElementWithDirectives): void => {
+  content.style.display = 'none'
+}
+
+/**
+ * Toggle element visibility using HTMLTemplateElement.
+ */
+export const toggleTemplateElement = (canBeVisible: boolean, element: HTMLElementWithDirectives): void => {
+  if (canBeVisible) {
+    replaceTemplateWithElement(element)
+  } else {
+    replaceElementWithTemplate(element)
+  }
+}
+
+/**
  * Show element replacing HTMLTemplateElement with visible HTMLElement.
  */
-export const showHTMLElement = (element: HTMLElementWithDirectives): void => {
+export const replaceTemplateWithElement = (element: HTMLElementWithDirectives): void => {
   const { content: template } = element
 
   if (!isHTMLTemplateElement(template)) {
@@ -51,7 +87,7 @@ export const showHTMLElement = (element: HTMLElementWithDirectives): void => {
 /**
  * Hide element replacing visible HTMLElement with HTMLTemplateElement.
  */
-export const hideHTMLElement = (element: HTMLElementWithDirectives): void => {
+export const replaceElementWithTemplate = (element: HTMLElementWithDirectives): void => {
   const { content, directives } = element
 
   if (isHTMLTemplateElement(content)) {

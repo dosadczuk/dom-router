@@ -17,6 +17,13 @@ export const isString = (value: any): value is string => {
 }
 
 /**
+ * Check if given value is a value of given enum.
+ */
+export const isEnumValue = (enumObject: object, value: any): boolean => {
+  return Object.values(enumObject).includes(value)
+}
+
+/**
  * Check if given HTMLElement is HTMLTemplateElement (<template>).
  */
 export const isHTMLTemplateElement = (element: HTMLElement): element is HTMLTemplateElement => {

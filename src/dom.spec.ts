@@ -1,5 +1,11 @@
 import { setDirective } from '@router/directives'
-import { getHTMLElementsWithDirective, hideHTMLElement, showHTMLElement } from '@router/dom'
+import {
+  displayHideElement,
+  displayShowElement,
+  getHTMLElementsWithDirective,
+  replaceElementWithTemplate,
+  replaceTemplateWithElement,
+} from '@router/dom'
 import { afterEach, beforeEach, describe, expect, fn, it } from 'vitest'
 
 describe('dom', () => {
@@ -31,7 +37,40 @@ describe('dom', () => {
     expect(directives.get('data-test')).toEqual('test')
   })
 
-  it('should show HTMLElement', () => {
+  it('should show element using CSS display property', function () {
+    // given
+    const div = document.createElement('div')
+    div.setAttribute('data-test', 'test')
+    div.style.display = 'none'
+
+    document.body.append(div)
+
+    const element = getHTMLElementsWithDirective('data-test')[0]
+
+    // when
+    displayShowElement(element)
+
+    // then
+    expect(element.content.style.display).toEqual('initial')
+  })
+
+  it('should hide element using CSS display property', function () {
+    // given
+    const div = document.createElement('div')
+    div.setAttribute('data-test', 'test')
+
+    document.body.append(div)
+
+    const element = getHTMLElementsWithDirective('data-test')[0]
+
+    // when
+    displayHideElement(element)
+
+    // then
+    expect(element.content.style.display).toEqual('none')
+  })
+
+  it('should replace HTMLTemplateElement with HTMLElement', () => {
     // given
     const templateElement = document.createElement('div')
     templateElement.setAttribute('data-test', 'test')
@@ -45,13 +84,13 @@ describe('dom', () => {
     const element = getHTMLElementsWithDirective('data-test')[0]
 
     // when
-    showHTMLElement(element)
+    replaceTemplateWithElement(element)
 
     // then
     expect(element.content.isEqualNode(templateElement)).toBeTruthy()
   })
 
-  it('should hide HTMLElement', () => {
+  it('should replace HTMLElement with HTMLTemplateElement', () => {
     // given
     const templateElement = document.createElement('div')
     templateElement.setAttribute('data-test', 'test')
@@ -61,7 +100,7 @@ describe('dom', () => {
     const element = getHTMLElementsWithDirective('data-test')[0]
 
     // when
-    hideHTMLElement(element)
+    replaceElementWithTemplate(element)
 
     // then
     const template = element.content as HTMLTemplateElement

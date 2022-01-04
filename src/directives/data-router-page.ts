@@ -1,6 +1,7 @@
 import { Directive, setDirective } from '@router/directives'
-import { getHTMLElementsWithDirective, hideHTMLElement, showHTMLElement } from '@router/dom'
-import {dispatch, Event, subscribe} from '@router/events'
+import { getHTMLElementsWithDirective, toggleDisplayElement, toggleTemplateElement } from '@router/dom'
+import { dispatch, Event, subscribe } from '@router/events'
+import { Mode } from '@router/mode'
 import { getCurrentURL, isMatchingURL } from '@router/url'
 
 setDirective(Directive.Page, () => {
@@ -9,7 +10,8 @@ setDirective(Directive.Page, () => {
     return
   }
 
-  subscribe(document, Event.PageChanged, () => {
+  subscribe(document, Event.ViewChange, (event) => {
+    const { detail: mode } = event as CustomEvent
     const url = getCurrentURL()
 
     for (const page of pages) {
@@ -18,10 +20,14 @@ setDirective(Directive.Page, () => {
         continue
       }
 
-      if (isMatchingURL(route, url)) {
-        showHTMLElement(page)
-      } else {
-        hideHTMLElement(page)
+      switch (mode) {
+        case Mode.Display:
+          toggleDisplayElement(isMatchingURL(route, url), page)
+          break
+
+        case Mode.Template:
+          toggleTemplateElement(isMatchingURL(route, url), page)
+          break
       }
     }
 

@@ -3,7 +3,7 @@ export enum Directive {
   Cloak = 'data-router-cloak',
   Title = 'data-router-title',
   Link = 'data-router-link',
-  Page = 'data-router-page'
+  Page = 'data-router-page',
 }
 
 const directives = new Map<string, Function>()
