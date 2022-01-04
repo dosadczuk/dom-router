@@ -2,28 +2,30 @@
 
 Very basic, zero configuration router for single HTML file websites.
 
-To start using router, just put `script` tag in the HTML file:
+## Usage
 
 ```html
-<!-- in the body -->
+<!-- Add <script> tag at the end of the <body> ... -->
 <body>
     ...
-    <script src="path_to_dom-router_file.js"></script>    
+    <script src="path_to_dom-router.js"></script>
 </body>
 
-<!-- OR in the head with `defer` attribute -->
+<!-- ... OR in the <head> -->
 <head>
-    ...
-    <script defer src="path_to_dom-router_file.js"></script>
-    ...
+    <script defer src="path_to_dom-router.js"></script>
 </head>
 ```
 
 ## Directives
 
-### `data-router`
+Directives are HTML attributes and provide router functionality in simple and
+self-descriptive way. Directives start with `data-router` and are _W3C
+Validation Service_ friendly.
 
-To initialize router, add `data-router` attribute to `html` tag:
+### `data-router`
+Main directive, enables and configures router. Without the directive, router
+will not work.
 
 ```html
 <html lang="en" data-router>
@@ -31,69 +33,98 @@ To initialize router, add `data-router` attribute to `html` tag:
 </html>
 ```
 
+Router provides two methods to toggle pages visibility:
+1. **display** - using CSS `display` property (default)
+2. **template** - using HTML `<temlate>` tag
+
+You can set it by yourself using the directive:
+```html
+<!-- Set "display" mode -->
+<html lang="en" data-router="display">
+    ...
+</html>
+
+<!-- Set "template" mode -->
+<html lang="en" data-router="template">
+    ...
+</html>
+```
+
 ### `data-router-page`
 
-To create a page, add `data-router-page` attribute to an element:
+Marks HTML tag as page. Value of the directive must be a valid path name or
+pattern. It will be converted into regular expression and matched with current
+url. Result of matching will determine if page can be visible or not. 
+
+There are a few valid path patterns:
+* static: `/users`, `/books`, `/books/titles`
+* with parameter: `/users/:id`, `/books/:genre/:title`
+* with parameter (suffix): `/videos/:id.mov`, `/images/:id.(jpeg|png)`
+* with parameter (optional): `/users/:name?`, `/books/:genre?`
+* with wildcards: `/users/*`, `/books/:genre/*`
 
 ```html
-<section data-router-page="/page-1">
-    ...
+<!-- basic path name -->
+<section data-router-page="/page">
+    <!-- page content -->
 </section>
 ```
 
 ### `data-router-link`
 
-To navigate to a page, add `data-router-link` attribute to an element:
+Marks HTML tag as link to a page. It should be an anchor, but can be any other
+valid HTML element. Directive **does not** require value for `<a>` tag if 
+`href` attribute is present. In any other case, value is required. If link
+is an anchor and has both _href_ and _directive value_ - _href_ has higher 
+priority.
 
 ```html
-<!-- using anchor -->
-<a data-router-link href="/page-1">
+<!-- on an anchor -->
+<a data-router-link href="/page">
     ...
 </a>
 
-<!-- using any other tag, e.g. button -->
-<button data-router-link="/page-1">
+<!-- on any other element -->
+<button data-router-link="/page" type="button">
     ...
 </button>
 ```
 
-On `<a>` element, there is no need to set value for `data-router-link` attribute. It can (or even should) 
-be provided using `href` attribute. If both `href` and `data-router-link` values are provided,
-`href` has higher priority.
-
 ### `data-router-title`
 
-To set a different `<title>` value, add `data-router-title` attribute to an element with `data-router-page`
-directive.
+Provides a way to change page title. It can be used in two ways:
+1. on `<html>` tag - creates title template, `{title}` is the place where page title will be put
+2. on element with `data-router-page` directive - creates title for the page
 
 ```html
-<section data-router-page="/page-1" data-router-title="Sample title to page 1">
-    ...
-</section>
-```
-
-To use title template, add `data-router-title` attribute to `<html>` element:
-```html
-<html lang="en" data-router data-router-title="{title} | DOM Router">
+<!-- create template for page title -->
+<html lang="en" data-router data-router-title="{title} | Sample website">
     ...
 </html>
-```
 
-It is needed to use `{title}` to mark where to put a page title.
+<!-- create title for page -->
+<section data-router-page="/page" data-router-title="Sample page">
+    ...    
+</section>
+```
 
 ### `data-router-cloak`
 
-To avoid blinking effect at the very first page load, add `data-router-cloak` attribute
-to every single element with `data-router-page` directive.
+Prevents blinking effect on the very first page load. By default, every page
+is visible. The directive can be used to hide them, prepare and show the only
+one which matches url.
 
+HTML file:
 ```html
-<section data-router-cloak data-router-page="/page-1">
+<!-- mark page to be hidden -->
+<section data-router-cloak data-router-page="/page">
     ...
 </section>
 ```
 
-And some CSS to hide every single page before init:
+CSS file:
 ```css
+/* hide the pages */
 [data-router-cloak] {
     display: none !important;
 }

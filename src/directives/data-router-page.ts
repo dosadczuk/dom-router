@@ -19,13 +19,15 @@ setDirective(Directive.Page, () => {
         continue
       }
 
+      const canBeVisible = isMatchingURL(route, url)
+
       switch (mode) {
         case Mode.Display:
-          toggleDisplayElement(isMatchingURL(route, url), page)
+          toggleDisplayElement(canBeVisible, page)
           break
 
         case Mode.Template:
-          toggleTemplateElement(isMatchingURL(route, url), page)
+          toggleTemplateElement(canBeVisible, page)
           break
       }
     }

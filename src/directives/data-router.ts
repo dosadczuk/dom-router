@@ -8,15 +8,13 @@ import {
   subscribe,
   subscribeToElement,
 } from '@router/events'
-import { getModes, Mode } from '@router/mode'
+import { Mode } from '@router/mode'
 import { getCurrentURL, isMatchingURL } from '@router/url'
 
 setDirective(Directive.Init, () => {
   let mode = document.documentElement.getAttribute(Directive.Init)
   if (isEmpty(mode) || !isEnumValue(Mode, mode)) {
     mode = Mode.Display // default mode
-
-    console.warn(`Setting default router mode: ${mode}. Available modes: ${getModes().join(', ')}.`)
   }
 
   // let app subscribe to "before init"

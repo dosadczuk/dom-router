@@ -89,9 +89,6 @@ var Mode;
   Mode2["Display"] = "display";
   Mode2["Template"] = "template";
 })(Mode || (Mode = {}));
-const getModes = () => {
-  return Object.values(Mode);
-};
 function parse(str, loose) {
   if (str instanceof RegExp)
     return { keys: false, pattern: str };
@@ -128,7 +125,6 @@ setDirective(Directive.Init, () => {
   let mode = document.documentElement.getAttribute(Directive.Init);
   if (isEmpty(mode) || !isEnumValue(Mode, mode)) {
     mode = Mode.Display;
-    console.warn(`Setting default router mode: ${mode}. Available modes: ${getModes().join(", ")}.`);
   }
   dispatchToElement(document, ExternalEvent.Initialize);
   subscribe(InternalEvent.PageChange, (route) => {
@@ -245,12 +241,13 @@ setDirective(Directive.Page, () => {
       if (route == null) {
         continue;
       }
+      const canBeVisible = isMatchingURL(route, url);
       switch (mode) {
         case Mode.Display:
-          toggleDisplayElement(isMatchingURL(route, url), page);
+          toggleDisplayElement(canBeVisible, page);
           break;
         case Mode.Template:
-          toggleTemplateElement(isMatchingURL(route, url), page);
+          toggleTemplateElement(canBeVisible, page);
           break;
       }
     }
