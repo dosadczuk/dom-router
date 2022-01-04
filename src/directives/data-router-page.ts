@@ -1,6 +1,6 @@
 import { Directive, setDirective } from '@router/directives'
 import { getHTMLElementsWithDirective, toggleDisplayElement, toggleTemplateElement } from '@router/dom'
-import { dispatch, Event, subscribe } from '@router/events'
+import { dispatchToElement, ExternalEvent, InternalEvent, subscribe } from '@router/events'
 import { Mode } from '@router/mode'
 import { getCurrentURL, isMatchingURL } from '@router/url'
 
@@ -10,8 +10,7 @@ setDirective(Directive.Page, () => {
     return
   }
 
-  subscribe(document, Event.ViewChange, (event) => {
-    const { detail: mode } = event as CustomEvent
+  subscribe(InternalEvent.ViewChange, (mode: string) => {
     const url = getCurrentURL()
 
     for (const page of pages) {
@@ -31,6 +30,6 @@ setDirective(Directive.Page, () => {
       }
     }
 
-    dispatch(document, Event.ViewChanged)
+    dispatchToElement(document, ExternalEvent.ViewChanged)
   })
 })

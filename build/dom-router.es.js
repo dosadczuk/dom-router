@@ -41,21 +41,42 @@ const isHTMLTemplateElement = (element) => {
 const isHTMLAnchorElement = (element) => {
   return element instanceof HTMLAnchorElement;
 };
-var Event;
-(function(Event2) {
-  Event2["Initialize"] = "router:initialize";
-  Event2["Initialized"] = "router:initialized";
-  Event2["PageChange"] = "router:page-change";
-  Event2["ViewChange"] = "router:view-change";
-  Event2["ViewChanged"] = "router:view-changed";
-})(Event || (Event = {}));
-const subscribe = (element, event, handler) => {
+var InternalEvent;
+(function(InternalEvent2) {
+  InternalEvent2["PageChange"] = "page-change";
+  InternalEvent2["ViewChange"] = "view-change";
+})(InternalEvent || (InternalEvent = {}));
+var ExternalEvent;
+(function(ExternalEvent2) {
+  ExternalEvent2["Initialize"] = "router:initialize";
+  ExternalEvent2["Initialized"] = "router:initialized";
+  ExternalEvent2["ViewChanged"] = "router:view-changed";
+})(ExternalEvent || (ExternalEvent = {}));
+const EventBus = new Map();
+const subscribe = (event, handler) => {
+  if (!EventBus.has(event)) {
+    EventBus.set(event, new Set());
+  }
+  EventBus.get(event).add(handler);
+  return () => {
+    if (EventBus.has(event)) {
+      EventBus.get(event).delete(handler);
+    }
+  };
+};
+const dispatch = (event, data) => {
+  var _a;
+  (_a = EventBus.get(event)) == null ? void 0 : _a.forEach((handler) => {
+    handler(data);
+  });
+};
+const subscribeToElement = (element, event, handler) => {
   element.addEventListener(event, handler);
   return () => {
     element.removeEventListener(event, handler);
   };
 };
-const dispatch = (element, event, data) => {
+const dispatchToElement = (element, event, data) => {
   element.dispatchEvent(new CustomEvent(event, {
     detail: data,
     bubbles: true,
@@ -109,20 +130,19 @@ setDirective(Directive.Init, () => {
     mode = Mode.Display;
     console.warn(`Setting default router mode: ${mode}. Available modes: ${getModes().join(", ")}.`);
   }
-  dispatch(document, Event.Initialize);
-  subscribe(document, Event.PageChange, (event) => {
-    const { detail: route } = event;
+  dispatchToElement(document, ExternalEvent.Initialize);
+  subscribe(InternalEvent.PageChange, (route) => {
     if (isMatchingURL(route, getCurrentURL())) {
       return;
     }
     history.pushState(null, "", route);
-    dispatch(document, Event.ViewChange, mode);
+    dispatch(InternalEvent.ViewChange, mode);
   });
-  subscribe(window, "popstate", () => {
-    dispatch(document, Event.ViewChange, mode);
+  subscribeToElement(window, "popstate", () => {
+    dispatch(InternalEvent.ViewChange, mode);
   });
-  dispatch(document, Event.ViewChange, mode);
-  dispatch(document, Event.Initialized);
+  dispatch(InternalEvent.ViewChange, mode);
+  dispatchToElement(document, ExternalEvent.Initialized);
 });
 const getHTMLElementsWithDirective = (directive) => {
   const elements = document.querySelectorAll(`[${directive}]`);
@@ -209,7 +229,7 @@ setDirective(Directive.Link, () => {
     }
     link.addEventListener("click", (event) => {
       event.preventDefault();
-      dispatch(document, Event.PageChange, route);
+      dispatch(InternalEvent.PageChange, route);
     });
   });
 });
@@ -218,8 +238,7 @@ setDirective(Directive.Page, () => {
   if (pages.length === 0) {
     return;
   }
-  subscribe(document, Event.ViewChange, (event) => {
-    const { detail: mode } = event;
+  subscribe(InternalEvent.ViewChange, (mode) => {
     const url = getCurrentURL();
     for (const page of pages) {
       const route = page.directives.get(Directive.Page);
@@ -235,7 +254,7 @@ setDirective(Directive.Page, () => {
           break;
       }
     }
-    dispatch(document, Event.ViewChanged);
+    dispatchToElement(document, ExternalEvent.ViewChanged);
   });
 });
 setDirective(Directive.Title, () => {
@@ -244,7 +263,7 @@ setDirective(Directive.Title, () => {
     return;
   }
   const titleTemplate = document.documentElement.getAttribute(Directive.Title);
-  subscribe(document, Event.ViewChange, () => {
+  subscribe(InternalEvent.ViewChange, () => {
     const url = getCurrentURL();
     for (const element of elementsWithTitle) {
       const route = element.directives.get(Directive.Page);

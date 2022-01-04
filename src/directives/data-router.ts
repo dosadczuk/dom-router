@@ -1,6 +1,13 @@
 import { isEmpty, isEnumValue } from '@router/asserts'
 import { Directive, setDirective } from '@router/directives'
-import { dispatch, Event, subscribe } from '@router/events'
+import {
+  dispatch,
+  dispatchToElement,
+  ExternalEvent,
+  InternalEvent,
+  subscribe,
+  subscribeToElement,
+} from '@router/events'
 import { getModes, Mode } from '@router/mode'
 import { getCurrentURL, isMatchingURL } from '@router/url'
 
@@ -13,12 +20,10 @@ setDirective(Directive.Init, () => {
   }
 
   // let app subscribe to "before init"
-  dispatch(document, Event.Initialize)
+  dispatchToElement(document, ExternalEvent.Initialize)
 
   // update forced with link
-  subscribe(document, Event.PageChange, (event) => {
-    const { detail: route } = event as CustomEvent
-
+  subscribe(InternalEvent.PageChange, (route) => {
     // FIXME: In theory, may cause bugs
     if (isMatchingURL(route, getCurrentURL())) {
       return // same page, no need to change
@@ -26,17 +31,17 @@ setDirective(Directive.Init, () => {
 
     history.pushState(null, '', route)
 
-    dispatch(document, Event.ViewChange, mode)
+    dispatch(InternalEvent.ViewChange, mode)
   })
 
   // update forced with History API
-  subscribe(window, 'popstate', () => {
-    dispatch(document, Event.ViewChange, mode)
+  subscribeToElement(window, 'popstate', () => {
+    dispatch(InternalEvent.ViewChange, mode)
   })
 
   // force update view, let event set up app
-  dispatch(document, Event.ViewChange, mode)
+  dispatch(InternalEvent.ViewChange, mode)
 
   // let app subscribe to "after init"
-  dispatch(document, Event.Initialized)
+  dispatchToElement(document, ExternalEvent.Initialized)
 })

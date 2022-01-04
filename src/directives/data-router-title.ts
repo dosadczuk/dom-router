@@ -1,6 +1,6 @@
 import { Directive, setDirective } from '@router/directives'
 import { getHTMLElementsWithDirective } from '@router/dom'
-import { Event, subscribe } from '@router/events'
+import { InternalEvent, subscribe } from '@router/events'
 import { getCurrentURL, isMatchingURL } from '@router/url'
 
 setDirective(Directive.Title, () => {
@@ -11,7 +11,7 @@ setDirective(Directive.Title, () => {
 
   const titleTemplate = document.documentElement.getAttribute(Directive.Title)
 
-  subscribe(document, Event.ViewChange, () => {
+  subscribe(InternalEvent.ViewChange, () => {
     const url = getCurrentURL()
 
     for (const element of elementsWithTitle) {

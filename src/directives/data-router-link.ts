@@ -1,7 +1,7 @@
 import { isEmpty, isHTMLAnchorElement } from '@router/asserts'
 import { Directive, setDirective } from '@router/directives'
 import { getHTMLElementsWithDirective } from '@router/dom'
-import { dispatch, Event } from '@router/events'
+import { dispatch, InternalEvent } from '@router/events'
 
 setDirective(Directive.Link, () => {
   const links = getHTMLElementsWithDirective(Directive.Link)
@@ -25,7 +25,7 @@ setDirective(Directive.Link, () => {
     link.addEventListener('click', event => {
       event.preventDefault()
 
-      dispatch(document, Event.PageChange, route)
+      dispatch(InternalEvent.PageChange, route)
     })
   })
 })
