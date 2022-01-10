@@ -4,16 +4,39 @@ import { dispatchToElement, ExternalEvent, InternalEvent, subscribe } from '@rou
 import { Mode } from '@router/mode'
 import { getCurrentURL, isMatchingURL } from '@router/url'
 
+/**
+ * Directive:   data-router-page
+ *
+ * Description:
+ *  Marks HTML tag as page. Value of the directive must be a valid path name or pattern.
+ *  It will be converted into regular expression and matched with current url.
+ *  Result of matching will determine if page can be visible or not.
+ *
+ *  There are a few valid path patterns:
+ *    - static                    : /users, /books, /books/titles
+ *    - with parameter            : /users/:id, /books/:genre/:title
+ *    - with parameter (suffix)   : /videos/:id.mov, /images/:id.(jpeg|png)
+ *    - with parameter(optional)  : /users/:name?, /books/:genre?
+ *    - with wildcards            : /users/*, /books/:genre/*
+ *
+ * Values:
+ *  - page path name
+ *
+ * Usage:
+ *  <section data-router-page="/page">
+ *    <!-- page content -->
+ *  </section>
+ */
 setDirective(Directive.Page, () => {
-  const pages = getHTMLElementsWithDirective(Directive.Page)
-  if (pages.length === 0) {
+  const elementsWithPage = getHTMLElementsWithDirective(Directive.Page)
+  if (elementsWithPage.length === 0) {
     return
   }
 
   subscribe(InternalEvent.ViewChange, (mode: string) => {
     const url = getCurrentURL()
 
-    for (const page of pages) {
+    for (const page of elementsWithPage) {
       const route = page.directives.get(Directive.Page)
       if (route == null) {
         continue

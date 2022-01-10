@@ -35,7 +35,7 @@ will not work.
 
 Router provides two methods to toggle pages visibility:
 1. **display** - using CSS `display` property (default)
-2. **template** - using HTML `<temlate>` tag
+2. **template** - using HTML `<template>` tag
 
 You can set it by yourself using the directive:
 ```html

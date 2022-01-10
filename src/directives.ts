@@ -16,15 +16,22 @@ export const setDirective = (name: string, factory: Function): void => {
 }
 
 /**
+ * Set up directives in given order.
+ */
+export const setUpDirectives = (names: string[]): void => {
+  names.forEach(name => setUpDirective(name))
+}
+
+/**
  * Set up directive with registered factory.
  */
-export const runDirective = (name: string): void => {
-  const directiveFactory = directives.get(name)
-  if (directiveFactory == null) {
+export const setUpDirective = (name: string): void => {
+  const factory = directives.get(name)
+  if (factory == null) {
     return
   }
 
-  directiveFactory()
+  factory()
 }
 
 /**

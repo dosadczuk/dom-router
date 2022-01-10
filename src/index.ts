@@ -1,4 +1,4 @@
-import { Directive, runDirective } from '@router/directives'
+import { Directive, setUpDirectives } from '@router/directives'
 import '@router/directives/index'
 
 (() => {
@@ -7,11 +7,11 @@ import '@router/directives/index'
     return console.warn(`Router cannot be initialized. Add '${Directive.Init}' attribute to <html></html> tag.`)
   }
 
-  runDirective(Directive.Cloak)
-  runDirective(Directive.Title)
-  runDirective(Directive.Page)
-  runDirective(Directive.Link)
-
-  // Init at the end
-  runDirective(Directive.Init)
+  setUpDirectives([
+    Directive.Cloak,
+    Directive.Title,
+    Directive.Page,
+    Directive.Link,
+    Directive.Init
+  ])
 })()
