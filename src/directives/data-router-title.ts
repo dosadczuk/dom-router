@@ -2,6 +2,7 @@ import { Directive, setDirective } from '@router/directives'
 import { getHTMLElementsWithDirective } from '@router/dom'
 import { InternalEvent, subscribe } from '@router/events'
 import { getCurrentURL, isMatchingURL } from '@router/url'
+import { isEmpty } from "@router/asserts";
 
 /**
  * Directive:   data-router-title
@@ -38,9 +39,12 @@ setDirective(Directive.Title, () => {
 
     for (const element of elementsWithTitle) {
       const route = element.directives.get(Directive.Page)
-      const title = element.directives.get(Directive.Title)
+      if (route == null || isEmpty(route)) {
+        continue
+      }
 
-      if (route == null || title == null) {
+      const title = element.directives.get(Directive.Title)
+      if (title == null || isEmpty(title)) {
         continue
       }
 
