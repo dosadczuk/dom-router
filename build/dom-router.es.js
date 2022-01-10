@@ -4,18 +4,22 @@ var Directive;
   Directive2["Cloak"] = "data-router-cloak";
   Directive2["Title"] = "data-router-title";
   Directive2["Link"] = "data-router-link";
+  Directive2["LinkActive"] = "data-router-link-active";
   Directive2["Page"] = "data-router-page";
 })(Directive || (Directive = {}));
 const directives = new Map();
 const setDirective = (name, factory) => {
   directives.set(name, factory);
 };
-const runDirective = (name) => {
-  const directiveFactory = directives.get(name);
-  if (directiveFactory == null) {
+const setUpDirectives = (names) => {
+  names.forEach((name) => setUpDirective(name));
+};
+const setUpDirective = (name) => {
+  const factory = directives.get(name);
+  if (factory == null) {
     return;
   }
-  directiveFactory();
+  factory();
 };
 const isDirective = (name) => {
   return getDirectives().includes(name);
@@ -123,7 +127,7 @@ const isMatchingURL = (pattern, url = getCurrentURL()) => {
 };
 setDirective(Directive.Init, () => {
   let mode = document.documentElement.getAttribute(Directive.Init);
-  if (isEmpty(mode) || !isEnumValue(Mode, mode)) {
+  if (!isEnumValue(Mode, mode)) {
     mode = Mode.Display;
   }
   dispatchToElement(document, ExternalEvent.Initialize);
@@ -156,20 +160,20 @@ const getHTMLElementsWithDirective = (directive) => {
     return { content: element, directives: directives2 };
   });
 };
-const toggleDisplayElement = (canBeVisible, element) => {
+const toggleDisplayElement = (element, canBeVisible) => {
   if (canBeVisible) {
     displayShowElement(element);
   } else {
     displayHideElement(element);
   }
 };
-const displayShowElement = ({ content }) => {
-  content.style.display = "revert";
+const displayShowElement = ({ content: element }) => {
+  element.style.display = "revert";
 };
-const displayHideElement = ({ content }) => {
-  content.style.display = "none";
+const displayHideElement = ({ content: element }) => {
+  element.style.display = "none";
 };
-const toggleTemplateElement = (canBeVisible, element) => {
+const toggleTemplateElement = (element, canBeVisible) => {
   if (canBeVisible) {
     replaceTemplateWithElement(element);
   } else {
@@ -201,6 +205,12 @@ const replaceElementWithTemplate = (element) => {
   element.content.replaceWith(template);
   element.content = template;
 };
+const appendClassNamesToElement = (element, classNames) => {
+  element.content.classList.add(...classNames);
+};
+const removeClassNamesFromElement = (element, classNames) => {
+  element.content.classList.remove(...classNames);
+};
 setDirective(Directive.Cloak, () => {
   const elementsWithCloak = getHTMLElementsWithDirective(Directive.Cloak);
   if (elementsWithCloak.length === 0) {
@@ -211,43 +221,76 @@ setDirective(Directive.Cloak, () => {
   }
 });
 setDirective(Directive.Link, () => {
-  const links = getHTMLElementsWithDirective(Directive.Link);
-  if (links.length === 0) {
+  const elementsWithLink = getHTMLElementsWithDirective(Directive.Link);
+  if (elementsWithLink.length === 0) {
     return;
   }
-  links.forEach(({ content: link, directives: directives2 }) => {
-    let route = directives2.get(Directive.Link);
-    if (isEmpty(route) && isHTMLAnchorElement(link)) {
-      route = link.href;
-    }
+  for (const element of elementsWithLink) {
+    const route = getRouteFromLink(element);
     if (route == null) {
-      return;
+      continue;
     }
-    link.addEventListener("click", (event) => {
+    element.content.addEventListener("click", (event) => {
       event.preventDefault();
       dispatch(InternalEvent.PageChange, route);
     });
+  }
+});
+const getRouteFromLink = ({ content: link, directives: directives2 }) => {
+  var _a;
+  const route = directives2.get(Directive.Link);
+  if (route != null && !isEmpty(route)) {
+    return route;
+  }
+  if (isHTMLAnchorElement(link)) {
+    return (_a = link.pathname) != null ? _a : null;
+  }
+  return null;
+};
+setDirective(Directive.LinkActive, () => {
+  const elementsWithLinkActive = getHTMLElementsWithDirective(Directive.LinkActive);
+  if (elementsWithLinkActive.length === 0) {
+    return;
+  }
+  subscribe(InternalEvent.ViewChange, () => {
+    const url = getCurrentURL();
+    for (const element of elementsWithLinkActive) {
+      const route = getRouteFromLink(element);
+      if (route == null) {
+        continue;
+      }
+      let className = element.directives.get(Directive.LinkActive);
+      if (className == null || isEmpty(className)) {
+        className = "active";
+      }
+      const classNames = className.split(" ");
+      if (isMatchingURL(route, url)) {
+        appendClassNamesToElement(element, classNames);
+      } else {
+        removeClassNamesFromElement(element, classNames);
+      }
+    }
   });
 });
 setDirective(Directive.Page, () => {
-  const pages = getHTMLElementsWithDirective(Directive.Page);
-  if (pages.length === 0) {
+  const elementsWithPage = getHTMLElementsWithDirective(Directive.Page);
+  if (elementsWithPage.length === 0) {
     return;
   }
   subscribe(InternalEvent.ViewChange, (mode) => {
     const url = getCurrentURL();
-    for (const page of pages) {
-      const route = page.directives.get(Directive.Page);
-      if (route == null) {
+    for (const element of elementsWithPage) {
+      const route = element.directives.get(Directive.Page);
+      if (route == null || isEmpty(route)) {
         continue;
       }
       const canBeVisible = isMatchingURL(route, url);
       switch (mode) {
         case Mode.Display:
-          toggleDisplayElement(canBeVisible, page);
+          toggleDisplayElement(element, canBeVisible);
           break;
         case Mode.Template:
-          toggleTemplateElement(canBeVisible, page);
+          toggleTemplateElement(element, canBeVisible);
           break;
       }
     }
@@ -284,9 +327,12 @@ setDirective(Directive.Title, () => {
   if (!canInitialize) {
     return console.warn(`Router cannot be initialized. Add '${Directive.Init}' attribute to <html></html> tag.`);
   }
-  runDirective(Directive.Cloak);
-  runDirective(Directive.Title);
-  runDirective(Directive.Page);
-  runDirective(Directive.Link);
-  runDirective(Directive.Init);
+  setUpDirectives([
+    Directive.Cloak,
+    Directive.Title,
+    Directive.Page,
+    Directive.Link,
+    Directive.LinkActive,
+    Directive.Init
+  ]);
 })();
