@@ -1,10 +1,6 @@
 import { isHTMLTemplateElement } from '@router/asserts'
 import { isDirective } from '@router/directives'
-
-export type HTMLElementWithDirectives = {
-  content: HTMLElement;
-  directives: ReadonlyMap<string, string>;
-}
+import type { HTMLElementWithDirectives, Nullable } from "@router/types";
 
 /**
  * Get HTMLElements with given directive.
@@ -32,7 +28,7 @@ export const getHTMLElementsWithDirective = (directive: string): HTMLElementWith
 /**
  * Toggle element visibility using CSS display property.
  */
-export const toggleDisplayElement = (canBeVisible: boolean, element: HTMLElementWithDirectives): void => {
+export const toggleDisplayElement = (element: HTMLElementWithDirectives, canBeVisible: boolean): void => {
   if (canBeVisible) {
     displayShowElement(element)
   } else {
@@ -43,21 +39,21 @@ export const toggleDisplayElement = (canBeVisible: boolean, element: HTMLElement
 /**
  * Show element using CSS display property.
  */
-export const displayShowElement = ({ content }: HTMLElementWithDirectives): void => {
-  content.style.display = 'revert'
+export const displayShowElement = ({ content: element }: HTMLElementWithDirectives): void => {
+  element.style.display = 'revert'
 }
 
 /**
  * Hide element using CSS display property.
  */
-export const displayHideElement = ({ content }: HTMLElementWithDirectives): void => {
-  content.style.display = 'none'
+export const displayHideElement = ({ content: element }: HTMLElementWithDirectives): void => {
+  element.style.display = 'none'
 }
 
 /**
  * Toggle element visibility using HTMLTemplateElement.
  */
-export const toggleTemplateElement = (canBeVisible: boolean, element: HTMLElementWithDirectives): void => {
+export const toggleTemplateElement = (element: HTMLElementWithDirectives, canBeVisible: boolean): void => {
   if (canBeVisible) {
     replaceTemplateWithElement(element)
   } else {
@@ -75,7 +71,7 @@ export const replaceTemplateWithElement = (element: HTMLElementWithDirectives): 
     return // already shown
   }
 
-  const content = template.content.firstElementChild as HTMLElement | null
+  const content = template.content.firstElementChild as Nullable<HTMLElement>
   if (content == null) {
     return // nothing to replace with
   }
@@ -104,4 +100,18 @@ export const replaceElementWithTemplate = (element: HTMLElementWithDirectives): 
 
   element.content.replaceWith(template)
   element.content = template
+}
+
+/**
+ * Append class names to HTMLElement.
+ */
+export const appendClassNamesToElement = (element: HTMLElementWithDirectives, classNames: string[]): void => {
+  element.content.classList.add(...classNames)
+}
+
+/**
+ * Remove class names from HTMLElement.
+ */
+export const removeClassNamesFromElement = (element: HTMLElementWithDirectives, classNames: string[]): void => {
+  element.content.classList.remove(...classNames)
 }

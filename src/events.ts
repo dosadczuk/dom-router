@@ -1,3 +1,5 @@
+import type { Subscriber, Unsubscriber } from "@router/types";
+
 export enum InternalEvent {
   PageChange = 'page-change',
   ViewChange = 'view-change'
@@ -9,9 +11,6 @@ export enum ExternalEvent {
 
   ViewChanged = 'router:view-changed'
 }
-
-type Subscriber = (data?: any) => void;
-type Unsubscriber = () => void;
 
 const EventBus = new Map<string, Set<Subscriber>>()
 
@@ -36,13 +35,15 @@ export const subscribe = (event: string, handler: Subscriber): Unsubscriber => {
  * Dispatch internal event.
  */
 export const dispatch = (event: string, data?: any): void => {
-  EventBus.get(event)?.forEach(handler => { handler(data) })
+  EventBus.get(event)?.forEach(handler => {
+    handler(data)
+  })
 }
 
 /**
  * Subscribe to external event with given handler.
  */
-export const subscribeToElement = (element: EventTarget, event: string, handler: EventListenerOrEventListenerObject): Unsubscriber => {
+export const subscribeToElement = (element: EventTarget, event: string, handler: EventListener): Unsubscriber => {
   element.addEventListener(event, handler)
 
   return () => {

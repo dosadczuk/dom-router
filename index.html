@@ -11,14 +11,19 @@
         [data-router-cloak] {
             display: none;
         }
+
+        .active { background: black; color: white }
+        .page-1-active { background: red; color: white; }
+        .page-2-active { background: red; color: blue; }
+        .page-3-active { background: red; color: yellow; }
     </style>
   </head>
   <body>
     <nav>
-      <a data-router-link href="/">Index</a>
-      <a data-router-link href="/page1">Page 1</a>
-      <a data-router-link href="/page2">Page 2</a>
-      <a data-router-link href="/page3">Page 3</a>
+      <a data-router-link href="/" data-router-link-active>Index</a>
+      <a data-router-link href="/page1" data-router-link-active="page-1-active">Page 1</a>
+      <a data-router-link href="/page2" data-router-link-active="page-2-active">Page 2</a>
+      <a data-router-link href="/page3" data-router-link-active="page-3-active">Page 3</a>
       <button data-router-link="/page3/1">Page 3 (id=1)</button>
     </nav>
 

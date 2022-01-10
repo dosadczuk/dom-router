@@ -1,4 +1,4 @@
-import { clearDirectives, setDirective, getDirectives, isDirective } from '@router/directives'
+import { clearDirectives, getDirectives, isDirective, setDirective } from '@router/directives'
 import { afterEach, describe, expect, fn, it } from 'vitest'
 
 describe('directives', () => {

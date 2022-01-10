@@ -3,6 +3,7 @@ import { getHTMLElementsWithDirective, toggleDisplayElement, toggleTemplateEleme
 import { dispatchToElement, ExternalEvent, InternalEvent, subscribe } from '@router/events'
 import { Mode } from '@router/mode'
 import { getCurrentURL, isMatchingURL } from '@router/url'
+import { isEmpty } from "@router/asserts";
 
 /**
  * Directive:   data-router-page
@@ -36,9 +37,9 @@ setDirective(Directive.Page, () => {
   subscribe(InternalEvent.ViewChange, (mode: string) => {
     const url = getCurrentURL()
 
-    for (const page of elementsWithPage) {
-      const route = page.directives.get(Directive.Page)
-      if (route == null) {
+    for (const element of elementsWithPage) {
+      const route = element.directives.get(Directive.Page)
+      if (route == null || isEmpty(route)) {
         continue
       }
 
@@ -46,11 +47,11 @@ setDirective(Directive.Page, () => {
 
       switch (mode) {
         case Mode.Display:
-          toggleDisplayElement(canBeVisible, page)
+          toggleDisplayElement(element, canBeVisible)
           break
 
         case Mode.Template:
-          toggleTemplateElement(canBeVisible, page)
+          toggleTemplateElement(element, canBeVisible)
           break
       }
     }

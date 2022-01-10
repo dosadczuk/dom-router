@@ -3,6 +3,7 @@ export enum Directive {
   Cloak = 'data-router-cloak',
   Title = 'data-router-title',
   Link = 'data-router-link',
+  LinkActive = 'data-router-link-active',
   Page = 'data-router-page',
 }
 

@@ -12,6 +12,7 @@ import '@router/directives/index'
     Directive.Title,
     Directive.Page,
     Directive.Link,
+    Directive.LinkActive,
     Directive.Init
   ])
 })()

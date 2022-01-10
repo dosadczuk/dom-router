@@ -1,4 +1,4 @@
-import { isEmpty, isEnumValue } from '@router/asserts'
+import { isEnumValue } from '@router/asserts'
 import { Directive, setDirective } from '@router/directives'
 import {
   dispatch,
@@ -28,7 +28,7 @@ import { getCurrentURL, isMatchingURL } from '@router/url'
  */
 setDirective(Directive.Init, () => {
   let mode = document.documentElement.getAttribute(Directive.Init)
-  if (isEmpty(mode) || !isEnumValue(Mode, mode)) {
+  if (!isEnumValue(Mode, mode)) {
     mode = Mode.Display // default mode
   }
 

@@ -2,6 +2,7 @@ import { isEmpty, isHTMLAnchorElement } from '@router/asserts'
 import { Directive, setDirective } from '@router/directives'
 import { getHTMLElementsWithDirective } from '@router/dom'
 import { dispatch, InternalEvent } from '@router/events'
+import type { HTMLElementWithDirectives, Nullable } from "@router/types";
 
 /**
  * Directive:   data-router-link
@@ -32,23 +33,29 @@ setDirective(Directive.Link, () => {
     return
   }
 
-  for (const { content: link, directives } of elementsWithLink) {
-    let route = directives.get(Directive.Link)
-
-    // if empty, maybe it's an anchor
-    if (isEmpty(route) && isHTMLAnchorElement(link)) {
-      route = link.href
-    }
-
-    // if empty, no way to determine route
+  for (const element of elementsWithLink) {
+    const route = getRouteFromLink(element)
     if (route == null) {
-      continue;
+      continue
     }
 
-    link.addEventListener('click', event => {
+    element.content.addEventListener('click', event => {
       event.preventDefault()
 
       dispatch(InternalEvent.PageChange, route)
     })
   }
 })
+
+export const getRouteFromLink = ({ content: link, directives }: HTMLElementWithDirectives): Nullable<string> => {
+  const route = directives.get(Directive.Link)
+  if (route != null && !isEmpty(route)) {
+    return route
+  }
+
+  if (isHTMLAnchorElement(link)) {
+    return link.pathname ?? null
+  }
+
+  return null
+}
