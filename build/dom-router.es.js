@@ -1,25 +1,15 @@
-var Directive;
-(function(Directive2) {
-  Directive2["Init"] = "data-router";
-  Directive2["Cloak"] = "data-router-cloak";
-  Directive2["Title"] = "data-router-title";
-  Directive2["Link"] = "data-router-link";
-  Directive2["LinkActive"] = "data-router-link-active";
-  Directive2["Page"] = "data-router-page";
-})(Directive || (Directive = {}));
 const directives = new Map();
-const setDirective = (name, factory) => {
+const defineDirective = (name, factory) => {
   directives.set(name, factory);
 };
-const setUpDirectives = (names) => {
-  names.forEach((name) => setUpDirective(name));
-};
-const setUpDirective = (name) => {
-  const factory = directives.get(name);
-  if (factory == null) {
-    return;
+const setUpDirectives = (elements, names) => {
+  for (const name of names) {
+    const factory = directives.get(name);
+    if (factory == null) {
+      continue;
+    }
+    factory(elements);
   }
-  factory();
 };
 const isDirective = (name) => {
   return getDirectives().includes(name);
@@ -27,14 +17,14 @@ const isDirective = (name) => {
 const getDirectives = () => {
   return Array.from(directives.keys());
 };
-const isEmpty = (value) => {
-  if (isString(value)) {
-    return value.length == 0;
-  }
-  return value == null;
+const getDirectivesAsSelector = () => {
+  return getDirectives().map((it) => `[${it}]`).join(", ");
 };
 const isString = (value) => {
   return typeof value === "string";
+};
+const isEmptyString = (value) => {
+  return value == null || isString(value) && value.length === 0;
 };
 const isEnumValue = (enumObject, value) => {
   return Object.values(enumObject).includes(value);
@@ -45,6 +35,15 @@ const isHTMLTemplateElement = (element) => {
 const isHTMLAnchorElement = (element) => {
   return element instanceof HTMLAnchorElement;
 };
+var Directive;
+(function(Directive2) {
+  Directive2["Init"] = "data-router";
+  Directive2["Cloak"] = "data-router-cloak";
+  Directive2["Title"] = "data-router-title";
+  Directive2["Link"] = "data-router-link";
+  Directive2["LinkActive"] = "data-router-link-active";
+  Directive2["Page"] = "data-router-page";
+})(Directive || (Directive = {}));
 var InternalEvent;
 (function(InternalEvent2) {
   InternalEvent2["PageChange"] = "page-change";
@@ -56,6 +55,11 @@ var ExternalEvent;
   ExternalEvent2["Initialized"] = "router:initialized";
   ExternalEvent2["ViewChanged"] = "router:view-changed";
 })(ExternalEvent || (ExternalEvent = {}));
+var Mode;
+(function(Mode2) {
+  Mode2["Display"] = "display";
+  Mode2["Template"] = "template";
+})(Mode || (Mode = {}));
 const EventBus = new Map();
 const subscribe = (event, handler) => {
   if (!EventBus.has(event)) {
@@ -70,9 +74,7 @@ const subscribe = (event, handler) => {
 };
 const dispatch = (event, data) => {
   var _a;
-  (_a = EventBus.get(event)) == null ? void 0 : _a.forEach((handler) => {
-    handler(data);
-  });
+  (_a = EventBus.get(event)) == null ? void 0 : _a.forEach((handler) => handler(data));
 };
 const subscribeToElement = (element, event, handler) => {
   element.addEventListener(event, handler);
@@ -88,11 +90,12 @@ const dispatchToElement = (element, event, data) => {
     cancelable: true
   }));
 };
-var Mode;
-(function(Mode2) {
-  Mode2["Display"] = "display";
-  Mode2["Template"] = "template";
-})(Mode || (Mode = {}));
+const prevented = (handler) => {
+  return (event) => {
+    event.preventDefault();
+    handler(event);
+  };
+};
 function parse(str, loose) {
   if (str instanceof RegExp)
     return { keys: false, pattern: str };
@@ -125,7 +128,7 @@ const getCurrentURL = () => {
 const isMatchingURL = (pattern, url = getCurrentURL()) => {
   return parse(pattern).pattern.test(url.pathname);
 };
-setDirective(Directive.Init, () => {
+defineDirective(Directive.Init, () => {
   let mode = document.documentElement.getAttribute(Directive.Init);
   if (!isEnumValue(Mode, mode)) {
     mode = Mode.Display;
@@ -142,10 +145,11 @@ setDirective(Directive.Init, () => {
     dispatch(InternalEvent.ViewChange, mode);
   });
   dispatch(InternalEvent.ViewChange, mode);
+  document.documentElement.removeAttribute(Directive.Init);
   dispatchToElement(document, ExternalEvent.Initialized);
 });
-const getHTMLElementsWithDirective = (directive) => {
-  const elements = document.querySelectorAll(`[${directive}]`);
+const getHTMLElementsWithAnyDirective = () => {
+  const elements = document.querySelectorAll(getDirectivesAsSelector());
   if (elements.length === 0) {
     return [];
   }
@@ -159,6 +163,12 @@ const getHTMLElementsWithDirective = (directive) => {
     }
     return { content: element, directives: directives2 };
   });
+};
+const getHTMLElementsWithDirective = (elements, directive) => {
+  return elements.filter((element) => element.directives.has(directive));
+};
+const removeDirectiveFromHTMLElements = (elements, directive) => {
+  elements.forEach(({ content: element }) => element.removeAttribute(directive));
 };
 const toggleDisplayElement = (element, canBeVisible) => {
   if (canBeVisible) {
@@ -193,15 +203,12 @@ const replaceTemplateWithElement = (element) => {
   element.content = content;
 };
 const replaceElementWithTemplate = (element) => {
-  const { content, directives: directives2 } = element;
+  const { content } = element;
   if (isHTMLTemplateElement(content)) {
     return;
   }
   const template = document.createElement("template");
   template.content.append(content.cloneNode(true));
-  directives2.forEach((value, name) => {
-    template.setAttribute(name, value);
-  });
   element.content.replaceWith(template);
   element.content = template;
 };
@@ -211,35 +218,33 @@ const appendClassNamesToElement = (element, classNames) => {
 const removeClassNamesFromElement = (element, classNames) => {
   element.content.classList.remove(...classNames);
 };
-setDirective(Directive.Cloak, () => {
-  const elementsWithCloak = getHTMLElementsWithDirective(Directive.Cloak);
+defineDirective(Directive.Cloak, (elements) => {
+  const elementsWithCloak = getHTMLElementsWithDirective(elements, Directive.Cloak);
   if (elementsWithCloak.length === 0) {
     return;
   }
-  for (const element of elementsWithCloak) {
-    element.content.removeAttribute(Directive.Cloak);
-  }
+  removeDirectiveFromHTMLElements(elementsWithCloak, Directive.Cloak);
 });
-setDirective(Directive.Link, () => {
-  const elementsWithLink = getHTMLElementsWithDirective(Directive.Link);
+defineDirective(Directive.Link, (elements) => {
+  const elementsWithLink = getHTMLElementsWithDirective(elements, Directive.Link);
   if (elementsWithLink.length === 0) {
     return;
   }
-  for (const element of elementsWithLink) {
-    const route = getRouteFromLink(element);
+  for (const link of elementsWithLink) {
+    const route = getRouteFromLink(link);
     if (route == null) {
       continue;
     }
-    element.content.addEventListener("click", (event) => {
-      event.preventDefault();
+    link.content.addEventListener("click", prevented(() => {
       dispatch(InternalEvent.PageChange, route);
-    });
+    }));
   }
+  removeDirectiveFromHTMLElements(elementsWithLink, Directive.Link);
 });
 const getRouteFromLink = ({ content: link, directives: directives2 }) => {
   var _a;
   const route = directives2.get(Directive.Link);
-  if (route != null && !isEmpty(route)) {
+  if (!isEmptyString(route)) {
     return route;
   }
   if (isHTMLAnchorElement(link)) {
@@ -247,68 +252,72 @@ const getRouteFromLink = ({ content: link, directives: directives2 }) => {
   }
   return null;
 };
-setDirective(Directive.LinkActive, () => {
-  const elementsWithLinkActive = getHTMLElementsWithDirective(Directive.LinkActive);
+defineDirective(Directive.LinkActive, (elements) => {
+  const elementsWithLinkActive = getHTMLElementsWithDirective(elements, Directive.LinkActive);
   if (elementsWithLinkActive.length === 0) {
     return;
   }
   subscribe(InternalEvent.ViewChange, () => {
     const url = getCurrentURL();
-    for (const element of elementsWithLinkActive) {
-      const route = getRouteFromLink(element);
-      if (route == null) {
+    for (const link of elementsWithLinkActive) {
+      const route = getRouteFromLink(link);
+      if (isEmptyString(route)) {
         continue;
       }
-      let className = element.directives.get(Directive.LinkActive);
-      if (className == null || isEmpty(className)) {
+      let className = link.directives.get(Directive.LinkActive);
+      if (isEmptyString(className)) {
         className = "active";
       }
-      const classNames = className.split(" ");
       if (isMatchingURL(route, url)) {
-        appendClassNamesToElement(element, classNames);
+        appendClassNamesToElement(link, className.split(" "));
       } else {
-        removeClassNamesFromElement(element, classNames);
+        removeClassNamesFromElement(link, className.split(" "));
       }
     }
   });
+  removeDirectiveFromHTMLElements(elementsWithLinkActive, Directive.LinkActive);
 });
-setDirective(Directive.Page, () => {
-  const elementsWithPage = getHTMLElementsWithDirective(Directive.Page);
+defineDirective(Directive.Page, (elements) => {
+  const elementsWithPage = getHTMLElementsWithDirective(elements, Directive.Page);
   if (elementsWithPage.length === 0) {
     return;
   }
   subscribe(InternalEvent.ViewChange, (mode) => {
     const url = getCurrentURL();
-    for (const element of elementsWithPage) {
-      const route = element.directives.get(Directive.Page);
-      if (route == null || isEmpty(route)) {
+    for (const page of elementsWithPage) {
+      const route = page.directives.get(Directive.Page);
+      if (isEmptyString(route)) {
         continue;
       }
-      const canBeVisible = isMatchingURL(route, url);
       switch (mode) {
         case Mode.Display:
-          toggleDisplayElement(element, canBeVisible);
+          toggleDisplayElement(page, isMatchingURL(route, url));
           break;
         case Mode.Template:
-          toggleTemplateElement(element, canBeVisible);
+          toggleTemplateElement(page, isMatchingURL(route, url));
           break;
       }
     }
     dispatchToElement(document, ExternalEvent.ViewChanged);
   });
+  removeDirectiveFromHTMLElements(elementsWithPage, Directive.Page);
 });
-setDirective(Directive.Title, () => {
-  const elementsWithTitle = getHTMLElementsWithDirective(Directive.Title);
+defineDirective(Directive.Title, (elements) => {
+  const elementsWithTitle = getHTMLElementsWithDirective(elements, Directive.Title);
   if (elementsWithTitle.length === 0) {
+    return;
+  }
+  const elementsWithTitleAndPage = getHTMLElementsWithDirective(elementsWithTitle, Directive.Page);
+  if (elementsWithTitleAndPage.length === 0) {
     return;
   }
   const titleTemplate = document.documentElement.getAttribute(Directive.Title);
   subscribe(InternalEvent.ViewChange, () => {
     const url = getCurrentURL();
-    for (const element of elementsWithTitle) {
-      const route = element.directives.get(Directive.Page);
-      const title = element.directives.get(Directive.Title);
-      if (route == null || title == null) {
+    for (const page of elementsWithTitleAndPage) {
+      const route = page.directives.get(Directive.Page);
+      const title = page.directives.get(Directive.Title);
+      if (isEmptyString(route) || isEmptyString(title)) {
         continue;
       }
       if (isMatchingURL(route, url)) {
@@ -321,13 +330,18 @@ setDirective(Directive.Title, () => {
       }
     }
   });
+  removeDirectiveFromHTMLElements(elementsWithTitle, Directive.Title);
 });
-(() => {
+const Router = () => {
   const canInitialize = document.documentElement.hasAttribute(Directive.Init);
   if (!canInitialize) {
-    return console.warn(`Router cannot be initialized. Add '${Directive.Init}' attribute to <html></html> tag.`);
+    throw new Error(`Router cannot be initialized. Add '${Directive.Init}' attribute to <html></html> tag.`);
   }
-  setUpDirectives([
+  const elements = getHTMLElementsWithAnyDirective();
+  if (elements.length === 0) {
+    throw new Error(`Router cannot be initialized. No directive found.`);
+  }
+  setUpDirectives(elements, [
     Directive.Cloak,
     Directive.Title,
     Directive.Page,
@@ -335,4 +349,5 @@ setDirective(Directive.Title, () => {
     Directive.LinkActive,
     Directive.Init
   ]);
-})();
+};
+Router();
