@@ -33,10 +33,10 @@ export const getHTMLElementsWithDirective = (elements: HTMLElementWithDirectives
 }
 
 /**
- * Get HTMLElements with every of given directives.
+ * Remove given directive from elements.
  */
-export const getHTMLElementsWithDirectives = (elements: HTMLElementWithDirectives[], directives: string[]): HTMLElementWithDirectives[] => {
-  return elements.filter(element => directives.every(directive => element.directives.has(directive)))
+export const removeDirectiveFromHTMLElements = (elements: HTMLElementWithDirectives[], directive: string): void => {
+  elements.forEach(({ content: element }) => element.removeAttribute(directive))
 }
 
 /**

@@ -47,6 +47,9 @@ defineDirective(Directive.Init, () => {
   // initial view change
   dispatch(InternalEvent.ViewChange, mode)
 
+  // remove before "initialized" event
+  document.documentElement.removeAttribute(Directive.Init)
+
   // let client subscribe to event "initialized"
   dispatchToElement(document, ExternalEvent.Initialized)
 })

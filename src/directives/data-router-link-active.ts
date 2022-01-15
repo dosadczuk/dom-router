@@ -1,7 +1,12 @@
 import { isEmptyString } from '@router/asserts'
 import { defineDirective } from '@router/directives'
 import { getRouteFromLink } from '@router/directives/data-router-link'
-import { appendClassNamesToElement, getHTMLElementsWithDirective, removeClassNamesFromElement } from '@router/dom'
+import {
+  appendClassNamesToElement,
+  getHTMLElementsWithDirective,
+  removeClassNamesFromElement,
+  removeDirectiveFromHTMLElements,
+} from '@router/dom'
 import { Directive, InternalEvent } from '@router/enums'
 import { subscribe } from '@router/events'
 import { getCurrentURL, isMatchingURL } from '@router/url'
@@ -49,4 +54,6 @@ defineDirective(Directive.LinkActive, (elements) => {
       }
     }
   })
+
+  removeDirectiveFromHTMLElements(elementsWithLinkActive, Directive.LinkActive)
 })

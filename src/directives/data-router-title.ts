@@ -1,6 +1,6 @@
 import { isEmptyString } from '@router/asserts'
 import { defineDirective } from '@router/directives'
-import { getHTMLElementsWithDirectives } from '@router/dom'
+import { getHTMLElementsWithDirective, removeDirectiveFromHTMLElements } from '@router/dom'
 import { Directive, InternalEvent } from '@router/enums'
 import { subscribe } from '@router/events'
 import { getCurrentURL, isMatchingURL } from '@router/url'
@@ -28,8 +28,13 @@ import { getCurrentURL, isMatchingURL } from '@router/url'
  *    </section>
  */
 defineDirective(Directive.Title, (elements) => {
-  const elementsWithPageAndTitle = getHTMLElementsWithDirectives(elements, [Directive.Page, Directive.Title])
-  if (elementsWithPageAndTitle.length === 0) {
+  const elementsWithTitle = getHTMLElementsWithDirective(elements, Directive.Title)
+  if (elementsWithTitle.length === 0) {
+    return
+  }
+
+  const elementsWithTitleAndPage = getHTMLElementsWithDirective(elementsWithTitle, Directive.Page)
+  if (elementsWithTitleAndPage.length === 0) {
     return
   }
 
@@ -38,7 +43,7 @@ defineDirective(Directive.Title, (elements) => {
   subscribe(InternalEvent.ViewChange, () => {
     const url = getCurrentURL()
 
-    for (const page of elementsWithPageAndTitle) {
+    for (const page of elementsWithTitleAndPage) {
       const route = page.directives.get(Directive.Page)
       const title = page.directives.get(Directive.Title)
 
@@ -57,4 +62,6 @@ defineDirective(Directive.Title, (elements) => {
       }
     }
   })
+
+  removeDirectiveFromHTMLElements(elementsWithTitle, Directive.Title)
 })

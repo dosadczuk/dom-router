@@ -1,6 +1,11 @@
 import { isEmptyString } from '@router/asserts'
 import { defineDirective } from '@router/directives'
-import { getHTMLElementsWithDirective, toggleDisplayElement, toggleTemplateElement } from '@router/dom'
+import {
+  getHTMLElementsWithDirective,
+  removeDirectiveFromHTMLElements,
+  toggleDisplayElement,
+  toggleTemplateElement,
+} from '@router/dom'
 import { Directive, ExternalEvent, InternalEvent, Mode } from '@router/enums'
 import { dispatchToElement, subscribe } from '@router/events'
 import { getCurrentURL, isMatchingURL } from '@router/url'
@@ -56,4 +61,6 @@ defineDirective(Directive.Page, (elements) => {
 
     dispatchToElement(document, ExternalEvent.ViewChanged)
   })
+
+  removeDirectiveFromHTMLElements(elementsWithPage, Directive.Page)
 })

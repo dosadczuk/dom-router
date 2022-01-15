@@ -4,7 +4,7 @@ import {
   displayShowElement,
   getHTMLElementsWithAnyDirective,
   getHTMLElementsWithDirective,
-  getHTMLElementsWithDirectives,
+  removeDirectiveFromHTMLElements,
   replaceElementWithTemplate,
   replaceTemplateWithElement,
 } from '@router/dom'
@@ -63,32 +63,21 @@ describe('dom', () => {
     expect(directives.get('data-test')).toEqual('test')
   })
 
-  it('should get HTMLElements with directives', function () {
+  it('should remove directive from HTMLElement', function () {
     document.body.innerHTML = ''
 
     // given
-    defineDirective('data-test1', () => true)
-    defineDirective('data-test2', () => true)
+    const element1 = createElementWithDirective(DIRECTIVE_NAME, DIRECTIVE_VALUE)
+    const element2 = createElementWithDirective(DIRECTIVE_NAME, DIRECTIVE_VALUE)
 
-    const elementWithTest1 = createElementWithDirective('data-test1', '')
-    const elementWithTest2 = createElementWithDirective('data-test2', '')
-    const elementWithTest1AndTest2 = document.createElement('div')
-    elementWithTest1AndTest2.setAttribute('data-test1', '')
-    elementWithTest1AndTest2.setAttribute('data-test2', '')
-
-    document.body.append(
-      elementWithTest1,
-      elementWithTest2,
-      elementWithTest1AndTest2,
-    )
+    document.body.append(element1, element2)
 
     // when
-    const elements = getHTMLElementsWithAnyDirective()
-    const elementsWithTest1AndTest2 = getHTMLElementsWithDirectives(elements, ['data-test1', 'data-test2'])
+    removeDirectiveFromHTMLElements(getHTMLElementsWithAnyDirective(), DIRECTIVE_NAME)
 
     // then
-    expect(elements).length(3)
-    expect(elementsWithTest1AndTest2).length(1)
+    expect(element1.hasAttribute(DIRECTIVE_NAME)).toBeFalsy()
+    expect(element2.hasAttribute(DIRECTIVE_NAME)).toBeFalsy()
   })
 
   it('should show element using CSS display property', function () {

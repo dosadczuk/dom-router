@@ -1,5 +1,5 @@
 import { defineDirective } from '@router/directives'
-import { getHTMLElementsWithDirective } from '@router/dom'
+import { getHTMLElementsWithDirective, removeDirectiveFromHTMLElements } from '@router/dom'
 import { Directive } from '@router/enums'
 
 /**
@@ -26,7 +26,5 @@ defineDirective(Directive.Cloak, (elements) => {
     return
   }
 
-  for (const cloak of elementsWithCloak) {
-    cloak.content.removeAttribute(Directive.Cloak)
-  }
+  removeDirectiveFromHTMLElements(elementsWithCloak, Directive.Cloak)
 })

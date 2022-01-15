@@ -1,6 +1,6 @@
 import { isEmptyString, isHTMLAnchorElement } from '@router/asserts'
 import { defineDirective } from '@router/directives'
-import { getHTMLElementsWithDirective } from '@router/dom'
+import { getHTMLElementsWithDirective, removeDirectiveFromHTMLElements } from '@router/dom'
 import { Directive, InternalEvent } from '@router/enums'
 import { dispatch, prevented } from '@router/events'
 import type { HTMLElementWithDirectives, Nullable } from '@router/types'
@@ -44,6 +44,8 @@ defineDirective(Directive.Link, (elements) => {
       dispatch(InternalEvent.PageChange, route)
     }))
   }
+
+  removeDirectiveFromHTMLElements(elementsWithLink, Directive.Link)
 })
 
 export const getRouteFromLink = ({ content: link, directives }: HTMLElementWithDirectives): Nullable<string> => {
