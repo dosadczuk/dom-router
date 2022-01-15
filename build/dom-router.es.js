@@ -43,6 +43,7 @@ var Directive;
   Directive2["Link"] = "data-router-link";
   Directive2["LinkActive"] = "data-router-link-active";
   Directive2["Page"] = "data-router-page";
+  Directive2["PageFallback"] = "data-router-page-fallback";
 })(Directive || (Directive = {}));
 var InternalEvent;
 (function(InternalEvent2) {
@@ -167,6 +168,10 @@ const getHTMLElementsWithAnyDirective = () => {
 const getHTMLElementsWithDirective = (elements, directive) => {
   return elements.filter((element) => element.directives.has(directive));
 };
+const getFirstHTMLElementsWithDirective = (elements, directive) => {
+  var _a;
+  return (_a = getHTMLElementsWithDirective(elements, directive)[0]) != null ? _a : null;
+};
 const removeDirectiveFromHTMLElements = (elements, directive) => {
   elements.forEach(({ content: element }) => element.removeAttribute(directive));
 };
@@ -258,7 +263,6 @@ defineDirective(Directive.LinkActive, (elements) => {
     return;
   }
   subscribe(InternalEvent.ViewChange, () => {
-    const url = getCurrentURL();
     for (const link of elementsWithLinkActive) {
       const route = getRouteFromLink(link);
       if (isEmptyString(route)) {
@@ -268,7 +272,7 @@ defineDirective(Directive.LinkActive, (elements) => {
       if (isEmptyString(className)) {
         className = "active";
       }
-      if (isMatchingURL(route, url)) {
+      if (isMatchingURL(route)) {
         appendClassNamesToElement(link, className.split(" "));
       } else {
         removeClassNamesFromElement(link, className.split(" "));
@@ -282,25 +286,47 @@ defineDirective(Directive.Page, (elements) => {
   if (elementsWithPage.length === 0) {
     return;
   }
+  console.log({ elementsWithPage });
+  const elementWithFallback = getFirstHTMLElementsWithDirective(elementsWithPage, Directive.PageFallback);
+  console.log({ elementWithFallback });
   subscribe(InternalEvent.ViewChange, (mode) => {
-    const url = getCurrentURL();
+    let hasPageChanged = false;
     for (const page of elementsWithPage) {
       const route = page.directives.get(Directive.Page);
       if (isEmptyString(route)) {
         continue;
       }
+      const canBeVisible = isMatchingURL(route);
       switch (mode) {
         case Mode.Display:
-          toggleDisplayElement(page, isMatchingURL(route, url));
+          toggleDisplayElement(page, canBeVisible);
           break;
         case Mode.Template:
-          toggleTemplateElement(page, isMatchingURL(route, url));
+          toggleTemplateElement(page, canBeVisible);
+          break;
+      }
+      hasPageChanged || (hasPageChanged = canBeVisible);
+    }
+    if (!hasPageChanged && elementWithFallback != null) {
+      switch (mode) {
+        case Mode.Display:
+          toggleDisplayElement(elementWithFallback, true);
+          break;
+        case Mode.Template:
+          toggleTemplateElement(elementWithFallback, true);
           break;
       }
     }
     dispatchToElement(document, ExternalEvent.ViewChanged);
   });
   removeDirectiveFromHTMLElements(elementsWithPage, Directive.Page);
+});
+defineDirective(Directive.PageFallback, (elements) => {
+  const elementsWithFallback = getHTMLElementsWithDirective(elements, Directive.PageFallback);
+  if (elementsWithFallback.length === 0) {
+    return;
+  }
+  removeDirectiveFromHTMLElements(elementsWithFallback, Directive.PageFallback);
 });
 defineDirective(Directive.Title, (elements) => {
   const elementsWithTitle = getHTMLElementsWithDirective(elements, Directive.Title);
@@ -313,14 +339,13 @@ defineDirective(Directive.Title, (elements) => {
   }
   const titleTemplate = document.documentElement.getAttribute(Directive.Title);
   subscribe(InternalEvent.ViewChange, () => {
-    const url = getCurrentURL();
     for (const page of elementsWithTitleAndPage) {
       const route = page.directives.get(Directive.Page);
       const title = page.directives.get(Directive.Title);
       if (isEmptyString(route) || isEmptyString(title)) {
         continue;
       }
-      if (isMatchingURL(route, url)) {
+      if (isMatchingURL(route)) {
         if (titleTemplate != null) {
           document.title = titleTemplate.replace("{title}", title);
         } else {
@@ -345,6 +370,7 @@ const Router = () => {
     Directive.Cloak,
     Directive.Title,
     Directive.Page,
+    Directive.PageFallback,
     Directive.Link,
     Directive.LinkActive,
     Directive.Init
