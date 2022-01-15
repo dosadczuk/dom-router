@@ -1,6 +1,7 @@
 import { isEmptyString } from '@router/asserts'
 import { defineDirective } from '@router/directives'
 import {
+  getFirstHTMLElementsWithDirective,
   getHTMLElementsWithDirective,
   removeDirectiveFromHTMLElements,
   toggleDisplayElement,
@@ -8,7 +9,7 @@ import {
 } from '@router/dom'
 import { Directive, ExternalEvent, InternalEvent, Mode } from '@router/enums'
 import { dispatchToElement, subscribe } from '@router/events'
-import { getCurrentURL, isMatchingURL } from '@router/url'
+import { isMatchingURL } from '@router/url'
 
 /**
  * Directive:   data-router-page
@@ -39,8 +40,13 @@ defineDirective(Directive.Page, (elements) => {
     return
   }
 
+  console.log({elementsWithPage})
+
+  const elementWithFallback = getFirstHTMLElementsWithDirective(elementsWithPage, Directive.PageFallback)
+  console.log({ elementWithFallback })
+
   subscribe(InternalEvent.ViewChange, (mode: string) => {
-    const url = getCurrentURL()
+    let hasPageChanged = false
 
     for (const page of elementsWithPage) {
       const route = page.directives.get(Directive.Page)
@@ -48,13 +54,29 @@ defineDirective(Directive.Page, (elements) => {
         continue
       }
 
+      const canBeVisible = isMatchingURL(route)
+
       switch (mode) {
         case Mode.Display:
-          toggleDisplayElement(page, isMatchingURL(route, url))
+          toggleDisplayElement(page, canBeVisible)
           break
 
         case Mode.Template:
-          toggleTemplateElement(page, isMatchingURL(route, url))
+          toggleTemplateElement(page, canBeVisible)
+          break
+      }
+
+      hasPageChanged ||= canBeVisible
+    }
+
+    if (!hasPageChanged && elementWithFallback != null) {
+      switch (mode) {
+        case Mode.Display:
+          toggleDisplayElement(elementWithFallback, true)
+          break
+
+        case Mode.Template:
+          toggleTemplateElement(elementWithFallback, true)
           break
       }
     }

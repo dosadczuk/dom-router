@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en" data-router="template" data-router-title="{title} | DOM Router">
   <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8"/>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
     <title>DOM Router</title>
 
@@ -13,8 +13,11 @@
         }
 
         .active { background: black; color: white }
+
         .page-1-active { background: red; color: white; }
+
         .page-2-active { background: red; color: blue; }
+
         .page-3-active { background: red; color: yellow; }
     </style>
   </head>
@@ -25,6 +28,7 @@
       <a data-router-link href="/page2" data-router-link-active="page-2-active">Page 2</a>
       <a data-router-link href="/page3" data-router-link-active="page-3-active">Page 3</a>
       <button data-router-link="/page3/1">Page 3 (id=1)</button>
+      <button data-router-link="/not-existing">With fallback</button>
     </nav>
 
     <section data-router-cloak data-router-page="/" data-router-title="Homepage">
@@ -45,6 +49,10 @@
 
     <section data-router-cloak data-router-page="/page3/:id">
       <h1>Page 3 (with id)</h1>
+    </section>
+
+    <section data-router-cloak data-router-page="/404" data-router-page-fallback>
+      <h1>404 Not Found</h1>
     </section>
 
     <script type="module" src="/src/index.ts"></script>

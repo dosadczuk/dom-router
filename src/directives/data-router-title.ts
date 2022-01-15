@@ -3,7 +3,7 @@ import { defineDirective } from '@router/directives'
 import { getHTMLElementsWithDirective, removeDirectiveFromHTMLElements } from '@router/dom'
 import { Directive, InternalEvent } from '@router/enums'
 import { subscribe } from '@router/events'
-import { getCurrentURL, isMatchingURL } from '@router/url'
+import { isMatchingURL } from '@router/url'
 
 /**
  * Directive:   data-router-title
@@ -41,8 +41,6 @@ defineDirective(Directive.Title, (elements) => {
   const titleTemplate = document.documentElement.getAttribute(Directive.Title)
 
   subscribe(InternalEvent.ViewChange, () => {
-    const url = getCurrentURL()
-
     for (const page of elementsWithTitleAndPage) {
       const route = page.directives.get(Directive.Page)
       const title = page.directives.get(Directive.Title)
@@ -51,7 +49,7 @@ defineDirective(Directive.Title, (elements) => {
         continue
       }
 
-      if (isMatchingURL(route, url)) {
+      if (isMatchingURL(route)) {
         if (titleTemplate != null) {
           document.title = titleTemplate.replace('{title}', title)
         } else {

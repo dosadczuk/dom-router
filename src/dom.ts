@@ -33,6 +33,13 @@ export const getHTMLElementsWithDirective = (elements: HTMLElementWithDirectives
 }
 
 /**
+ * Get first HTMLElement of element with given directive.
+ */
+export const getFirstHTMLElementsWithDirective = (elements: HTMLElementWithDirectives[], directive: string): Nullable<HTMLElementWithDirectives> => {
+  return getHTMLElementsWithDirective(elements, directive)[0] ?? null
+}
+
+/**
  * Remove given directive from elements.
  */
 export const removeDirectiveFromHTMLElements = (elements: HTMLElementWithDirectives[], directive: string): void => {

@@ -18,6 +18,7 @@ const Router = () => {
     Directive.Cloak,
     Directive.Title,
     Directive.Page,
+    Directive.PageFallback,
     Directive.Link,
     Directive.LinkActive,
     Directive.Init,

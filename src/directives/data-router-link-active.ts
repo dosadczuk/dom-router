@@ -9,7 +9,7 @@ import {
 } from '@router/dom'
 import { Directive, InternalEvent } from '@router/enums'
 import { subscribe } from '@router/events'
-import { getCurrentURL, isMatchingURL } from '@router/url'
+import { isMatchingURL } from '@router/url'
 
 /**
  * Directive:   data-router-link-active
@@ -34,8 +34,6 @@ defineDirective(Directive.LinkActive, (elements) => {
   }
 
   subscribe(InternalEvent.ViewChange, () => {
-    const url = getCurrentURL()
-
     for (const link of elementsWithLinkActive) {
       const route = getRouteFromLink(link)
       if (isEmptyString(route)) {
@@ -47,7 +45,7 @@ defineDirective(Directive.LinkActive, (elements) => {
         className = 'active' // default class 'active'
       }
 
-      if (isMatchingURL(route, url)) {
+      if (isMatchingURL(route)) {
         appendClassNamesToElement(link, className.split(' '))
       } else {
         removeClassNamesFromElement(link, className.split(' '))
