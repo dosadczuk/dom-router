@@ -1,5 +1,4 @@
-import { getHTMLElementsWithAnyDirective } from '@router/dom'
-import type { DirectiveFactory } from '@router/types'
+import type { DirectiveFactory, HTMLElementWithDirectives } from '@router/types'
 
 const directives = new Map<string, DirectiveFactory>()
 
@@ -13,9 +12,7 @@ export const defineDirective = (name: string, factory: DirectiveFactory): void =
 /**
  * Set up directives in given order.
  */
-export const setUpDirectives = (names: string[]): void => {
-  const elements = getHTMLElementsWithAnyDirective()
-
+export const setUpDirectives = (elements: HTMLElementWithDirectives[], names: string[]): void => {
   for (const name of names) {
     const factory = directives.get(name)
     if (factory == null) {
