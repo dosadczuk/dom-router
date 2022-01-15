@@ -1,4 +1,10 @@
-import { clearDirectives, getDirectives, isDirective, setDirective } from '@router/directives'
+import {
+  clearDirectives,
+  defineDirective,
+  getDirectives,
+  getDirectivesAsSelector,
+  isDirective,
+} from '@router/directives'
 import { afterEach, describe, expect, fn, it } from 'vitest'
 
 describe('directives', () => {
@@ -13,7 +19,7 @@ describe('directives', () => {
     const directiveFactory = fn()
 
     // when
-    setDirective(directiveName, directiveFactory)
+    defineDirective(directiveName, directiveFactory)
 
     // then
     expect(isDirective(directiveName)).toBeTruthy()
@@ -22,8 +28,8 @@ describe('directives', () => {
 
   it('should list directives', () => {
     // given
-    setDirective('test1', fn())
-    setDirective('test2', fn())
+    defineDirective('test1', fn())
+    defineDirective('test2', fn())
 
     // when
     const directives = getDirectives()
@@ -32,10 +38,22 @@ describe('directives', () => {
     expect(directives).length(2)
   })
 
+  it('should get selector to find elements with any directive', function () {
+    // given
+    defineDirective('test1', fn())
+    defineDirective('test2', fn())
+
+    // when
+    const selector = getDirectivesAsSelector()
+
+    // then
+    expect(selector, '[test1], [test2]')
+  })
+
   it('should clear directives', () => {
     // given
-    setDirective('test1', fn())
-    setDirective('test2', fn())
+    defineDirective('test1', fn())
+    defineDirective('test2', fn())
 
     // when
     const directivesBeforeClear = getDirectives()

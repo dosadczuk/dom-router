@@ -1,3 +1,6 @@
+// directives.d.ts
+export type DirectiveFactory = (elements: HTMLElementWithDirectives[]) => void;
+
 // dom.d.ts
 export type HTMLElementWithDirectives = {
   content: HTMLElement;
@@ -9,4 +12,4 @@ export type Subscriber = (data?: any) => void;
 export type Unsubscriber = () => void;
 
 // common
-export type Nullable<T> = T | null
+export type Nullable<T> = T | null | undefined

@@ -1,12 +1,12 @@
 import { isHTMLTemplateElement } from '@router/asserts'
-import { isDirective } from '@router/directives'
-import type { HTMLElementWithDirectives, Nullable } from "@router/types";
+import { getDirectivesAsSelector, isDirective } from '@router/directives'
+import type { HTMLElementWithDirectives, Nullable } from '@router/types'
 
 /**
- * Get HTMLElements with given directive.
+ * Get all HTMLElements with any directive.
  */
-export const getHTMLElementsWithDirective = (directive: string): HTMLElementWithDirectives[] => {
-  const elements = document.querySelectorAll<HTMLElement>(`[${directive}]`)
+export const getHTMLElementsWithAnyDirective = (): HTMLElementWithDirectives[] => {
+  const elements = document.querySelectorAll<HTMLElement>(getDirectivesAsSelector())
   if (elements.length === 0) {
     return []
   }
@@ -23,6 +23,20 @@ export const getHTMLElementsWithDirective = (directive: string): HTMLElementWith
 
     return { content: element, directives }
   })
+}
+
+/**
+ * Get HTMLElements with given directive.
+ */
+export const getHTMLElementsWithDirective = (elements: HTMLElementWithDirectives[], directive: string): HTMLElementWithDirectives[] => {
+  return elements.filter(element => element.directives.has(directive))
+}
+
+/**
+ * Get HTMLElements with every of given directives.
+ */
+export const getHTMLElementsWithDirectives = (elements: HTMLElementWithDirectives[], directives: string[]): HTMLElementWithDirectives[] => {
+  return elements.filter(element => directives.every(directive => element.directives.has(directive)))
 }
 
 /**
@@ -84,7 +98,7 @@ export const replaceTemplateWithElement = (element: HTMLElementWithDirectives): 
  * Hide element replacing visible HTMLElement with HTMLTemplateElement.
  */
 export const replaceElementWithTemplate = (element: HTMLElementWithDirectives): void => {
-  const { content, directives } = element
+  const { content } = element
 
   if (isHTMLTemplateElement(content)) {
     return // already hidden
@@ -92,11 +106,6 @@ export const replaceElementWithTemplate = (element: HTMLElementWithDirectives): 
 
   const template = document.createElement('template')
   template.content.append(content.cloneNode(true))
-
-  // copy directives from original HTMLElement
-  directives.forEach((value, name) => {
-    template.setAttribute(name, value)
-  })
 
   element.content.replaceWith(template)
   element.content = template

@@ -1,8 +1,9 @@
-import { Directive, setDirective } from '@router/directives'
-import { getHTMLElementsWithDirective } from '@router/dom'
-import { InternalEvent, subscribe } from '@router/events'
+import { isEmptyString } from '@router/asserts'
+import { defineDirective } from '@router/directives'
+import { getHTMLElementsWithDirectives } from '@router/dom'
+import { Directive, InternalEvent } from '@router/enums'
+import { subscribe } from '@router/events'
 import { getCurrentURL, isMatchingURL } from '@router/url'
-import { isEmpty } from "@router/asserts";
 
 /**
  * Directive:   data-router-title
@@ -26,9 +27,9 @@ import { isEmpty } from "@router/asserts";
  *      ...
  *    </section>
  */
-setDirective(Directive.Title, () => {
-  const elementsWithTitle = getHTMLElementsWithDirective(Directive.Title)
-  if (elementsWithTitle.length === 0) {
+defineDirective(Directive.Title, (elements) => {
+  const elementsWithPageAndTitle = getHTMLElementsWithDirectives(elements, [Directive.Page, Directive.Title])
+  if (elementsWithPageAndTitle.length === 0) {
     return
   }
 
@@ -37,14 +38,11 @@ setDirective(Directive.Title, () => {
   subscribe(InternalEvent.ViewChange, () => {
     const url = getCurrentURL()
 
-    for (const element of elementsWithTitle) {
-      const route = element.directives.get(Directive.Page)
-      if (route == null || isEmpty(route)) {
-        continue
-      }
+    for (const page of elementsWithPageAndTitle) {
+      const route = page.directives.get(Directive.Page)
+      const title = page.directives.get(Directive.Title)
 
-      const title = element.directives.get(Directive.Title)
-      if (title == null || isEmpty(title)) {
+      if (isEmptyString(route) || isEmptyString(title)) {
         continue
       }
 

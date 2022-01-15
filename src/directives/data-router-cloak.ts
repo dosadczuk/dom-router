@@ -1,5 +1,6 @@
-import { Directive, setDirective } from '@router/directives'
+import { defineDirective } from '@router/directives'
 import { getHTMLElementsWithDirective } from '@router/dom'
+import { Directive } from '@router/enums'
 
 /**
  * Directive:   data-router-cloak
@@ -19,13 +20,13 @@ import { getHTMLElementsWithDirective } from '@router/dom'
  *      display: none !important;
  *    }
  */
-setDirective(Directive.Cloak, () => {
-  const elementsWithCloak = getHTMLElementsWithDirective(Directive.Cloak)
+defineDirective(Directive.Cloak, (elements) => {
+  const elementsWithCloak = getHTMLElementsWithDirective(elements, Directive.Cloak)
   if (elementsWithCloak.length === 0) {
     return
   }
 
-  for (const element of elementsWithCloak) {
-    element.content.removeAttribute(Directive.Cloak)
+  for (const cloak of elementsWithCloak) {
+    cloak.content.removeAttribute(Directive.Cloak)
   }
 })

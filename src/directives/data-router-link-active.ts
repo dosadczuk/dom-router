@@ -1,9 +1,10 @@
-import { Directive, setDirective } from "@router/directives";
-import { appendClassNamesToElement, getHTMLElementsWithDirective, removeClassNamesFromElement } from "@router/dom";
-import { isEmpty } from "@router/asserts";
-import { getCurrentURL, isMatchingURL } from "@router/url";
-import { getRouteFromLink } from "@router/directives/data-router-link";
-import { InternalEvent, subscribe } from "@router/events";
+import { isEmptyString } from '@router/asserts'
+import { defineDirective } from '@router/directives'
+import { getRouteFromLink } from '@router/directives/data-router-link'
+import { appendClassNamesToElement, getHTMLElementsWithDirective, removeClassNamesFromElement } from '@router/dom'
+import { Directive, InternalEvent } from '@router/enums'
+import { subscribe } from '@router/events'
+import { getCurrentURL, isMatchingURL } from '@router/url'
 
 /**
  * Directive:   data-router-link-active
@@ -21,8 +22,8 @@ import { InternalEvent, subscribe } from "@router/events";
  *  <a data-router-link href="/path" data-router-link-active></a>
  *  <a data-router-link href="/path" data-router-link-active="my-special-class"></a>
  */
-setDirective(Directive.LinkActive, () => {
-  const elementsWithLinkActive = getHTMLElementsWithDirective(Directive.LinkActive)
+defineDirective(Directive.LinkActive, (elements) => {
+  const elementsWithLinkActive = getHTMLElementsWithDirective(elements, Directive.LinkActive)
   if (elementsWithLinkActive.length === 0) {
     return
   }
@@ -30,23 +31,21 @@ setDirective(Directive.LinkActive, () => {
   subscribe(InternalEvent.ViewChange, () => {
     const url = getCurrentURL()
 
-    for (const element of elementsWithLinkActive) {
-      const route = getRouteFromLink(element)
-      if (route == null) {
+    for (const link of elementsWithLinkActive) {
+      const route = getRouteFromLink(link)
+      if (isEmptyString(route)) {
         continue
       }
 
-      let className = element.directives.get(Directive.LinkActive);
-      if (className == null || isEmpty(className)) {
+      let className = link.directives.get(Directive.LinkActive)
+      if (isEmptyString(className)) {
         className = 'active' // default class 'active'
       }
 
-      const classNames = className.split(' ')
-
       if (isMatchingURL(route, url)) {
-        appendClassNamesToElement(element, classNames)
+        appendClassNamesToElement(link, className.split(' '))
       } else {
-        removeClassNamesFromElement(element, classNames)
+        removeClassNamesFromElement(link, className.split(' '))
       }
     }
   })

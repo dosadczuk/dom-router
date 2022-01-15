@@ -1,10 +1,11 @@
-import { Directive, setUpDirectives } from '@router/directives'
+import { setUpDirectives } from '@router/directives'
 import '@router/directives/index'
+import { Directive } from '@router/enums'
 
-(() => {
+const Router = () => {
   const canInitialize = document.documentElement.hasAttribute(Directive.Init)
   if (!canInitialize) {
-    return console.warn(`Router cannot be initialized. Add '${Directive.Init}' attribute to <html></html> tag.`)
+    throw new Error(`Router cannot be initialized. Add '${Directive.Init}' attribute to <html></html> tag.`)
   }
 
   setUpDirectives([
@@ -13,6 +14,8 @@ import '@router/directives/index'
     Directive.Page,
     Directive.Link,
     Directive.LinkActive,
-    Directive.Init
+    Directive.Init,
   ])
-})()
+}
+
+Router()

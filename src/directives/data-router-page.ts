@@ -1,9 +1,9 @@
-import { Directive, setDirective } from '@router/directives'
+import { isEmptyString } from '@router/asserts'
+import { defineDirective } from '@router/directives'
 import { getHTMLElementsWithDirective, toggleDisplayElement, toggleTemplateElement } from '@router/dom'
-import { dispatchToElement, ExternalEvent, InternalEvent, subscribe } from '@router/events'
-import { Mode } from '@router/mode'
+import { Directive, ExternalEvent, InternalEvent, Mode } from '@router/enums'
+import { dispatchToElement, subscribe } from '@router/events'
 import { getCurrentURL, isMatchingURL } from '@router/url'
-import { isEmpty } from "@router/asserts";
 
 /**
  * Directive:   data-router-page
@@ -28,8 +28,8 @@ import { isEmpty } from "@router/asserts";
  *    <!-- page content -->
  *  </section>
  */
-setDirective(Directive.Page, () => {
-  const elementsWithPage = getHTMLElementsWithDirective(Directive.Page)
+defineDirective(Directive.Page, (elements) => {
+  const elementsWithPage = getHTMLElementsWithDirective(elements, Directive.Page)
   if (elementsWithPage.length === 0) {
     return
   }
@@ -37,21 +37,19 @@ setDirective(Directive.Page, () => {
   subscribe(InternalEvent.ViewChange, (mode: string) => {
     const url = getCurrentURL()
 
-    for (const element of elementsWithPage) {
-      const route = element.directives.get(Directive.Page)
-      if (route == null || isEmpty(route)) {
+    for (const page of elementsWithPage) {
+      const route = page.directives.get(Directive.Page)
+      if (isEmptyString(route)) {
         continue
       }
 
-      const canBeVisible = isMatchingURL(route, url)
-
       switch (mode) {
         case Mode.Display:
-          toggleDisplayElement(element, canBeVisible)
+          toggleDisplayElement(page, isMatchingURL(route, url))
           break
 
         case Mode.Template:
-          toggleTemplateElement(element, canBeVisible)
+          toggleTemplateElement(page, isMatchingURL(route, url))
           break
       }
     }

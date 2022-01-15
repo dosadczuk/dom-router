@@ -1,8 +1,9 @@
-import { isEmpty, isHTMLAnchorElement } from '@router/asserts'
-import { Directive, setDirective } from '@router/directives'
+import { isEmptyString, isHTMLAnchorElement } from '@router/asserts'
+import { defineDirective } from '@router/directives'
 import { getHTMLElementsWithDirective } from '@router/dom'
-import { dispatch, InternalEvent } from '@router/events'
-import type { HTMLElementWithDirectives, Nullable } from "@router/types";
+import { Directive, InternalEvent } from '@router/enums'
+import { dispatch, prevented } from '@router/events'
+import type { HTMLElementWithDirectives, Nullable } from '@router/types'
 
 /**
  * Directive:   data-router-link
@@ -27,29 +28,27 @@ import type { HTMLElementWithDirectives, Nullable } from "@router/types";
  *      ...
  *    </button>
  */
-setDirective(Directive.Link, () => {
-  const elementsWithLink = getHTMLElementsWithDirective(Directive.Link)
+defineDirective(Directive.Link, (elements) => {
+  const elementsWithLink = getHTMLElementsWithDirective(elements, Directive.Link)
   if (elementsWithLink.length === 0) {
     return
   }
 
-  for (const element of elementsWithLink) {
-    const route = getRouteFromLink(element)
+  for (const link of elementsWithLink) {
+    const route = getRouteFromLink(link)
     if (route == null) {
       continue
     }
 
-    element.content.addEventListener('click', event => {
-      event.preventDefault()
-
+    link.content.addEventListener('click', prevented(() => {
       dispatch(InternalEvent.PageChange, route)
-    })
+    }))
   }
 })
 
 export const getRouteFromLink = ({ content: link, directives }: HTMLElementWithDirectives): Nullable<string> => {
   const route = directives.get(Directive.Link)
-  if (route != null && !isEmpty(route)) {
+  if (!isEmptyString(route)) {
     return route
   }
 

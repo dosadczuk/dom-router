@@ -1,14 +1,7 @@
 import { isEnumValue } from '@router/asserts'
-import { Directive, setDirective } from '@router/directives'
-import {
-  dispatch,
-  dispatchToElement,
-  ExternalEvent,
-  InternalEvent,
-  subscribe,
-  subscribeToElement,
-} from '@router/events'
-import { Mode } from '@router/mode'
+import { defineDirective } from '@router/directives'
+import { Directive, ExternalEvent, InternalEvent, Mode } from '@router/enums'
+import { dispatch, dispatchToElement, subscribe, subscribeToElement } from '@router/events'
 import { getCurrentURL, isMatchingURL } from '@router/url'
 
 /**
@@ -26,16 +19,16 @@ import { getCurrentURL, isMatchingURL } from '@router/url'
  *  <html lang="en" data-router="display"></html>
  *  <html lang="en" data-router="template"></html>
  */
-setDirective(Directive.Init, () => {
+defineDirective(Directive.Init, () => {
   let mode = document.documentElement.getAttribute(Directive.Init)
   if (!isEnumValue(Mode, mode)) {
     mode = Mode.Display // default mode
   }
 
-  // let app subscribe to "before init"
+  // let client subscribe to event "initialize"
   dispatchToElement(document, ExternalEvent.Initialize)
 
-  // update forced with link
+  // update forced by internal mechanism
   subscribe(InternalEvent.PageChange, (route) => {
     if (isMatchingURL(route, getCurrentURL())) {
       return // same page, no need to change
@@ -46,14 +39,14 @@ setDirective(Directive.Init, () => {
     dispatch(InternalEvent.ViewChange, mode)
   })
 
-  // update forced with History API
+  // update forced by History API
   subscribeToElement(window, 'popstate', () => {
     dispatch(InternalEvent.ViewChange, mode)
   })
 
-  // force update view, let event set up app view
+  // initial view change
   dispatch(InternalEvent.ViewChange, mode)
 
-  // let app subscribe to "after init"
+  // let client subscribe to event "initialized"
   dispatchToElement(document, ExternalEvent.Initialized)
 })

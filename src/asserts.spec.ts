@@ -1,27 +1,26 @@
-import { isEmpty, isEnumValue, isHTMLAnchorElement, isHTMLTemplateElement, isString } from '@router/asserts'
+import { isEmptyString, isEnumValue, isHTMLAnchorElement, isHTMLTemplateElement, isString } from '@router/asserts'
 import { describe, expect, it } from 'vitest'
 
 describe('asserts', () => {
 
   it('should assert empty string', () => {
     // given
-    const emptyString = ''
     const notEmptyString = 'sample string'
-
-    const emptyValue = undefined
-    const notEmptyValue = 123
+    const realEmptyString = ''
+    const undfEmptyString = undefined
+    const nullEmptyString = null
 
     // when
-    const isEmptyString = isEmpty(emptyString)
-    const isNotEmptyString = isEmpty(notEmptyString)
-    const isEmptyValue = isEmpty(emptyValue)
-    const isNotEmptyValue = isEmpty(notEmptyValue)
+    const isNotEmptyString = isEmptyString(notEmptyString)
+    const isEmptyString1 = isEmptyString(realEmptyString)
+    const isEmptyString2 = isEmptyString(undfEmptyString)
+    const isEmptyString3 = isEmptyString(nullEmptyString)
 
     // then
-    expect(isEmptyString).toBeTruthy()
     expect(isNotEmptyString).toBeFalsy()
-    expect(isEmptyValue).toBeTruthy()
-    expect(isNotEmptyValue).toBeFalsy()
+    expect(isEmptyString1).toBeTruthy()
+    expect(isEmptyString2).toBeTruthy()
+    expect(isEmptyString3).toBeTruthy()
   })
 
   it('should assert is string', () => {

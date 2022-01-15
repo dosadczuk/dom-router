@@ -1,18 +1,12 @@
-export enum Directive {
-  Init = 'data-router',
-  Cloak = 'data-router-cloak',
-  Title = 'data-router-title',
-  Link = 'data-router-link',
-  LinkActive = 'data-router-link-active',
-  Page = 'data-router-page',
-}
+import { getHTMLElementsWithAnyDirective } from '@router/dom'
+import type { DirectiveFactory } from '@router/types'
 
-const directives = new Map<string, Function>()
+const directives = new Map<string, DirectiveFactory>()
 
 /**
  * Register directive with given factory function.
  */
-export const setDirective = (name: string, factory: Function): void => {
+export const defineDirective = (name: string, factory: DirectiveFactory): void => {
   directives.set(name, factory)
 }
 
@@ -20,19 +14,16 @@ export const setDirective = (name: string, factory: Function): void => {
  * Set up directives in given order.
  */
 export const setUpDirectives = (names: string[]): void => {
-  names.forEach(name => setUpDirective(name))
-}
+  const elements = getHTMLElementsWithAnyDirective()
 
-/**
- * Set up directive with registered factory.
- */
-export const setUpDirective = (name: string): void => {
-  const factory = directives.get(name)
-  if (factory == null) {
-    return
+  for (const name of names) {
+    const factory = directives.get(name)
+    if (factory == null) {
+      continue
+    }
+
+    factory(elements)
   }
-
-  factory()
 }
 
 /**
@@ -47,6 +38,13 @@ export const isDirective = (name: string): boolean => {
  */
 export const getDirectives = (): string[] => {
   return Array.from(directives.keys())
+}
+
+/**
+ * Get selector to find elements with any directive.
+ */
+export const getDirectivesAsSelector = (): string => {
+  return getDirectives().map(it => `[${it}]`).join(', ')
 }
 
 /**
