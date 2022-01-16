@@ -12,6 +12,12 @@
             display: none;
         }
 
+        [data-router-sitemap] li {
+            font-size: 1.2rem;
+            font-weight: 500;
+            font-style: italic;
+        }
+
         .active { background: black; color: white }
 
         .page-1-active { background: red; color: white; }
@@ -28,6 +34,7 @@
       <a data-router-link href="/page2" data-router-link-active="page-2-active">Page 2</a>
       <a data-router-link href="/page3" data-router-link-active="page-3-active">Page 3</a>
       <button data-router-link="/page3/1">Page 3 (id=1)</button>
+      <button data-router-link="/sitemap">Sitemap</button>
       <button data-router-link="/not-existing">With fallback</button>
     </nav>
 
@@ -53,6 +60,12 @@
 
     <section data-router-cloak data-router-page="/404" data-router-page-fallback>
       <h1>404 Not Found</h1>
+    </section>
+
+    <section data-router-cloak data-router-page="/sitemap">
+      <h1>Sitemap</h1>
+
+      <div data-router-sitemap></div>
     </section>
 
     <script type="module" src="/src/index.ts"></script>

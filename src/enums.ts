@@ -6,7 +6,8 @@ export enum Directive {
   Link = 'data-router-link',
   LinkActive = 'data-router-link-active',
   Page = 'data-router-page',
-  PageFallback = 'data-router-page-fallback'
+  PageFallback = 'data-router-page-fallback',
+  Sitemap = 'data-router-sitemap'
 }
 
 // events.ts

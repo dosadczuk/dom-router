@@ -19,6 +19,7 @@ const Router = () => {
     Directive.Title,
     Directive.Page,
     Directive.PageFallback,
+    Directive.Sitemap,
     Directive.Link,
     Directive.LinkActive,
     Directive.Init,

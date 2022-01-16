@@ -40,10 +40,7 @@ defineDirective(Directive.Page, (elements) => {
     return
   }
 
-  console.log({elementsWithPage})
-
   const elementWithFallback = getFirstHTMLElementsWithDirective(elementsWithPage, Directive.PageFallback)
-  console.log({ elementWithFallback })
 
   subscribe(InternalEvent.ViewChange, (mode: string) => {
     let hasPageChanged = false
