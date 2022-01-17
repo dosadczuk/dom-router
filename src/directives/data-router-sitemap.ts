@@ -7,7 +7,14 @@ import { Directive } from '@router/enums'
  * Directive:   data-router-sitemap
  *
  * Description:
+ *  Marks HTML tag as sitemap placeholder. Sitemap is generated automatically
+ *  and consists of <ol> and <li> tags.
  *
+ *  Element will be included in sitemap if:
+ *    - has data-router-page directive
+ *    - has data-router-title directive
+ *
+ *  Directive will not be remove, so sitemap can be styled easily with CSS.
  *
  * Usage:
  *  <section data-router-page="/sitemap">

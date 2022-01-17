@@ -140,6 +140,34 @@ Provides a way to change page title. It can be used in two ways:
 </section>
 ```
 
+### `data-router-sitemap`
+
+Marks HTML tag as sitemap placeholder. Sitemap is generated automatically and consists of `<ol>` and `<li>` tags.
+
+Element (page) will be included in sitemap if:
+  - has `data-router-page` directive
+  - has `data-router-title` directive
+
+```html
+<section data-router-page="/sitemap">
+  <div data-router-sitemap>
+    <!-- sitemap will be generated here -->
+  </div>
+</section>
+```
+
+Directive will not be removed, so sitemap can be styled easily with CSS:
+
+```css
+[data-router-sitemap] ol {
+  /* list styles goes here */
+}
+
+[data-router-sitemap] ol li {
+  /* list item styles goes here */
+}
+```
+
 ### `data-router-cloak`
 
 Prevents blinking effect on the very first page load. By default, every page is visible. The directive can be used to
