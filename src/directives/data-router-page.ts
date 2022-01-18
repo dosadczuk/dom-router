@@ -4,11 +4,10 @@ import {
   getFirstHTMLElementsWithDirective,
   getHTMLElementsWithDirective,
   removeDirectiveFromHTMLElements,
-  toggleDisplayElement,
-  toggleTemplateElement,
 } from '@router/dom'
-import { Directive, ExternalEvent, InternalEvent, Mode } from '@router/enums'
+import { Directive, ExternalEvent, InternalEvent } from '@router/enums'
 import { dispatchToElement, subscribe } from '@router/events'
+import type { ToggleElementVisibility } from '@router/types'
 import { isMatchingURL } from '@router/url'
 
 /**
@@ -42,8 +41,8 @@ defineDirective(Directive.Page, (elements) => {
 
   const elementWithFallback = getFirstHTMLElementsWithDirective(elementsWithPage, Directive.PageFallback)
 
-  subscribe(InternalEvent.ViewChange, (mode: string) => {
-    let hasPageChanged = false
+  subscribe(InternalEvent.ViewChange, (toggleElementVisibility: ToggleElementVisibility) => {
+    let hasVisiblePage = false
 
     for (const page of elementsWithPage) {
       const route = page.directives.get(Directive.Page)
@@ -51,31 +50,13 @@ defineDirective(Directive.Page, (elements) => {
         continue
       }
 
-      const canBeVisible = isMatchingURL(route)
+      const isPageVisible = toggleElementVisibility(page, isMatchingURL(route))
 
-      switch (mode) {
-        case Mode.Display:
-          toggleDisplayElement(page, canBeVisible)
-          break
-
-        case Mode.Template:
-          toggleTemplateElement(page, canBeVisible)
-          break
-      }
-
-      hasPageChanged ||= canBeVisible
+      hasVisiblePage ||= isPageVisible
     }
 
-    if (!hasPageChanged && elementWithFallback != null) {
-      switch (mode) {
-        case Mode.Display:
-          toggleDisplayElement(elementWithFallback, true)
-          break
-
-        case Mode.Template:
-          toggleTemplateElement(elementWithFallback, true)
-          break
-      }
+    if (!hasVisiblePage && elementWithFallback != null) {
+      toggleElementVisibility(elementWithFallback, true)
     }
 
     dispatchToElement(document, ExternalEvent.ViewChanged)

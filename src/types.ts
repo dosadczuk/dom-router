@@ -7,6 +7,10 @@ export type HTMLElementWithDirectives = {
   directives: ReadonlyMap<string, string>;
 }
 
+export type ToggleElementVisibility = (element: HTMLElementWithDirectives, canBeVisible: boolean) => boolean;
+export type ShowElement = (element: HTMLElementWithDirectives) => boolean;
+export type HideElement = (element: HTMLElementWithDirectives) => boolean;
+
 // events.d.ts
 export type Subscriber = (data?: any) => void;
 export type Unsubscriber = () => void;

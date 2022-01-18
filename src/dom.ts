@@ -1,6 +1,13 @@
 import { isHTMLTemplateElement } from '@router/asserts'
 import { getDirectivesAsSelector, isDirective } from '@router/directives'
-import type { HTMLElementWithDirectives, Nullable } from '@router/types'
+import { Mode } from '@router/enums'
+import type {
+  HideElement,
+  HTMLElementWithDirectives,
+  Nullable,
+  ShowElement,
+  ToggleElementVisibility,
+} from '@router/types'
 
 /**
  * Get all HTMLElements with any directive.
@@ -47,68 +54,91 @@ export const removeDirectiveFromHTMLElements = (elements: HTMLElementWithDirecti
 }
 
 /**
+ * Toggle element visibility, depends on mode.
+ */
+export const changeViewWithMode = (mode: string): ToggleElementVisibility => {
+  return (element, canBeVisible) => {
+    switch (mode) {
+      case Mode.Display:
+        return toggleDisplayElement(element, canBeVisible)
+
+      case Mode.Template:
+        return toggleTemplateElement(element, canBeVisible)
+    }
+
+    return false
+  }
+}
+
+/**
  * Toggle element visibility using CSS display property.
  */
-export const toggleDisplayElement = (element: HTMLElementWithDirectives, canBeVisible: boolean): void => {
+export const toggleDisplayElement: ToggleElementVisibility = (element, canBeVisible) => {
   if (canBeVisible) {
-    displayShowElement(element)
+    return displayShowElement(element)
   } else {
-    displayHideElement(element)
+    return displayHideElement(element)
   }
 }
 
 /**
  * Show element using CSS display property.
  */
-export const displayShowElement = ({ content: element }: HTMLElementWithDirectives): void => {
+export const displayShowElement: ShowElement = ({ content: element }) => {
   element.style.display = 'revert'
+
+  return true
 }
 
 /**
  * Hide element using CSS display property.
  */
-export const displayHideElement = ({ content: element }: HTMLElementWithDirectives): void => {
+export const displayHideElement: HideElement = ({ content: element }) => {
   element.style.display = 'none'
+
+  return false
 }
 
 /**
  * Toggle element visibility using HTMLTemplateElement.
  */
-export const toggleTemplateElement = (element: HTMLElementWithDirectives, canBeVisible: boolean): void => {
+export const toggleTemplateElement: ToggleElementVisibility = (element, canBeVisible) => {
   if (canBeVisible) {
-    replaceTemplateWithElement(element)
+    return replaceTemplateWithElement(element)
   } else {
-    replaceElementWithTemplate(element)
+    return replaceElementWithTemplate(element)
   }
 }
 
 /**
  * Show element replacing HTMLTemplateElement with visible HTMLElement.
  */
-export const replaceTemplateWithElement = (element: HTMLElementWithDirectives): void => {
+export const replaceTemplateWithElement: ShowElement = (element) => {
   const { content: template } = element
 
   if (!isHTMLTemplateElement(template)) {
-    return // already shown
+    return true // already shown
   }
 
   const content = template.content.firstElementChild as Nullable<HTMLElement>
   if (content == null) {
-    return // nothing to replace with
+    return false // nothing to replace with
   }
 
   element.content.replaceWith(content)
   element.content = content
+
+  return true
 }
 
 /**
  * Hide element replacing visible HTMLElement with HTMLTemplateElement.
  */
-export const replaceElementWithTemplate = (element: HTMLElementWithDirectives): void => {
+export const replaceElementWithTemplate: HideElement = (element) => {
   const { content } = element
 
   if (isHTMLTemplateElement(content)) {
-    return // already hidden
+    return false // already hidden
   }
 
   const template = document.createElement('template')
@@ -116,6 +146,8 @@ export const replaceElementWithTemplate = (element: HTMLElementWithDirectives): 
 
   element.content.replaceWith(template)
   element.content = template
+
+  return false
 }
 
 /**

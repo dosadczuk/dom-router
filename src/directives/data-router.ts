@@ -1,5 +1,6 @@
 import { isEnumValue } from '@router/asserts'
 import { defineDirective } from '@router/directives'
+import { changeViewWithMode } from '@router/dom'
 import { Directive, ExternalEvent, InternalEvent, Mode } from '@router/enums'
 import { dispatch, dispatchToElement, subscribe, subscribeToElement } from '@router/events'
 import { getCurrentURL, isMatchingURL } from '@router/url'
@@ -20,7 +21,7 @@ import { getCurrentURL, isMatchingURL } from '@router/url'
  *  <html lang="en" data-router="template"></html>
  */
 defineDirective(Directive.Init, () => {
-  let mode = document.documentElement.getAttribute(Directive.Init)
+  let mode = document.documentElement.getAttribute(Directive.Init) as string
   if (!isEnumValue(Mode, mode)) {
     mode = Mode.Display // default mode
   }
@@ -36,16 +37,16 @@ defineDirective(Directive.Init, () => {
 
     history.pushState(null, '', route)
 
-    dispatch(InternalEvent.ViewChange, mode)
+    dispatch(InternalEvent.ViewChange, changeViewWithMode(mode))
   })
 
   // update forced by History API
   subscribeToElement(window, 'popstate', () => {
-    dispatch(InternalEvent.ViewChange, mode)
+    dispatch(InternalEvent.ViewChange, changeViewWithMode(mode))
   })
 
   // initial view change
-  dispatch(InternalEvent.ViewChange, mode)
+  dispatch(InternalEvent.ViewChange, changeViewWithMode(mode))
 
   // remove before "initialized" event
   document.documentElement.removeAttribute(Directive.Init)
