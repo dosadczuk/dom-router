@@ -43,7 +43,7 @@ export const getHTMLElementsWithDirective = (elements: HTMLElementWithDirectives
  * Get first HTMLElement of element with given directive.
  */
 export const getFirstHTMLElementsWithDirective = (elements: HTMLElementWithDirectives[], directive: string): Nullable<HTMLElementWithDirectives> => {
-  return getHTMLElementsWithDirective(elements, directive)[0] ?? null
+  return elements.find(element => element.directives.has(directive)) ?? null
 }
 
 /**

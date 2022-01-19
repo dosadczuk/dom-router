@@ -85,7 +85,7 @@ const getHTMLElementsWithDirective = (elements, directive) => {
 };
 const getFirstHTMLElementsWithDirective = (elements, directive) => {
   var _a;
-  return (_a = getHTMLElementsWithDirective(elements, directive)[0]) != null ? _a : null;
+  return (_a = elements.find((element) => element.directives.has(directive))) != null ? _a : null;
 };
 const removeDirectiveFromHTMLElements = (elements, directive) => {
   elements.forEach(({ content: element }) => element.removeAttribute(directive));
