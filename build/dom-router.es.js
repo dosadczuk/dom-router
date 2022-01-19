@@ -44,6 +44,8 @@ var Directive;
   Directive2["LinkActive"] = "data-router-link-active";
   Directive2["Page"] = "data-router-page";
   Directive2["PageFallback"] = "data-router-page-fallback";
+  Directive2["Sitemap"] = "data-router-sitemap";
+  Directive2["SitemapIgnore"] = "data-router-sitemap-ignore";
 })(Directive || (Directive = {}));
 var InternalEvent;
 (function(InternalEvent2) {
@@ -61,6 +63,95 @@ var Mode;
   Mode2["Display"] = "display";
   Mode2["Template"] = "template";
 })(Mode || (Mode = {}));
+const getHTMLElementsWithAnyDirective = () => {
+  const elements = document.querySelectorAll(getDirectivesAsSelector());
+  if (elements.length === 0) {
+    return [];
+  }
+  return Array.from(elements, (element) => {
+    const attributes = Array.from(element.attributes);
+    const directives2 = new Map();
+    for (const { name, value } of attributes) {
+      if (isDirective(name)) {
+        directives2.set(name, value);
+      }
+    }
+    return { content: element, directives: directives2 };
+  });
+};
+const getHTMLElementsWithDirective = (elements, directive) => {
+  return elements.filter((element) => element.directives.has(directive));
+};
+const getFirstHTMLElementsWithDirective = (elements, directive) => {
+  var _a;
+  return (_a = getHTMLElementsWithDirective(elements, directive)[0]) != null ? _a : null;
+};
+const removeDirectiveFromHTMLElements = (elements, directive) => {
+  elements.forEach(({ content: element }) => element.removeAttribute(directive));
+};
+const changeViewWithMode = (mode) => {
+  return (element, canBeVisible) => {
+    switch (mode) {
+      case Mode.Display:
+        return toggleDisplayElement(element, canBeVisible);
+      case Mode.Template:
+        return toggleTemplateElement(element, canBeVisible);
+    }
+    return false;
+  };
+};
+const toggleDisplayElement = (element, canBeVisible) => {
+  if (canBeVisible) {
+    return displayShowElement(element);
+  } else {
+    return displayHideElement(element);
+  }
+};
+const displayShowElement = ({ content: element }) => {
+  element.style.display = "revert";
+  return true;
+};
+const displayHideElement = ({ content: element }) => {
+  element.style.display = "none";
+  return false;
+};
+const toggleTemplateElement = (element, canBeVisible) => {
+  if (canBeVisible) {
+    return replaceTemplateWithElement(element);
+  } else {
+    return replaceElementWithTemplate(element);
+  }
+};
+const replaceTemplateWithElement = (element) => {
+  const { content: template } = element;
+  if (!isHTMLTemplateElement(template)) {
+    return true;
+  }
+  const content = template.content.firstElementChild;
+  if (content == null) {
+    return false;
+  }
+  element.content.replaceWith(content);
+  element.content = content;
+  return true;
+};
+const replaceElementWithTemplate = (element) => {
+  const { content } = element;
+  if (isHTMLTemplateElement(content)) {
+    return false;
+  }
+  const template = document.createElement("template");
+  template.content.append(content.cloneNode(true));
+  element.content.replaceWith(template);
+  element.content = template;
+  return false;
+};
+const appendClassNamesToElement = (element, classNames) => {
+  element.content.classList.add(...classNames);
+};
+const removeClassNamesFromElement = (element, classNames) => {
+  element.content.classList.remove(...classNames);
+};
 const EventBus = new Map();
 const subscribe = (event, handler) => {
   if (!EventBus.has(event)) {
@@ -140,89 +231,15 @@ defineDirective(Directive.Init, () => {
       return;
     }
     history.pushState(null, "", route);
-    dispatch(InternalEvent.ViewChange, mode);
+    dispatch(InternalEvent.ViewChange, changeViewWithMode(mode));
   });
   subscribeToElement(window, "popstate", () => {
-    dispatch(InternalEvent.ViewChange, mode);
+    dispatch(InternalEvent.ViewChange, changeViewWithMode(mode));
   });
-  dispatch(InternalEvent.ViewChange, mode);
+  dispatch(InternalEvent.ViewChange, changeViewWithMode(mode));
   document.documentElement.removeAttribute(Directive.Init);
   dispatchToElement(document, ExternalEvent.Initialized);
 });
-const getHTMLElementsWithAnyDirective = () => {
-  const elements = document.querySelectorAll(getDirectivesAsSelector());
-  if (elements.length === 0) {
-    return [];
-  }
-  return Array.from(elements, (element) => {
-    const attributes = Array.from(element.attributes);
-    const directives2 = new Map();
-    for (const { name, value } of attributes) {
-      if (isDirective(name)) {
-        directives2.set(name, value);
-      }
-    }
-    return { content: element, directives: directives2 };
-  });
-};
-const getHTMLElementsWithDirective = (elements, directive) => {
-  return elements.filter((element) => element.directives.has(directive));
-};
-const getFirstHTMLElementsWithDirective = (elements, directive) => {
-  var _a;
-  return (_a = getHTMLElementsWithDirective(elements, directive)[0]) != null ? _a : null;
-};
-const removeDirectiveFromHTMLElements = (elements, directive) => {
-  elements.forEach(({ content: element }) => element.removeAttribute(directive));
-};
-const toggleDisplayElement = (element, canBeVisible) => {
-  if (canBeVisible) {
-    displayShowElement(element);
-  } else {
-    displayHideElement(element);
-  }
-};
-const displayShowElement = ({ content: element }) => {
-  element.style.display = "revert";
-};
-const displayHideElement = ({ content: element }) => {
-  element.style.display = "none";
-};
-const toggleTemplateElement = (element, canBeVisible) => {
-  if (canBeVisible) {
-    replaceTemplateWithElement(element);
-  } else {
-    replaceElementWithTemplate(element);
-  }
-};
-const replaceTemplateWithElement = (element) => {
-  const { content: template } = element;
-  if (!isHTMLTemplateElement(template)) {
-    return;
-  }
-  const content = template.content.firstElementChild;
-  if (content == null) {
-    return;
-  }
-  element.content.replaceWith(content);
-  element.content = content;
-};
-const replaceElementWithTemplate = (element) => {
-  const { content } = element;
-  if (isHTMLTemplateElement(content)) {
-    return;
-  }
-  const template = document.createElement("template");
-  template.content.append(content.cloneNode(true));
-  element.content.replaceWith(template);
-  element.content = template;
-};
-const appendClassNamesToElement = (element, classNames) => {
-  element.content.classList.add(...classNames);
-};
-const removeClassNamesFromElement = (element, classNames) => {
-  element.content.classList.remove(...classNames);
-};
 defineDirective(Directive.Cloak, (elements) => {
   const elementsWithCloak = getHTMLElementsWithDirective(elements, Directive.Cloak);
   if (elementsWithCloak.length === 0) {
@@ -286,36 +303,19 @@ defineDirective(Directive.Page, (elements) => {
   if (elementsWithPage.length === 0) {
     return;
   }
-  console.log({ elementsWithPage });
   const elementWithFallback = getFirstHTMLElementsWithDirective(elementsWithPage, Directive.PageFallback);
-  console.log({ elementWithFallback });
-  subscribe(InternalEvent.ViewChange, (mode) => {
-    let hasPageChanged = false;
+  subscribe(InternalEvent.ViewChange, (toggleElementVisibility) => {
+    let hasVisiblePage = false;
     for (const page of elementsWithPage) {
       const route = page.directives.get(Directive.Page);
       if (isEmptyString(route)) {
         continue;
       }
-      const canBeVisible = isMatchingURL(route);
-      switch (mode) {
-        case Mode.Display:
-          toggleDisplayElement(page, canBeVisible);
-          break;
-        case Mode.Template:
-          toggleTemplateElement(page, canBeVisible);
-          break;
-      }
-      hasPageChanged || (hasPageChanged = canBeVisible);
+      const isPageVisible = toggleElementVisibility(page, isMatchingURL(route));
+      hasVisiblePage || (hasVisiblePage = isPageVisible);
     }
-    if (!hasPageChanged && elementWithFallback != null) {
-      switch (mode) {
-        case Mode.Display:
-          toggleDisplayElement(elementWithFallback, true);
-          break;
-        case Mode.Template:
-          toggleTemplateElement(elementWithFallback, true);
-          break;
-      }
+    if (!hasVisiblePage && elementWithFallback != null) {
+      toggleElementVisibility(elementWithFallback, true);
     }
     dispatchToElement(document, ExternalEvent.ViewChanged);
   });
@@ -327,6 +327,41 @@ defineDirective(Directive.PageFallback, (elements) => {
     return;
   }
   removeDirectiveFromHTMLElements(elementsWithFallback, Directive.PageFallback);
+});
+defineDirective(Directive.Sitemap, (elements) => {
+  const elementWithSitemap = getFirstHTMLElementsWithDirective(elements, Directive.Sitemap);
+  if (elementWithSitemap == null) {
+    return;
+  }
+  const elementsWithPage = getHTMLElementsWithDirective(elements, Directive.Page);
+  if (elementsWithPage.length === 0) {
+    return;
+  }
+  const list = document.createElement("ol");
+  for (const { directives: directives2 } of elementsWithPage) {
+    if (directives2.has(Directive.SitemapIgnore)) {
+      continue;
+    }
+    const route = directives2.get(Directive.Page);
+    const title = directives2.get(Directive.Title);
+    if (isEmptyString(route) || isEmptyString(title)) {
+      continue;
+    }
+    const link = document.createElement("a");
+    link.href = route;
+    link.text = title;
+    const item = document.createElement("li");
+    item.append(link);
+    list.append(item);
+  }
+  elementWithSitemap.content.append(list);
+});
+defineDirective(Directive.SitemapIgnore, (elements) => {
+  const elementsWithSitemapIgnore = getHTMLElementsWithDirective(elements, Directive.SitemapIgnore);
+  if (elementsWithSitemapIgnore.length === 0) {
+    return;
+  }
+  removeDirectiveFromHTMLElements(elementsWithSitemapIgnore, Directive.SitemapIgnore);
 });
 defineDirective(Directive.Title, (elements) => {
   const elementsWithTitle = getHTMLElementsWithDirective(elements, Directive.Title);
@@ -371,6 +406,8 @@ const Router = () => {
     Directive.Title,
     Directive.Page,
     Directive.PageFallback,
+    Directive.Sitemap,
+    Directive.SitemapIgnore,
     Directive.Link,
     Directive.LinkActive,
     Directive.Init
