@@ -17,6 +17,7 @@ const Router = () => {
   setUpDirectives(elements, [
     Directive.Cloak,
     Directive.Title,
+    Directive.TitleDefault,
     Directive.Page,
     Directive.PageFallback,
     Directive.Sitemap,

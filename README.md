@@ -140,6 +140,17 @@ Provides a way to change page title. It can be used in two ways:
 </section>
 ```
 
+### `data-router-title-default`
+
+Provides a way to set page default title. When page has no title provided - default value will be used. 
+The directive can only be placed on `<html>` tag.
+
+```html
+<html lang="en" data-router data-router-title-default="Value of default title">
+  ...
+</html>
+```
+
 ### `data-router-sitemap`
 
 Marks HTML tag as sitemap placeholder. Sitemap is generated automatically and consists of `<ol>` and `<li>` tags.

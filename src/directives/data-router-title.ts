@@ -28,24 +28,23 @@ import { isMatchingURL } from '@router/url'
  *    </section>
  */
 defineDirective(Directive.Title, (elements) => {
-  const elementsWithTitle = getHTMLElementsWithDirective(elements, Directive.Title)
-  if (elementsWithTitle.length === 0) {
-    return
-  }
-
-  const elementsWithTitleAndPage = getHTMLElementsWithDirective(elementsWithTitle, Directive.Page)
-  if (elementsWithTitleAndPage.length === 0) {
+  const elementsWithPage = getHTMLElementsWithDirective(elements, Directive.Page)
+  if (elementsWithPage.length === 0) {
     return
   }
 
   const titleTemplate = document.documentElement.getAttribute(Directive.Title)
+  const titleFallback = document.documentElement.getAttribute(Directive.TitleDefault)
 
   subscribe(InternalEvent.ViewChange, () => {
-    for (const page of elementsWithTitleAndPage) {
+    for (const page of elementsWithPage) {
       const route = page.directives.get(Directive.Page)
-      const title = page.directives.get(Directive.Title)
+      if (isEmptyString(route)) {
+        continue
+      }
 
-      if (isEmptyString(route) || isEmptyString(title)) {
+      const title = page.directives.get(Directive.Title) ?? titleFallback
+      if (isEmptyString(title)) {
         continue
       }
 
@@ -61,5 +60,5 @@ defineDirective(Directive.Title, (elements) => {
     }
   })
 
-  removeDirectiveFromHTMLElements(elementsWithTitle, Directive.Title)
+  removeDirectiveFromHTMLElements(elementsWithPage, Directive.Title)
 })
