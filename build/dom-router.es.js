@@ -40,6 +40,7 @@ var Directive;
   Directive2["Init"] = "data-router";
   Directive2["Cloak"] = "data-router-cloak";
   Directive2["Title"] = "data-router-title";
+  Directive2["TitleDefault"] = "data-router-title-default";
   Directive2["Link"] = "data-router-link";
   Directive2["LinkActive"] = "data-router-link-active";
   Directive2["Page"] = "data-router-page";
@@ -364,20 +365,21 @@ defineDirective(Directive.SitemapIgnore, (elements) => {
   removeDirectiveFromHTMLElements(elementsWithSitemapIgnore, Directive.SitemapIgnore);
 });
 defineDirective(Directive.Title, (elements) => {
-  const elementsWithTitle = getHTMLElementsWithDirective(elements, Directive.Title);
-  if (elementsWithTitle.length === 0) {
-    return;
-  }
-  const elementsWithTitleAndPage = getHTMLElementsWithDirective(elementsWithTitle, Directive.Page);
-  if (elementsWithTitleAndPage.length === 0) {
+  const elementsWithPage = getHTMLElementsWithDirective(elements, Directive.Page);
+  if (elementsWithPage.length === 0) {
     return;
   }
   const titleTemplate = document.documentElement.getAttribute(Directive.Title);
+  const titleFallback = document.documentElement.getAttribute(Directive.TitleDefault);
   subscribe(InternalEvent.ViewChange, () => {
-    for (const page of elementsWithTitleAndPage) {
+    var _a;
+    for (const page of elementsWithPage) {
       const route = page.directives.get(Directive.Page);
-      const title = page.directives.get(Directive.Title);
-      if (isEmptyString(route) || isEmptyString(title)) {
+      if (isEmptyString(route)) {
+        continue;
+      }
+      const title = (_a = page.directives.get(Directive.Title)) != null ? _a : titleFallback;
+      if (isEmptyString(title)) {
         continue;
       }
       if (isMatchingURL(route)) {
@@ -390,7 +392,14 @@ defineDirective(Directive.Title, (elements) => {
       }
     }
   });
-  removeDirectiveFromHTMLElements(elementsWithTitle, Directive.Title);
+  removeDirectiveFromHTMLElements(elementsWithPage, Directive.Title);
+});
+defineDirective(Directive.TitleDefault, (elements) => {
+  const elementsWithDefaultTitle = getHTMLElementsWithDirective(elements, Directive.TitleDefault);
+  if (elementsWithDefaultTitle.length === 0) {
+    return;
+  }
+  removeDirectiveFromHTMLElements(elementsWithDefaultTitle, Directive.TitleDefault);
 });
 const Router = () => {
   const canInitialize = document.documentElement.hasAttribute(Directive.Init);
@@ -404,6 +413,7 @@ const Router = () => {
   setUpDirectives(elements, [
     Directive.Cloak,
     Directive.Title,
+    Directive.TitleDefault,
     Directive.Page,
     Directive.PageFallback,
     Directive.Sitemap,
