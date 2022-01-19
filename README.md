@@ -74,7 +74,7 @@ There are a few valid path patterns:
 
 ### `data-router-page-fallback`
 
-Marks page as fallback when no page is matching URL.
+Marks page to be a fallback when no page is matching URL.
 
 ```html
 <!-- path name and fallback -->
@@ -166,6 +166,16 @@ Directive will not be removed, so sitemap can be styled easily with CSS:
 [data-router-sitemap] ol li {
   /* list item styles goes here */
 }
+```
+
+### `data-router-sitemap-ignore`
+
+Marks page to be excluded from sitemap.
+
+```html
+<section data-router-page="/page" data-router-sitemap-ignore>
+  <!-- page content -->
+</section>
 ```
 
 ### `data-router-cloak`

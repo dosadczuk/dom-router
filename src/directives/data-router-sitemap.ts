@@ -14,7 +14,7 @@ import { Directive } from '@router/enums'
  *    - has data-router-page directive
  *    - has data-router-title directive
  *
- *  Directive will not be remove, so sitemap can be styled easily with CSS.
+ *  Directive will not be removed, so sitemap can be styled easily with CSS.
  *
  * Usage:
  *  <section data-router-page="/sitemap">
@@ -35,6 +35,10 @@ defineDirective(Directive.Sitemap, (elements) => {
   const list = document.createElement('ol')
 
   for (const { directives } of elementsWithPage) {
+    if (directives.has(Directive.SitemapIgnore)) {
+      continue // exclude from sitemap
+    }
+
     const route = directives.get(Directive.Page)
     const title = directives.get(Directive.Title)
 

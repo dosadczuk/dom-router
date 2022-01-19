@@ -20,6 +20,7 @@ const Router = () => {
     Directive.Page,
     Directive.PageFallback,
     Directive.Sitemap,
+    Directive.SitemapIgnore,
     Directive.Link,
     Directive.LinkActive,
     Directive.Init,
