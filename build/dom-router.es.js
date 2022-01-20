@@ -255,7 +255,7 @@ defineDirective(Directive.Link, (elements) => {
   }
   for (const link of elementsWithLink) {
     const route = getRouteFromLink(link);
-    if (route == null) {
+    if (isEmptyString(route)) {
       continue;
     }
     link.content.addEventListener("click", prevented(() => {
