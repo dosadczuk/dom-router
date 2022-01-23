@@ -34,7 +34,14 @@ defineDirective(Directive.Title, (elements) => {
   }
 
   const titleTemplate = document.documentElement.getAttribute(Directive.Title)
+  if (titleTemplate != null) {
+    document.documentElement.removeAttribute(Directive.Title)
+  }
+
   const titleFallback = document.documentElement.getAttribute(Directive.TitleDefault)
+  if (titleFallback != null) {
+    document.documentElement.removeAttribute(Directive.TitleDefault)
+  }
 
   subscribe(InternalEvent.ViewChange, () => {
     for (const page of elementsWithPage) {
