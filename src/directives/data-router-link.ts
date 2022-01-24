@@ -1,6 +1,5 @@
 import { isEmptyString, isHTMLAnchorElement } from '@router/asserts'
 import { defineDirective } from '@router/directives'
-import { getHTMLElementsWithDirective } from '@router/dom'
 import { Directive, InternalEvent } from '@router/enums'
 import { dispatch, prevented } from '@router/events'
 import type { HTMLElementWithDirectives, Nullable } from '@router/types'
@@ -29,12 +28,7 @@ import type { HTMLElementWithDirectives, Nullable } from '@router/types'
  *    </button>
  */
 defineDirective(Directive.Link, {
-  factory: (elements) => {
-    const elementsWithLink = getHTMLElementsWithDirective(elements, Directive.Link)
-    if (elementsWithLink.length === 0) {
-      return
-    }
-
+  factory: (_, elementsWithLink) => {
     for (const link of elementsWithLink) {
       const route = getRouteFromLink(link)
       if (isEmptyString(route)) {

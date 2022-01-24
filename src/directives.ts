@@ -1,4 +1,4 @@
-import { removeDirectiveFromHTMLElements } from '@router/dom'
+import { getHTMLElementsWithDirective, removeDirectiveFromHTMLElements } from '@router/dom'
 import type { DirectiveDefinition, HTMLElementWithDirectives } from '@router/types'
 
 const directives = new Map<string, DirectiveDefinition>()
@@ -24,7 +24,7 @@ export const setUpDirectives = (elements: HTMLElementWithDirectives[], names: st
 
     // check factory
     if (factory != null) {
-      factory(elements, options)
+      factory(elements, getHTMLElementsWithDirective(elements, name), options)
     }
 
     // check options

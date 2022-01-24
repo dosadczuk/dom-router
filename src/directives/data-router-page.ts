@@ -1,6 +1,6 @@
 import { isEmptyString } from '@router/asserts'
 import { defineDirective } from '@router/directives'
-import { getFirstHTMLElementsWithDirective, getHTMLElementsWithDirective } from '@router/dom'
+import { getFirstHTMLElementsWithDirective } from '@router/dom'
 import { Directive, ExternalEvent, InternalEvent } from '@router/enums'
 import { dispatchToElement, subscribe } from '@router/events'
 import type { ToggleElementVisibility } from '@router/types'
@@ -30,13 +30,8 @@ import { isMatchingURL } from '@router/url'
  *  </section>
  */
 defineDirective(Directive.Page, {
-  factory: (elements) => {
-    const elementsWithPage = getHTMLElementsWithDirective(elements, Directive.Page)
-    if (elementsWithPage.length === 0) {
-      return
-    }
-
-    const elementWithFallback = getFirstHTMLElementsWithDirective(elementsWithPage, Directive.PageFallback)
+  factory: (_, elementsWithPage) => {
+    const fallback = getFirstHTMLElementsWithDirective(elementsWithPage, Directive.PageFallback)
 
     subscribe(InternalEvent.ViewChange, (toggleElementVisibility: ToggleElementVisibility) => {
       let hasVisiblePage = false
@@ -52,8 +47,8 @@ defineDirective(Directive.Page, {
         hasVisiblePage ||= isPageVisible
       }
 
-      if (!hasVisiblePage && elementWithFallback != null) {
-        toggleElementVisibility(elementWithFallback, true)
+      if (!hasVisiblePage && fallback != null) {
+        toggleElementVisibility(fallback, true)
       }
 
       dispatchToElement(document, ExternalEvent.ViewChanged)

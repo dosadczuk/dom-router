@@ -1,7 +1,7 @@
 import { isEmptyString } from '@router/asserts'
 import { defineDirective } from '@router/directives'
 import { getRouteFromLink } from '@router/directives/data-router-link'
-import { appendClassNamesToElement, getHTMLElementsWithDirective, removeClassNamesFromElement } from '@router/dom'
+import { appendClassNamesToElement, removeClassNamesFromElement } from '@router/dom'
 import { Directive, InternalEvent } from '@router/enums'
 import { subscribe } from '@router/events'
 import { isMatchingURL } from '@router/url'
@@ -23,12 +23,7 @@ import { isMatchingURL } from '@router/url'
  *  <a data-router-link href="/path" data-router-link-active="my-special-class"></a>
  */
 defineDirective(Directive.LinkActive, {
-  factory: (elements) => {
-    const elementsWithLinkActive = getHTMLElementsWithDirective(elements, Directive.LinkActive)
-    if (elementsWithLinkActive.length === 0) {
-      return
-    }
-
+  factory: (_, elementsWithLinkActive) => {
     subscribe(InternalEvent.ViewChange, () => {
       for (const link of elementsWithLinkActive) {
         const route = getRouteFromLink(link)

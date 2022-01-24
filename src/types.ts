@@ -10,7 +10,7 @@ export type DirectiveDefinition = {
    */
   options?: DirectiveOptions
 }
-export type DirectiveFactory = (elements: HTMLElementWithDirectives[], options: Nullable<DirectiveOptions>) => void
+export type DirectiveFactory = (elements: HTMLElementWithDirectives[], elementsWithDirective: HTMLElementWithDirectives[], options: Nullable<DirectiveOptions>) => void
 export type DirectiveOptions = {
   /**
    * Remove directive after set up.
