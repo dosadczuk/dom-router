@@ -24,6 +24,7 @@ import { isMatchingURL } from '@router/url'
  */
 defineDirective(Directive.LinkActive, {
   factory: (_, elementsWithLinkActive) => {
+    // update link active after firing up view change event
     subscribe(InternalEvent.ViewChange, () => {
       for (const link of elementsWithLinkActive) {
         const route = getRouteFromLink(link)

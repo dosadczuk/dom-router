@@ -35,15 +35,9 @@ defineDirective(Directive.Title, {
     }
 
     const titleTemplate = document.documentElement.getAttribute(Directive.Title)
-    if (titleTemplate != null) {
-      document.documentElement.removeAttribute(Directive.Title)
-    }
-
     const titleFallback = document.documentElement.getAttribute(Directive.TitleDefault)
-    if (titleFallback != null) {
-      document.documentElement.removeAttribute(Directive.TitleDefault)
-    }
 
+    // update title after firing up view change event
     subscribe(InternalEvent.ViewChange, () => {
       for (const page of elementsWithPage) {
         const route = page.directives.get(Directive.Page)
@@ -67,6 +61,11 @@ defineDirective(Directive.Title, {
         }
       }
     })
+
+    return () => {
+      if (titleTemplate != null) document.documentElement.removeAttribute(Directive.Title)
+      if (titleFallback != null) document.documentElement.removeAttribute(Directive.TitleDefault)
+    }
   },
   options: {
     removable: true,

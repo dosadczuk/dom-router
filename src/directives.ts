@@ -24,7 +24,10 @@ export const setUpDirectives = (elements: HTMLElementWithDirectives[], names: st
 
     // check factory
     if (factory != null) {
-      factory(elements, getHTMLElementsWithDirective(elements, name), options)
+      const cleanup = factory(elements, getHTMLElementsWithDirective(elements, name), options)
+      if (cleanup != null) {
+        cleanup() // cleanup after set up
+      }
     }
 
     // check options

@@ -33,6 +33,7 @@ defineDirective(Directive.Page, {
   factory: (_, elementsWithPage) => {
     const fallback = getFirstHTMLElementsWithDirective(elementsWithPage, Directive.PageFallback)
 
+    // update page visibility after firing up view change event
     subscribe(InternalEvent.ViewChange, (toggleElementVisibility: ToggleElementVisibility) => {
       let hasVisiblePage = false
 
