@@ -1,25 +1,3 @@
-const directives = new Map();
-const defineDirective = (name, factory) => {
-  directives.set(name, factory);
-};
-const setUpDirectives = (elements, names) => {
-  for (const name of names) {
-    const factory = directives.get(name);
-    if (factory == null) {
-      continue;
-    }
-    factory(elements);
-  }
-};
-const isDirective = (name) => {
-  return getDirectives().includes(name);
-};
-const getDirectives = () => {
-  return Array.from(directives.keys());
-};
-const getDirectivesAsSelector = () => {
-  return getDirectives().map((it) => `[${it}]`).join(", ");
-};
 const isString = (value) => {
   return typeof value === "string";
 };
@@ -153,6 +131,39 @@ const appendClassNamesToElement = (element, classNames) => {
 const removeClassNamesFromElement = (element, classNames) => {
   element.content.classList.remove(...classNames);
 };
+const directives = new Map();
+const defineDirective = (name, definition) => {
+  directives.set(name, definition);
+};
+const setUpDirectives = (elements, names) => {
+  for (const name of names) {
+    const definition = directives.get(name);
+    if (definition == null) {
+      continue;
+    }
+    const { factory, options } = definition;
+    if (factory != null) {
+      const cleanup = factory(elements, getHTMLElementsWithDirective(elements, name), options);
+      if (cleanup != null) {
+        cleanup();
+      }
+    }
+    if (options != null) {
+      if (options.removable) {
+        removeDirectiveFromHTMLElements(elements, name);
+      }
+    }
+  }
+};
+const isDirective = (name) => {
+  return getDirectives().includes(name);
+};
+const getDirectives = () => {
+  return Array.from(directives.keys());
+};
+const getDirectivesAsSelector = () => {
+  return getDirectives().map((it) => `[${it}]`).join(", ");
+};
 const EventBus = new Map();
 const subscribe = (event, handler) => {
   if (!EventBus.has(event)) {
@@ -221,48 +232,49 @@ const getCurrentURL = () => {
 const isMatchingURL = (pattern, url = getCurrentURL()) => {
   return parse(pattern).pattern.test(url.pathname);
 };
-defineDirective(Directive.Init, () => {
-  let mode = document.documentElement.getAttribute(Directive.Init);
-  if (!isEnumValue(Mode, mode)) {
-    mode = Mode.Display;
-  }
-  dispatchToElement(document, ExternalEvent.Initialize);
-  subscribe(InternalEvent.PageChange, (route) => {
-    if (isMatchingURL(route, getCurrentURL())) {
-      return;
+defineDirective(Directive.Init, {
+  factory: () => {
+    let mode = document.documentElement.getAttribute(Directive.Init);
+    if (!isEnumValue(Mode, mode)) {
+      mode = Mode.Display;
     }
-    history.pushState(null, "", route);
+    dispatchToElement(document, ExternalEvent.Initialize);
+    subscribe(InternalEvent.PageChange, (route) => {
+      if (isMatchingURL(route, getCurrentURL())) {
+        return;
+      }
+      history.pushState(null, "", route);
+      dispatch(InternalEvent.ViewChange, changeViewWithMode(mode));
+    });
+    subscribeToElement(window, "popstate", () => {
+      dispatch(InternalEvent.ViewChange, changeViewWithMode(mode));
+    });
     dispatch(InternalEvent.ViewChange, changeViewWithMode(mode));
-  });
-  subscribeToElement(window, "popstate", () => {
-    dispatch(InternalEvent.ViewChange, changeViewWithMode(mode));
-  });
-  dispatch(InternalEvent.ViewChange, changeViewWithMode(mode));
-  document.documentElement.removeAttribute(Directive.Init);
-  dispatchToElement(document, ExternalEvent.Initialized);
-});
-defineDirective(Directive.Cloak, (elements) => {
-  const elementsWithCloak = getHTMLElementsWithDirective(elements, Directive.Cloak);
-  if (elementsWithCloak.length === 0) {
-    return;
+    document.documentElement.removeAttribute(Directive.Init);
+    dispatchToElement(document, ExternalEvent.Initialized);
   }
-  removeDirectiveFromHTMLElements(elementsWithCloak, Directive.Cloak);
 });
-defineDirective(Directive.Link, (elements) => {
-  const elementsWithLink = getHTMLElementsWithDirective(elements, Directive.Link);
-  if (elementsWithLink.length === 0) {
-    return;
+defineDirective(Directive.Cloak, {
+  factory: null,
+  options: {
+    removable: true
   }
-  for (const link of elementsWithLink) {
-    const route = getRouteFromLink(link);
-    if (isEmptyString(route)) {
-      continue;
+});
+defineDirective(Directive.Link, {
+  factory: (_, elementsWithLink) => {
+    for (const link of elementsWithLink) {
+      const route = getRouteFromLink(link);
+      if (isEmptyString(route)) {
+        continue;
+      }
+      link.content.addEventListener("click", prevented(() => {
+        dispatch(InternalEvent.PageChange, route);
+      }));
     }
-    link.content.addEventListener("click", prevented(() => {
-      dispatch(InternalEvent.PageChange, route);
-    }));
+  },
+  options: {
+    removable: true
   }
-  removeDirectiveFromHTMLElements(elementsWithLink, Directive.Link);
 });
 const getRouteFromLink = ({ content: link, directives: directives2 }) => {
   var _a;
@@ -275,131 +287,143 @@ const getRouteFromLink = ({ content: link, directives: directives2 }) => {
   }
   return null;
 };
-defineDirective(Directive.LinkActive, (elements) => {
-  const elementsWithLinkActive = getHTMLElementsWithDirective(elements, Directive.LinkActive);
-  if (elementsWithLinkActive.length === 0) {
-    return;
-  }
-  subscribe(InternalEvent.ViewChange, () => {
-    for (const link of elementsWithLinkActive) {
-      const route = getRouteFromLink(link);
-      if (isEmptyString(route)) {
-        continue;
-      }
-      let className = link.directives.get(Directive.LinkActive);
-      if (isEmptyString(className)) {
-        className = "active";
-      }
-      if (isMatchingURL(route)) {
-        appendClassNamesToElement(link, className.split(" "));
-      } else {
-        removeClassNamesFromElement(link, className.split(" "));
-      }
-    }
-  });
-  removeDirectiveFromHTMLElements(elementsWithLinkActive, Directive.LinkActive);
-});
-defineDirective(Directive.Page, (elements) => {
-  const elementsWithPage = getHTMLElementsWithDirective(elements, Directive.Page);
-  if (elementsWithPage.length === 0) {
-    return;
-  }
-  const elementWithFallback = getFirstHTMLElementsWithDirective(elementsWithPage, Directive.PageFallback);
-  subscribe(InternalEvent.ViewChange, (toggleElementVisibility) => {
-    let hasVisiblePage = false;
-    for (const page of elementsWithPage) {
-      const route = page.directives.get(Directive.Page);
-      if (isEmptyString(route)) {
-        continue;
-      }
-      const isPageVisible = toggleElementVisibility(page, isMatchingURL(route));
-      hasVisiblePage || (hasVisiblePage = isPageVisible);
-    }
-    if (!hasVisiblePage && elementWithFallback != null) {
-      toggleElementVisibility(elementWithFallback, true);
-    }
-    dispatchToElement(document, ExternalEvent.ViewChanged);
-  });
-  removeDirectiveFromHTMLElements(elementsWithPage, Directive.Page);
-});
-defineDirective(Directive.PageFallback, (elements) => {
-  const elementsWithFallback = getHTMLElementsWithDirective(elements, Directive.PageFallback);
-  if (elementsWithFallback.length === 0) {
-    return;
-  }
-  removeDirectiveFromHTMLElements(elementsWithFallback, Directive.PageFallback);
-});
-defineDirective(Directive.Sitemap, (elements) => {
-  const elementWithSitemap = getFirstHTMLElementsWithDirective(elements, Directive.Sitemap);
-  if (elementWithSitemap == null) {
-    return;
-  }
-  const elementsWithPage = getHTMLElementsWithDirective(elements, Directive.Page);
-  if (elementsWithPage.length === 0) {
-    return;
-  }
-  const list = document.createElement("ol");
-  for (const { directives: directives2 } of elementsWithPage) {
-    if (directives2.has(Directive.SitemapIgnore)) {
-      continue;
-    }
-    const route = directives2.get(Directive.Page);
-    const title = directives2.get(Directive.Title);
-    if (isEmptyString(route) || isEmptyString(title)) {
-      continue;
-    }
-    const link = document.createElement("a");
-    link.href = route;
-    link.text = title;
-    const item = document.createElement("li");
-    item.append(link);
-    list.append(item);
-  }
-  elementWithSitemap.content.append(list);
-});
-defineDirective(Directive.SitemapIgnore, (elements) => {
-  const elementsWithSitemapIgnore = getHTMLElementsWithDirective(elements, Directive.SitemapIgnore);
-  if (elementsWithSitemapIgnore.length === 0) {
-    return;
-  }
-  removeDirectiveFromHTMLElements(elementsWithSitemapIgnore, Directive.SitemapIgnore);
-});
-defineDirective(Directive.Title, (elements) => {
-  const elementsWithPage = getHTMLElementsWithDirective(elements, Directive.Page);
-  if (elementsWithPage.length === 0) {
-    return;
-  }
-  const titleTemplate = document.documentElement.getAttribute(Directive.Title);
-  const titleFallback = document.documentElement.getAttribute(Directive.TitleDefault);
-  subscribe(InternalEvent.ViewChange, () => {
-    var _a;
-    for (const page of elementsWithPage) {
-      const route = page.directives.get(Directive.Page);
-      if (isEmptyString(route)) {
-        continue;
-      }
-      const title = (_a = page.directives.get(Directive.Title)) != null ? _a : titleFallback;
-      if (isEmptyString(title)) {
-        continue;
-      }
-      if (isMatchingURL(route)) {
-        if (titleTemplate != null) {
-          document.title = titleTemplate.replace("{title}", title);
-        } else {
-          document.title = title;
+defineDirective(Directive.LinkActive, {
+  factory: (_, elementsWithLinkActive) => {
+    subscribe(InternalEvent.ViewChange, () => {
+      for (const link of elementsWithLinkActive) {
+        const route = getRouteFromLink(link);
+        if (isEmptyString(route)) {
+          continue;
         }
-        break;
+        let className = link.directives.get(Directive.LinkActive);
+        if (isEmptyString(className)) {
+          className = "active";
+        }
+        if (isMatchingURL(route)) {
+          appendClassNamesToElement(link, className.split(" "));
+        } else {
+          removeClassNamesFromElement(link, className.split(" "));
+        }
       }
-    }
-  });
-  removeDirectiveFromHTMLElements(elementsWithPage, Directive.Title);
-});
-defineDirective(Directive.TitleDefault, (elements) => {
-  const elementsWithDefaultTitle = getHTMLElementsWithDirective(elements, Directive.TitleDefault);
-  if (elementsWithDefaultTitle.length === 0) {
-    return;
+    });
+  },
+  options: {
+    removable: true
   }
-  removeDirectiveFromHTMLElements(elementsWithDefaultTitle, Directive.TitleDefault);
+});
+defineDirective(Directive.Page, {
+  factory: (_, elementsWithPage) => {
+    const fallback = getFirstHTMLElementsWithDirective(elementsWithPage, Directive.PageFallback);
+    subscribe(InternalEvent.ViewChange, (toggleElementVisibility) => {
+      let hasVisiblePage = false;
+      for (const page of elementsWithPage) {
+        const route = page.directives.get(Directive.Page);
+        if (isEmptyString(route)) {
+          continue;
+        }
+        const isPageVisible = toggleElementVisibility(page, isMatchingURL(route));
+        hasVisiblePage || (hasVisiblePage = isPageVisible);
+      }
+      if (!hasVisiblePage && fallback != null) {
+        toggleElementVisibility(fallback, true);
+      }
+      dispatchToElement(document, ExternalEvent.ViewChanged);
+    });
+  },
+  options: {
+    removable: true
+  }
+});
+defineDirective(Directive.PageFallback, {
+  factory: null,
+  options: {
+    removable: true
+  }
+});
+defineDirective(Directive.Sitemap, {
+  factory: (elements) => {
+    const elementWithSitemap = getFirstHTMLElementsWithDirective(elements, Directive.Sitemap);
+    if (elementWithSitemap == null) {
+      return;
+    }
+    const elementsWithPage = getHTMLElementsWithDirective(elements, Directive.Page);
+    if (elementsWithPage.length === 0) {
+      return;
+    }
+    const list = document.createElement("ol");
+    for (const { directives: directives2 } of elementsWithPage) {
+      if (directives2.has(Directive.SitemapIgnore)) {
+        continue;
+      }
+      const route = directives2.get(Directive.Page);
+      const title = directives2.get(Directive.Title);
+      if (isEmptyString(route) || isEmptyString(title)) {
+        continue;
+      }
+      const link = document.createElement("a");
+      link.href = route;
+      link.text = title;
+      const item = document.createElement("li");
+      item.append(link);
+      list.append(item);
+    }
+    elementWithSitemap.content.append(list);
+  },
+  options: {
+    removable: false
+  }
+});
+defineDirective(Directive.SitemapIgnore, {
+  factory: null,
+  options: {
+    removable: true
+  }
+});
+defineDirective(Directive.Title, {
+  factory: (elements) => {
+    const elementsWithPage = getHTMLElementsWithDirective(elements, Directive.Page);
+    if (elementsWithPage.length === 0) {
+      return;
+    }
+    const titleTemplate = document.documentElement.getAttribute(Directive.Title);
+    const titleFallback = document.documentElement.getAttribute(Directive.TitleDefault);
+    subscribe(InternalEvent.ViewChange, () => {
+      var _a;
+      for (const page of elementsWithPage) {
+        const route = page.directives.get(Directive.Page);
+        if (isEmptyString(route)) {
+          continue;
+        }
+        const title = (_a = page.directives.get(Directive.Title)) != null ? _a : titleFallback;
+        if (isEmptyString(title)) {
+          continue;
+        }
+        if (isMatchingURL(route)) {
+          if (titleTemplate != null) {
+            document.title = titleTemplate.replace("{title}", title);
+          } else {
+            document.title = title;
+          }
+          break;
+        }
+      }
+    });
+    return () => {
+      if (titleTemplate != null)
+        document.documentElement.removeAttribute(Directive.Title);
+      if (titleFallback != null)
+        document.documentElement.removeAttribute(Directive.TitleDefault);
+    };
+  },
+  options: {
+    removable: true
+  }
+});
+defineDirective(Directive.TitleDefault, {
+  factory: null,
+  options: {
+    removable: true
+  }
 });
 const Router = () => {
   const canInitialize = document.documentElement.hasAttribute(Directive.Init);
