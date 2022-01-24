@@ -1,5 +1,4 @@
 import { defineDirective } from '@router/directives'
-import { getHTMLElementsWithDirective, removeDirectiveFromHTMLElements } from '@router/dom'
 import { Directive } from '@router/enums'
 
 /**
@@ -13,11 +12,9 @@ import { Directive } from '@router/enums'
  *    <!-- page content -->
  *  </section>
  */
-defineDirective(Directive.PageFallback, (elements) => {
-  const elementsWithFallback = getHTMLElementsWithDirective(elements, Directive.PageFallback)
-  if (elementsWithFallback.length === 0) {
-    return
-  }
-
-  removeDirectiveFromHTMLElements(elementsWithFallback, Directive.PageFallback)
+defineDirective(Directive.PageFallback, {
+  factory: null,
+  options: {
+    removable: true,
+  },
 })

@@ -1,5 +1,4 @@
 import { defineDirective } from '@router/directives'
-import { getHTMLElementsWithDirective, removeDirectiveFromHTMLElements } from '@router/dom'
 import { Directive } from '@router/enums'
 
 /**
@@ -17,11 +16,9 @@ import { Directive } from '@router/enums'
  *     ...
  *  </html>
  */
-defineDirective(Directive.TitleDefault, (elements) => {
-  const elementsWithDefaultTitle = getHTMLElementsWithDirective(elements, Directive.TitleDefault)
-  if (elementsWithDefaultTitle.length === 0) {
-    return
-  }
-
-  removeDirectiveFromHTMLElements(elementsWithDefaultTitle, Directive.TitleDefault)
+defineDirective(Directive.TitleDefault, {
+  factory: null,
+  options: {
+    removable: true,
+  },
 })

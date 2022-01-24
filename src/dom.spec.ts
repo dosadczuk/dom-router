@@ -19,7 +19,7 @@ describe('dom', () => {
   const DIRECTIVE_VALUE = 'test'
 
   beforeAll(() => {
-    defineDirective('data-test', fn())
+    defineDirective('data-test', { factory: fn() })
 
     ELEMENTS = Array.from({ length: 5 }, () => {
       return createElementWithDirective(DIRECTIVE_NAME, DIRECTIVE_VALUE)

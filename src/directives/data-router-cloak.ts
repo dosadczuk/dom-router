@@ -1,5 +1,4 @@
 import { defineDirective } from '@router/directives'
-import { getHTMLElementsWithDirective, removeDirectiveFromHTMLElements } from '@router/dom'
 import { Directive } from '@router/enums'
 
 /**
@@ -20,11 +19,9 @@ import { Directive } from '@router/enums'
  *      display: none !important;
  *    }
  */
-defineDirective(Directive.Cloak, (elements) => {
-  const elementsWithCloak = getHTMLElementsWithDirective(elements, Directive.Cloak)
-  if (elementsWithCloak.length === 0) {
-    return
-  }
-
-  removeDirectiveFromHTMLElements(elementsWithCloak, Directive.Cloak)
+defineDirective(Directive.Cloak, {
+  factory: null,
+  options: {
+    removable: true,
+  },
 })

@@ -21,40 +21,45 @@ import { Directive } from '@router/enums'
  *    <div data-router-sitemap></div>
  *  </section>
  */
-defineDirective(Directive.Sitemap, (elements) => {
-  const elementWithSitemap = getFirstHTMLElementsWithDirective(elements, Directive.Sitemap)
-  if (elementWithSitemap == null) {
-    return // sitemap not needed
-  }
-
-  const elementsWithPage = getHTMLElementsWithDirective(elements, Directive.Page)
-  if (elementsWithPage.length === 0) {
-    return // no pages - no sitemap
-  }
-
-  const list = document.createElement('ol')
-
-  for (const { directives } of elementsWithPage) {
-    if (directives.has(Directive.SitemapIgnore)) {
-      continue // exclude from sitemap
+defineDirective(Directive.Sitemap, {
+  factory: (elements) => {
+    const elementWithSitemap = getFirstHTMLElementsWithDirective(elements, Directive.Sitemap)
+    if (elementWithSitemap == null) {
+      return // sitemap not needed
     }
 
-    const route = directives.get(Directive.Page)
-    const title = directives.get(Directive.Title)
-
-    if (isEmptyString(route) || isEmptyString(title)) {
-      continue // no way to determine link and text
+    const elementsWithPage = getHTMLElementsWithDirective(elements, Directive.Page)
+    if (elementsWithPage.length === 0) {
+      return // no pages - no sitemap
     }
 
-    const link = document.createElement('a')
-    link.href = route
-    link.text = title
+    const list = document.createElement('ol')
 
-    const item = document.createElement('li')
-    item.append(link)
+    for (const { directives } of elementsWithPage) {
+      if (directives.has(Directive.SitemapIgnore)) {
+        continue // exclude from sitemap
+      }
 
-    list.append(item)
-  }
+      const route = directives.get(Directive.Page)
+      const title = directives.get(Directive.Title)
 
-  elementWithSitemap.content.append(list)
+      if (isEmptyString(route) || isEmptyString(title)) {
+        continue // no way to determine link and text
+      }
+
+      const link = document.createElement('a')
+      link.href = route
+      link.text = title
+
+      const item = document.createElement('li')
+      item.append(link)
+
+      list.append(item)
+    }
+
+    elementWithSitemap.content.append(list)
+  },
+  options: {
+    removable: false,
+  },
 })

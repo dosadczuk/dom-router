@@ -1,6 +1,6 @@
 import { isEmptyString } from '@router/asserts'
 import { defineDirective } from '@router/directives'
-import { getHTMLElementsWithDirective, removeDirectiveFromHTMLElements } from '@router/dom'
+import { getHTMLElementsWithDirective } from '@router/dom'
 import { Directive, InternalEvent } from '@router/enums'
 import { subscribe } from '@router/events'
 import { isMatchingURL } from '@router/url'
@@ -27,45 +27,48 @@ import { isMatchingURL } from '@router/url'
  *      ...
  *    </section>
  */
-defineDirective(Directive.Title, (elements) => {
-  const elementsWithPage = getHTMLElementsWithDirective(elements, Directive.Page)
-  if (elementsWithPage.length === 0) {
-    return
-  }
+defineDirective(Directive.Title, {
+  factory: (elements) => {
+    const elementsWithPage = getHTMLElementsWithDirective(elements, Directive.Page)
+    if (elementsWithPage.length === 0) {
+      return
+    }
 
-  const titleTemplate = document.documentElement.getAttribute(Directive.Title)
-  if (titleTemplate != null) {
-    document.documentElement.removeAttribute(Directive.Title)
-  }
+    const titleTemplate = document.documentElement.getAttribute(Directive.Title)
+    if (titleTemplate != null) {
+      document.documentElement.removeAttribute(Directive.Title)
+    }
 
-  const titleFallback = document.documentElement.getAttribute(Directive.TitleDefault)
-  if (titleFallback != null) {
-    document.documentElement.removeAttribute(Directive.TitleDefault)
-  }
+    const titleFallback = document.documentElement.getAttribute(Directive.TitleDefault)
+    if (titleFallback != null) {
+      document.documentElement.removeAttribute(Directive.TitleDefault)
+    }
 
-  subscribe(InternalEvent.ViewChange, () => {
-    for (const page of elementsWithPage) {
-      const route = page.directives.get(Directive.Page)
-      if (isEmptyString(route)) {
-        continue
-      }
-
-      const title = page.directives.get(Directive.Title) ?? titleFallback
-      if (isEmptyString(title)) {
-        continue
-      }
-
-      if (isMatchingURL(route)) {
-        if (titleTemplate != null) {
-          document.title = titleTemplate.replace('{title}', title)
-        } else {
-          document.title = title
+    subscribe(InternalEvent.ViewChange, () => {
+      for (const page of elementsWithPage) {
+        const route = page.directives.get(Directive.Page)
+        if (isEmptyString(route)) {
+          continue
         }
 
-        break // first match
-      }
-    }
-  })
+        const title = page.directives.get(Directive.Title) ?? titleFallback
+        if (isEmptyString(title)) {
+          continue
+        }
 
-  removeDirectiveFromHTMLElements(elementsWithPage, Directive.Title)
+        if (isMatchingURL(route)) {
+          if (titleTemplate != null) {
+            document.title = titleTemplate.replace('{title}', title)
+          } else {
+            document.title = title
+          }
+
+          break // first match
+        }
+      }
+    })
+  },
+  options: {
+    removable: true,
+  },
 })

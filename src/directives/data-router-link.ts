@@ -1,6 +1,6 @@
 import { isEmptyString, isHTMLAnchorElement } from '@router/asserts'
 import { defineDirective } from '@router/directives'
-import { getHTMLElementsWithDirective, removeDirectiveFromHTMLElements } from '@router/dom'
+import { getHTMLElementsWithDirective } from '@router/dom'
 import { Directive, InternalEvent } from '@router/enums'
 import { dispatch, prevented } from '@router/events'
 import type { HTMLElementWithDirectives, Nullable } from '@router/types'
@@ -28,24 +28,27 @@ import type { HTMLElementWithDirectives, Nullable } from '@router/types'
  *      ...
  *    </button>
  */
-defineDirective(Directive.Link, (elements) => {
-  const elementsWithLink = getHTMLElementsWithDirective(elements, Directive.Link)
-  if (elementsWithLink.length === 0) {
-    return
-  }
-
-  for (const link of elementsWithLink) {
-    const route = getRouteFromLink(link)
-    if (isEmptyString(route)) {
-      continue
+defineDirective(Directive.Link, {
+  factory: (elements) => {
+    const elementsWithLink = getHTMLElementsWithDirective(elements, Directive.Link)
+    if (elementsWithLink.length === 0) {
+      return
     }
 
-    link.content.addEventListener('click', prevented(() => {
-      dispatch(InternalEvent.PageChange, route)
-    }))
-  }
+    for (const link of elementsWithLink) {
+      const route = getRouteFromLink(link)
+      if (isEmptyString(route)) {
+        continue
+      }
 
-  removeDirectiveFromHTMLElements(elementsWithLink, Directive.Link)
+      link.content.addEventListener('click', prevented(() => {
+        dispatch(InternalEvent.PageChange, route)
+      }))
+    }
+  },
+  options: {
+    removable: true,
+  },
 })
 
 export const getRouteFromLink = ({ content: link, directives }: HTMLElementWithDirectives): Nullable<string> => {

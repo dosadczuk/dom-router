@@ -19,7 +19,7 @@ describe('directives', () => {
     const directiveFactory = fn()
 
     // when
-    defineDirective(directiveName, directiveFactory)
+    defineDirective(directiveName, { factory: directiveFactory })
 
     // then
     expect(isDirective(directiveName)).toBeTruthy()
@@ -28,8 +28,8 @@ describe('directives', () => {
 
   it('should list directives', () => {
     // given
-    defineDirective('test1', fn())
-    defineDirective('test2', fn())
+    defineDirective('test1', { factory: fn() })
+    defineDirective('test2', { factory: fn() })
 
     // when
     const directives = getDirectives()
@@ -40,8 +40,8 @@ describe('directives', () => {
 
   it('should get selector to find elements with any directive', function () {
     // given
-    defineDirective('test1', fn())
-    defineDirective('test2', fn())
+    defineDirective('test1', { factory: fn() })
+    defineDirective('test2', { factory: fn() })
 
     // when
     const selector = getDirectivesAsSelector()
@@ -52,8 +52,8 @@ describe('directives', () => {
 
   it('should clear directives', () => {
     // given
-    defineDirective('test1', fn())
-    defineDirective('test2', fn())
+    defineDirective('test1', { factory: fn() })
+    defineDirective('test2', { factory: fn() })
 
     // when
     const directivesBeforeClear = getDirectives()

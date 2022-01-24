@@ -1,10 +1,6 @@
 import { isEmptyString } from '@router/asserts'
 import { defineDirective } from '@router/directives'
-import {
-  getFirstHTMLElementsWithDirective,
-  getHTMLElementsWithDirective,
-  removeDirectiveFromHTMLElements,
-} from '@router/dom'
+import { getFirstHTMLElementsWithDirective, getHTMLElementsWithDirective } from '@router/dom'
 import { Directive, ExternalEvent, InternalEvent } from '@router/enums'
 import { dispatchToElement, subscribe } from '@router/events'
 import type { ToggleElementVisibility } from '@router/types'
@@ -33,34 +29,37 @@ import { isMatchingURL } from '@router/url'
  *    <!-- page content -->
  *  </section>
  */
-defineDirective(Directive.Page, (elements) => {
-  const elementsWithPage = getHTMLElementsWithDirective(elements, Directive.Page)
-  if (elementsWithPage.length === 0) {
-    return
-  }
+defineDirective(Directive.Page, {
+  factory: (elements) => {
+    const elementsWithPage = getHTMLElementsWithDirective(elements, Directive.Page)
+    if (elementsWithPage.length === 0) {
+      return
+    }
 
-  const elementWithFallback = getFirstHTMLElementsWithDirective(elementsWithPage, Directive.PageFallback)
+    const elementWithFallback = getFirstHTMLElementsWithDirective(elementsWithPage, Directive.PageFallback)
 
-  subscribe(InternalEvent.ViewChange, (toggleElementVisibility: ToggleElementVisibility) => {
-    let hasVisiblePage = false
+    subscribe(InternalEvent.ViewChange, (toggleElementVisibility: ToggleElementVisibility) => {
+      let hasVisiblePage = false
 
-    for (const page of elementsWithPage) {
-      const route = page.directives.get(Directive.Page)
-      if (isEmptyString(route)) {
-        continue
+      for (const page of elementsWithPage) {
+        const route = page.directives.get(Directive.Page)
+        if (isEmptyString(route)) {
+          continue
+        }
+
+        const isPageVisible = toggleElementVisibility(page, isMatchingURL(route))
+
+        hasVisiblePage ||= isPageVisible
       }
 
-      const isPageVisible = toggleElementVisibility(page, isMatchingURL(route))
+      if (!hasVisiblePage && elementWithFallback != null) {
+        toggleElementVisibility(elementWithFallback, true)
+      }
 
-      hasVisiblePage ||= isPageVisible
-    }
-
-    if (!hasVisiblePage && elementWithFallback != null) {
-      toggleElementVisibility(elementWithFallback, true)
-    }
-
-    dispatchToElement(document, ExternalEvent.ViewChanged)
-  })
-
-  removeDirectiveFromHTMLElements(elementsWithPage, Directive.Page)
+      dispatchToElement(document, ExternalEvent.ViewChanged)
+    })
+  },
+  options: {
+    removable: true,
+  },
 })

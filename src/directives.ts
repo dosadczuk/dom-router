@@ -1,12 +1,13 @@
-import type { DirectiveFactory, HTMLElementWithDirectives } from '@router/types'
+import { removeDirectiveFromHTMLElements } from '@router/dom'
+import type { DirectiveDefinition, HTMLElementWithDirectives } from '@router/types'
 
-const directives = new Map<string, DirectiveFactory>()
+const directives = new Map<string, DirectiveDefinition>()
 
 /**
  * Register directive with given factory function.
  */
-export const defineDirective = (name: string, factory: DirectiveFactory): void => {
-  directives.set(name, factory)
+export const defineDirective = (name: string, definition: DirectiveDefinition): void => {
+  directives.set(name, definition)
 }
 
 /**
@@ -14,12 +15,24 @@ export const defineDirective = (name: string, factory: DirectiveFactory): void =
  */
 export const setUpDirectives = (elements: HTMLElementWithDirectives[], names: string[]): void => {
   for (const name of names) {
-    const factory = directives.get(name)
-    if (factory == null) {
+    const definition = directives.get(name)
+    if (definition == null) {
       continue
     }
 
-    factory(elements)
+    const { factory, options } = definition
+
+    // check factory
+    if (factory != null) {
+      factory(elements, options)
+    }
+
+    // check options
+    if (options != null) {
+      if (options.removable) {
+        removeDirectiveFromHTMLElements(elements, name)
+      }
+    }
   }
 }
 
