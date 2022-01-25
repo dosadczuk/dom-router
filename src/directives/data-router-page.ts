@@ -1,6 +1,6 @@
 import { isEmptyString } from '@router/asserts'
 import { defineDirective } from '@router/directives'
-import { getFirstHTMLElementsWithDirective } from '@router/dom'
+import { getFirstHTMLElementWithDirective } from '@router/dom'
 import { Directive, ExternalEvent, InternalEvent } from '@router/enums'
 import { dispatchToElement, subscribe } from '@router/events'
 import type { ToggleElementVisibility } from '@router/types'
@@ -31,7 +31,7 @@ import { isMatchingURL } from '@router/url'
  */
 defineDirective(Directive.Page, {
   factory: (_, elementsWithPage) => {
-    const fallback = getFirstHTMLElementsWithDirective(elementsWithPage, Directive.PageFallback)
+    const fallback = getFirstHTMLElementWithDirective(elementsWithPage, Directive.PageFallback)
 
     // update page visibility after firing up view change event
     subscribe(InternalEvent.ViewChange, (toggleElementVisibility: ToggleElementVisibility) => {

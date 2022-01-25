@@ -2,7 +2,7 @@ import { defineDirective } from '@router/directives'
 import {
   displayHideElement,
   displayShowElement,
-  getFirstHTMLElementsWithDirective,
+  getFirstHTMLElementWithDirective,
   getHTMLElementsWithAnyDirective,
   getHTMLElementsWithDirective,
   removeDirectiveFromHTMLElements,
@@ -70,7 +70,7 @@ describe('dom', () => {
     const elementWithTestDirective = ELEMENTS[0]
 
     // when
-    const element = getFirstHTMLElementsWithDirective(elements, DIRECTIVE_NAME)
+    const element = getFirstHTMLElementWithDirective(elements, DIRECTIVE_NAME)
     const { content, directives } = element!
 
     // then
