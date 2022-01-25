@@ -61,7 +61,7 @@ const getHTMLElementsWithAnyDirective = () => {
 const getHTMLElementsWithDirective = (elements, directive) => {
   return elements.filter((element) => element.directives.has(directive));
 };
-const getFirstHTMLElementsWithDirective = (elements, directive) => {
+const getFirstHTMLElementWithDirective = (elements, directive) => {
   var _a;
   return (_a = elements.find((element) => element.directives.has(directive))) != null ? _a : null;
 };
@@ -313,7 +313,7 @@ defineDirective(Directive.LinkActive, {
 });
 defineDirective(Directive.Page, {
   factory: (_, elementsWithPage) => {
-    const fallback = getFirstHTMLElementsWithDirective(elementsWithPage, Directive.PageFallback);
+    const fallback = getFirstHTMLElementWithDirective(elementsWithPage, Directive.PageFallback);
     subscribe(InternalEvent.ViewChange, (toggleElementVisibility) => {
       let hasVisiblePage = false;
       for (const page of elementsWithPage) {
@@ -342,7 +342,7 @@ defineDirective(Directive.PageFallback, {
 });
 defineDirective(Directive.Sitemap, {
   factory: (elements) => {
-    const elementWithSitemap = getFirstHTMLElementsWithDirective(elements, Directive.Sitemap);
+    const elementWithSitemap = getFirstHTMLElementWithDirective(elements, Directive.Sitemap);
     if (elementWithSitemap == null) {
       return;
     }
