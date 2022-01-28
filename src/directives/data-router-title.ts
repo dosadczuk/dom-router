@@ -41,13 +41,10 @@ defineDirective(Directive.Title, {
     subscribe(InternalEvent.ViewChange, () => {
       for (const page of elementsWithPage) {
         const route = page.directives.get(Directive.Page)
-        if (isEmptyString(route)) {
-          continue
-        }
-
         const title = page.directives.get(Directive.Title) ?? titleFallback
-        if (isEmptyString(title)) {
-          continue
+
+        if (isEmptyString(route) || isEmptyString(title)) {
+          continue // no way to set title if neither route nor title is known
         }
 
         if (isMatchingURL(route)) {
