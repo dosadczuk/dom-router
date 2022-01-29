@@ -10,7 +10,7 @@ export type DirectiveDefinition = {
    */
   options?: DirectiveOptions
 }
-export type DirectiveFactory = (elements: HTMLElementWithDirectives[], elementsWithDirective: HTMLElementWithDirectives[], options: Nullable<DirectiveOptions>) => DirectiveCleanup | void
+export type DirectiveFactory = (elements: ElementWithDirectives[], elementsWithDirective: ElementWithDirectives[], options: Nullable<DirectiveOptions>) => DirectiveCleanup | void
 export type DirectiveCleanup = () => void
 export type DirectiveOptions = {
   /**
@@ -20,11 +20,11 @@ export type DirectiveOptions = {
 }
 
 // dom.d.ts
-export type HTMLElementWithDirectives = {
+export type ElementWithDirectives<T extends Element = HTMLElement> = {
   /**
    * HTML element with directives.
    */
-  content: HTMLElement
+  content: T
 
   /**
    * Directives on the HTML element.
@@ -32,9 +32,9 @@ export type HTMLElementWithDirectives = {
   directives: ReadonlyMap<string, string>
 }
 
-export type ToggleElementVisibility = (element: HTMLElementWithDirectives, canBeVisible: boolean) => boolean
-export type ShowElement = (element: HTMLElementWithDirectives) => boolean
-export type HideElement = (element: HTMLElementWithDirectives) => boolean
+export type ToggleElementVisibility = (element: ElementWithDirectives, canBeVisible: boolean) => boolean
+export type ShowElement = (element: ElementWithDirectives) => boolean
+export type HideElement = (element: ElementWithDirectives) => boolean
 
 // events.d.ts
 export type Subscriber = (data?: any) => void

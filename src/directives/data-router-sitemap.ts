@@ -1,6 +1,6 @@
 import { isEmptyString } from '@router/asserts'
 import { defineDirective } from '@router/directives'
-import { getFirstHTMLElementWithDirective, getHTMLElementsWithDirective } from '@router/dom'
+import { getFirstElementWithDirective, getElementsWithDirective } from '@router/dom'
 import { Directive } from '@router/enums'
 
 /**
@@ -23,12 +23,12 @@ import { Directive } from '@router/enums'
  */
 defineDirective(Directive.Sitemap, {
   factory: (elements) => {
-    const elementWithSitemap = getFirstHTMLElementWithDirective(elements, Directive.Sitemap)
+    const elementWithSitemap = getFirstElementWithDirective(elements, Directive.Sitemap)
     if (elementWithSitemap == null) {
       return // sitemap not needed
     }
 
-    const elementsWithPage = getHTMLElementsWithDirective(elements, Directive.Page)
+    const elementsWithPage = getElementsWithDirective(elements, Directive.Page)
     if (elementsWithPage.length === 0) {
       return // no pages - no sitemap
     }

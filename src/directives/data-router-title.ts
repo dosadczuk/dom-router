@@ -1,6 +1,10 @@
 import { isEmptyString } from '@router/asserts'
 import { defineDirective } from '@router/directives'
-import { getHTMLElementsWithDirective } from '@router/dom'
+import {
+  getElementsWithDirective,
+  getRootElementDirectives,
+  removeDirectivesFromRootElement,
+} from '@router/dom'
 import { Directive, InternalEvent } from '@router/enums'
 import { subscribe } from '@router/events'
 import { isMatchingURL } from '@router/url'
@@ -29,13 +33,12 @@ import { isMatchingURL } from '@router/url'
  */
 defineDirective(Directive.Title, {
   factory: (elements) => {
-    const elementsWithPage = getHTMLElementsWithDirective(elements, Directive.Page)
+    const elementsWithPage = getElementsWithDirective(elements, Directive.Page)
     if (elementsWithPage.length === 0) {
       return
     }
 
-    const titleTemplate = document.documentElement.getAttribute(Directive.Title)
-    const titleFallback = document.documentElement.getAttribute(Directive.TitleDefault)
+    const [ titleTemplate, titleFallback ] = getRootElementDirectives([ Directive.Title, Directive.TitleDefault ])
 
     // update title after firing up view change event
     subscribe(InternalEvent.ViewChange, () => {
@@ -60,8 +63,7 @@ defineDirective(Directive.Title, {
     })
 
     return () => {
-      if (titleTemplate != null) document.documentElement.removeAttribute(Directive.Title)
-      if (titleFallback != null) document.documentElement.removeAttribute(Directive.TitleDefault)
+      removeDirectivesFromRootElement([ Directive.Title, Directive.TitleDefault ])
     }
   },
   options: {

@@ -1,6 +1,6 @@
 import { isEnumValue } from '@router/asserts'
 import { defineDirective } from '@router/directives'
-import { changeViewWithMode } from '@router/dom'
+import { changeViewWithMode, getRootElementDirective, removeDirectiveFromRootElement } from '@router/dom'
 import { Directive, ExternalEvent, InternalEvent, Mode } from '@router/enums'
 import { dispatch, dispatchToElement, subscribe, subscribeToElement } from '@router/events'
 import { getCurrentURL, isMatchingURL } from '@router/url'
@@ -22,7 +22,7 @@ import { getCurrentURL, isMatchingURL } from '@router/url'
  */
 defineDirective(Directive.Init, {
   factory: () => {
-    let mode = document.documentElement.getAttribute(Directive.Init) as string
+    let mode = getRootElementDirective(Directive.Init) ?? ''
     if (!isEnumValue(Mode, mode)) {
       mode = Mode.Display // default mode
     }
@@ -50,7 +50,7 @@ defineDirective(Directive.Init, {
     dispatch(InternalEvent.ViewChange, changeViewWithMode(mode))
 
     // remove before "initialized" event
-    document.documentElement.removeAttribute(Directive.Init)
+    removeDirectiveFromRootElement(Directive.Init)
 
     // let client subscribe to event "initialized"
     dispatchToElement(document, ExternalEvent.Initialized)

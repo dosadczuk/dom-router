@@ -1,15 +1,15 @@
 import { setUpDirectives } from '@router/directives'
 import '@router/directives/index'
-import { getHTMLElementsWithAnyDirective } from '@router/dom'
+import { getElementsWithAnyDirective, hasRootElementDirective } from '@router/dom'
 import { Directive } from '@router/enums'
 
 const Router = () => {
-  const canInitialize = document.documentElement.hasAttribute(Directive.Init)
+  const canInitialize = hasRootElementDirective(Directive.Init)
   if (!canInitialize) {
     throw new Error(`Router cannot be initialized. Add '${Directive.Init}' attribute to <html></html> tag.`)
   }
 
-  const elements = getHTMLElementsWithAnyDirective()
+  const elements = getElementsWithAnyDirective()
   if (elements.length === 0) {
     throw new Error(`Router cannot be initialized. No directive found.`)
   }

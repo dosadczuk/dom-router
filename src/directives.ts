@@ -1,5 +1,5 @@
-import { getHTMLElementsWithDirective, removeDirectiveFromHTMLElements } from '@router/dom'
-import type { DirectiveDefinition, HTMLElementWithDirectives } from '@router/types'
+import { getElementsWithDirective, removeDirectiveFromElements } from '@router/dom'
+import type { DirectiveDefinition, ElementWithDirectives } from '@router/types'
 
 const directives = new Map<string, DirectiveDefinition>()
 
@@ -13,7 +13,7 @@ export const defineDirective = (name: string, definition: DirectiveDefinition): 
 /**
  * Set up directives in given order.
  */
-export const setUpDirectives = (elements: HTMLElementWithDirectives[], names: string[]): void => {
+export const setUpDirectives = (elements: ElementWithDirectives[], names: string[]): void => {
   for (const name of names) {
     const definition = directives.get(name)
     if (definition == null) {
@@ -24,7 +24,7 @@ export const setUpDirectives = (elements: HTMLElementWithDirectives[], names: st
 
     // check factory
     if (factory != null) {
-      const cleanup = factory(elements, getHTMLElementsWithDirective(elements, name), options)
+      const cleanup = factory(elements, getElementsWithDirective(elements, name), options)
       if (cleanup != null) {
         cleanup() // cleanup after set up
       }
@@ -33,7 +33,7 @@ export const setUpDirectives = (elements: HTMLElementWithDirectives[], names: st
     // check options
     if (options != null) {
       if (options.removable) {
-        removeDirectiveFromHTMLElements(elements, name)
+        removeDirectiveFromElements(elements, name)
       }
     }
   }

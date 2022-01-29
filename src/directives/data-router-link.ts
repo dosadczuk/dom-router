@@ -2,7 +2,7 @@ import { isEmptyString, isHTMLAnchorElement } from '@router/asserts'
 import { defineDirective } from '@router/directives'
 import { Directive, InternalEvent } from '@router/enums'
 import { dispatch, prevented } from '@router/events'
-import type { HTMLElementWithDirectives, Nullable } from '@router/types'
+import type { ElementWithDirectives, Nullable } from '@router/types'
 
 /**
  * Directive:   data-router-link
@@ -45,7 +45,7 @@ defineDirective(Directive.Link, {
   },
 })
 
-export const getRouteFromLink = ({ content: link, directives }: HTMLElementWithDirectives): Nullable<string> => {
+export const getRouteFromLink = ({ content: link, directives }: ElementWithDirectives): Nullable<string> => {
   const route = directives.get(Directive.Link)
   if (!isEmptyString(route)) {
     return route

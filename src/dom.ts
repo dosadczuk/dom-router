@@ -1,19 +1,53 @@
 import { isHTMLTemplateElement } from '@router/asserts'
 import { getDirectivesAsSelector, isDirective } from '@router/directives'
 import { Mode } from '@router/enums'
-import type {
-  HideElement,
-  HTMLElementWithDirectives,
-  Nullable,
-  ShowElement,
-  ToggleElementVisibility,
-} from '@router/types'
+import type { ElementWithDirectives, HideElement, Nullable, ShowElement, ToggleElementVisibility } from '@router/types'
+
+/**
+ * Root HTMLElement. For now it's constant.
+ */
+export const root = document.documentElement
+
+/**
+ * Get value of given directive from root HTMLElement.
+ */
+export const getRootElementDirective = (directive: string): Nullable<string> => {
+  return root.getAttribute(directive) ?? null
+}
+
+/**
+ * Get values of given directives from root HTMLElement.
+ */
+export const getRootElementDirectives = (directives: string[]): Nullable<string>[] => {
+  return directives.map(getRootElementDirective)
+}
+
+/**
+ * Check if root HTMLElement contains given directive.
+ */
+export const hasRootElementDirective = (directive: string): boolean => {
+  return root.hasAttribute(directive)
+}
+
+/**
+ * Remove given directive from root HTMLElement.
+ */
+export const removeDirectiveFromRootElement = (directive: string): void => {
+  root.removeAttribute(directive)
+}
+
+/**
+ * Remove given directives from root HTMLElement.
+ */
+export const removeDirectivesFromRootElement = (directives: string[]): void => {
+  directives.forEach(removeDirectiveFromRootElement)
+}
 
 /**
  * Get all HTMLElements with any directive.
  */
-export const getHTMLElementsWithAnyDirective = (): HTMLElementWithDirectives[] => {
-  const elements = document.querySelectorAll<HTMLElement>(getDirectivesAsSelector())
+export const getElementsWithAnyDirective = (): ElementWithDirectives[] => {
+  const elements = root.querySelectorAll<HTMLElement>(getDirectivesAsSelector())
   if (elements.length === 0) {
     return []
   }
@@ -35,21 +69,21 @@ export const getHTMLElementsWithAnyDirective = (): HTMLElementWithDirectives[] =
 /**
  * Get HTMLElements with given directive.
  */
-export const getHTMLElementsWithDirective = (elements: HTMLElementWithDirectives[], directive: string): HTMLElementWithDirectives[] => {
+export const getElementsWithDirective = (elements: ElementWithDirectives[], directive: string): ElementWithDirectives[] => {
   return elements.filter(element => element.directives.has(directive))
 }
 
 /**
  * Get first HTMLElement of element with given directive.
  */
-export const getFirstHTMLElementWithDirective = (elements: HTMLElementWithDirectives[], directive: string): Nullable<HTMLElementWithDirectives> => {
+export const getFirstElementWithDirective = (elements: ElementWithDirectives[], directive: string): Nullable<ElementWithDirectives> => {
   return elements.find(element => element.directives.has(directive)) ?? null
 }
 
 /**
  * Remove given directive from elements.
  */
-export const removeDirectiveFromHTMLElements = (elements: HTMLElementWithDirectives[], directive: string): void => {
+export const removeDirectiveFromElements = (elements: ElementWithDirectives[], directive: string): void => {
   elements.forEach(({ content: element }) => element.removeAttribute(directive))
 }
 
@@ -59,25 +93,20 @@ export const removeDirectiveFromHTMLElements = (elements: HTMLElementWithDirecti
 export const changeViewWithMode = (mode: string): ToggleElementVisibility => {
   return (element, canBeVisible) => {
     switch (mode) {
-      case Mode.Display:
-        return toggleDisplayElement(element, canBeVisible)
+      case Mode.Display: {
+        return canBeVisible
+          ? displayShowElement(element)
+          : displayHideElement(element)
+      }
 
-      case Mode.Template:
-        return toggleTemplateElement(element, canBeVisible)
+      case Mode.Template: {
+        return canBeVisible
+          ? replaceTemplateWithElement(element)
+          : replaceElementWithTemplate(element)
+      }
     }
 
     return false
-  }
-}
-
-/**
- * Toggle element visibility using CSS display property.
- */
-export const toggleDisplayElement: ToggleElementVisibility = (element, canBeVisible) => {
-  if (canBeVisible) {
-    return displayShowElement(element)
-  } else {
-    return displayHideElement(element)
   }
 }
 
@@ -97,17 +126,6 @@ export const displayHideElement: HideElement = ({ content: element }) => {
   element.style.display = 'none'
 
   return false
-}
-
-/**
- * Toggle element visibility using HTMLTemplateElement.
- */
-export const toggleTemplateElement: ToggleElementVisibility = (element, canBeVisible) => {
-  if (canBeVisible) {
-    return replaceTemplateWithElement(element)
-  } else {
-    return replaceElementWithTemplate(element)
-  }
 }
 
 /**
@@ -153,13 +171,13 @@ export const replaceElementWithTemplate: HideElement = (element) => {
 /**
  * Append class names to HTMLElement.
  */
-export const appendClassNamesToElement = (element: HTMLElementWithDirectives, classNames: string[]): void => {
+export const appendClassNamesToElement = (element: ElementWithDirectives, classNames: string[]): void => {
   element.content.classList.add(...classNames)
 }
 
 /**
  * Remove class names from HTMLElement.
  */
-export const removeClassNamesFromElement = (element: HTMLElementWithDirectives, classNames: string[]): void => {
+export const removeClassNamesFromElement = (element: ElementWithDirectives, classNames: string[]): void => {
   element.content.classList.remove(...classNames)
 }
