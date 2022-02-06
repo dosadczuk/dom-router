@@ -58,7 +58,7 @@ describe('directives', () => {
     expect(directiveCleanup).toBeCalledTimes(1)
   })
 
-  it('should get selector to find elements with any directive', function () {
+  it('should get selector to find elements with any directive', () => {
     // given
     defineDirective('test1', { factory: null })
     defineDirective('test2', { factory: null })

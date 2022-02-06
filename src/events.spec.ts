@@ -3,7 +3,7 @@ import { describe, expect, fn, it } from 'vitest'
 
 describe('events', () => {
 
-  it('should dispatch internal event', function () {
+  it('should dispatch internal event', () => {
     // given
     const eventHandler = fn()
     const eventName = 'custom-event'

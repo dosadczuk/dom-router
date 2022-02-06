@@ -120,7 +120,7 @@ describe('dom', () => {
     expect(directives.get('data-test')).toEqual('test')
   })
 
-  it('should remove directive from HTMLElement', function () {
+  it('should remove directive from HTMLElement', () => {
     document.body.innerHTML = ''
 
     // given
@@ -137,7 +137,7 @@ describe('dom', () => {
     expect(element2.hasAttribute(DIRECTIVE_NAME)).toBeFalsy()
   })
 
-  it('should show element using CSS display property', function () {
+  it('should show element using CSS display property', () => {
     // given
     const elements = getElementsWithAnyDirective()
 
@@ -151,7 +151,7 @@ describe('dom', () => {
     expect(element.content.style.display).toEqual('revert')
   })
 
-  it('should hide element using CSS display property', function () {
+  it('should hide element using CSS display property', () => {
     // given
     const elements = getElementsWithAnyDirective()
 

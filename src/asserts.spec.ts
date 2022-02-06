@@ -37,7 +37,7 @@ describe('asserts', () => {
     expect(isInvalidString).toBeFalsy()
   })
 
-  it('should assert is enum value', function () {
+  it('should assert is enum value', () => {
     // given
     enum Test {
       Value = 'value'
@@ -52,7 +52,7 @@ describe('asserts', () => {
     expect(isEnum).toBeTruthy()
   })
 
-  it('should assert is not enum value', function () {
+  it('should assert is not enum value', () => {
     // given
     enum Test {
       Value = 'value'
