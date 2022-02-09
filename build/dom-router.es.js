@@ -35,6 +35,7 @@ var ExternalEvent;
 (function(ExternalEvent2) {
   ExternalEvent2["Initialize"] = "router:initialize";
   ExternalEvent2["Initialized"] = "router:initialized";
+  ExternalEvent2["PageChanged"] = "router:page-changed";
   ExternalEvent2["ViewChanged"] = "router:view-changed";
 })(ExternalEvent || (ExternalEvent = {}));
 var Mode;
@@ -72,7 +73,11 @@ const getElementsWithAnyDirective = () => {
         directives2.set(name, value);
       }
     }
-    return { content: element, directives: directives2 };
+    return {
+      content: element,
+      visible: false,
+      directives: directives2
+    };
   });
 };
 const getElementsWithDirective = (elements, directive) => {
@@ -98,12 +103,14 @@ const changeViewWithMode = (mode) => {
     return false;
   };
 };
-const displayShowElement = ({ content: element }) => {
-  element.style.display = "revert";
+const displayShowElement = (element) => {
+  element.content.style.display = "revert";
+  element.visible = true;
   return true;
 };
-const displayHideElement = ({ content: element }) => {
-  element.style.display = "none";
+const displayHideElement = (element) => {
+  element.content.style.display = "none";
+  element.visible = false;
   return false;
 };
 const replaceTemplateWithElement = (element) => {
@@ -117,6 +124,7 @@ const replaceTemplateWithElement = (element) => {
   }
   element.content.replaceWith(content);
   element.content = content;
+  element.visible = true;
   return true;
 };
 const replaceElementWithTemplate = (element) => {
@@ -128,6 +136,7 @@ const replaceElementWithTemplate = (element) => {
   template.content.append(content.cloneNode(true));
   element.content.replaceWith(template);
   element.content = template;
+  element.visible = false;
   return false;
 };
 const appendClassNamesToElement = (element, classNames) => {
@@ -138,7 +147,7 @@ const removeClassNamesFromElement = (element, classNames) => {
 };
 const directives = new Map();
 const defineDirective = (name, definition) => {
-  directives.set(name, definition);
+  directives.set(name, definition != null ? definition : null);
 };
 const setUpDirectives = (elements, names) => {
   for (const name of names) {
@@ -250,6 +259,7 @@ defineDirective(Directive.Init, {
         return;
       }
       history.pushState(null, "", route);
+      dispatchToElement(document, ExternalEvent.PageChanged, route);
       dispatch(InternalEvent.ViewChange, changeViewWithMode(mode));
     });
     subscribeToElement(window, "popstate", () => {
@@ -319,27 +329,47 @@ defineDirective(Directive.LinkActive, {
 });
 defineDirective(Directive.Page, {
   factory: (_, elementsWithPage) => {
+    const pages = mapRoutesWithPages(elementsWithPage);
+    if (pages.size === 0) {
+      return;
+    }
     const fallback = getFirstElementWithDirective(elementsWithPage, Directive.PageFallback);
     subscribe(InternalEvent.ViewChange, (toggleElementVisibility) => {
-      let hasVisiblePage = false;
-      for (const page of elementsWithPage) {
-        const route = page.directives.get(Directive.Page);
-        if (isEmptyString(route)) {
-          continue;
-        }
+      const payload = {
+        page: null,
+        route: null
+      };
+      for (const [route, page] of pages.entries()) {
         const isPageVisible = toggleElementVisibility(page, isMatchingURL(route));
-        hasVisiblePage || (hasVisiblePage = isPageVisible);
+        if (isPageVisible) {
+          payload.page = page.content;
+          payload.route = route;
+        }
       }
-      if (!hasVisiblePage && fallback != null) {
-        toggleElementVisibility(fallback, true);
+      if (payload.page == null && fallback != null) {
+        const isPageVisible = toggleElementVisibility(fallback, true);
+        if (isPageVisible) {
+          payload.page = fallback.content;
+        }
       }
-      dispatchToElement(document, ExternalEvent.ViewChanged);
+      dispatchToElement(document, ExternalEvent.ViewChanged, payload);
     });
   },
   options: {
     removable: true
   }
 });
+const mapRoutesWithPages = (elements) => {
+  const pages = new Map();
+  for (const element of elements) {
+    const route = element.directives.get(Directive.Page);
+    if (isEmptyString(route)) {
+      continue;
+    }
+    pages.set(route, element);
+  }
+  return pages;
+};
 defineDirective(Directive.PageFallback, {
   factory: null,
   options: {
