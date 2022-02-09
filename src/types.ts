@@ -45,5 +45,17 @@ export type HideElement = (element: ElementWithDirectives) => boolean
 export type Subscriber = (data?: any) => void
 export type Unsubscriber = () => void
 
+export type ViewChangedState = {
+  /**
+   * Current page.
+   */
+  page: Nullable<HTMLElement>
+
+  /**
+   * Current route.
+   */
+  route: Nullable<string>
+}
+
 // common
 export type Nullable<T> = T | null | undefined

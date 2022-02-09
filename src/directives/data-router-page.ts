@@ -3,7 +3,7 @@ import { defineDirective } from '@router/directives'
 import { getFirstElementWithDirective } from '@router/dom'
 import { Directive, ExternalEvent, InternalEvent } from '@router/enums'
 import { dispatchToElement, subscribe } from '@router/events'
-import type { ToggleElementVisibility } from '@router/types'
+import type { ElementWithDirectives, ToggleElementVisibility, ViewChangedState } from '@router/types'
 import { isMatchingURL } from '@router/url'
 
 /**
@@ -31,31 +31,54 @@ import { isMatchingURL } from '@router/url'
  */
 defineDirective(Directive.Page, {
   factory: (_, elementsWithPage) => {
+    const pages = mapRoutesWithPages(elementsWithPage)
+    if (pages.size === 0) {
+      return // no pages registered
+    }
+
     const fallback = getFirstElementWithDirective(elementsWithPage, Directive.PageFallback)
 
     // update page visibility after firing up view change event
     subscribe(InternalEvent.ViewChange, (toggleElementVisibility: ToggleElementVisibility) => {
-      let hasVisiblePage = false
+      const state: ViewChangedState = {
+        page: null,
+        route: null,
+      }
 
-      for (const page of elementsWithPage) {
-        const route = page.directives.get(Directive.Page)
-        if (isEmptyString(route)) {
-          continue
-        }
-
+      for (const [ route, page ] of pages.entries()) {
         const isPageVisible = toggleElementVisibility(page, isMatchingURL(route))
-
-        hasVisiblePage ||= isPageVisible
+        if (isPageVisible) {
+          state.page = page.content
+          state.route = route
+        }
       }
 
-      if (!hasVisiblePage && fallback != null) {
-        toggleElementVisibility(fallback, true)
+      if (state.page == null && fallback != null) {
+        const isPageVisible = toggleElementVisibility(fallback, true)
+        if (isPageVisible) {
+          state.page = fallback.content
+        }
       }
 
-      dispatchToElement(document, ExternalEvent.ViewChanged)
+      dispatchToElement(document, ExternalEvent.ViewChanged, state)
     })
   },
   options: {
     removable: true,
   },
 })
+
+const mapRoutesWithPages = (elements: ElementWithDirectives[]): Map<string, ElementWithDirectives> => {
+  const pages = new Map<string, ElementWithDirectives>()
+
+  for (const element of elements) {
+    const route = element.directives.get(Directive.Page)
+    if (isEmptyString(route)) {
+      continue
+    }
+
+    pages.set(route, element)
+  }
+
+  return pages
+}
