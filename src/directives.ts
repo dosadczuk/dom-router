@@ -1,13 +1,13 @@
 import { getElementsWithDirective, removeDirectiveFromElements } from '@router/dom'
-import type { DirectiveDefinition, ElementWithDirectives } from '@router/types'
+import type { DirectiveDefinition, ElementWithDirectives, Nullable } from '@router/types'
 
-const directives = new Map<string, DirectiveDefinition>()
+const directives = new Map<string, Nullable<DirectiveDefinition>>()
 
 /**
  * Register directive with given factory function.
  */
-export const defineDirective = (name: string, definition: DirectiveDefinition): void => {
-  directives.set(name, definition)
+export const defineDirective = (name: string, definition?: DirectiveDefinition): void => {
+  directives.set(name, definition ?? null)
 }
 
 /**

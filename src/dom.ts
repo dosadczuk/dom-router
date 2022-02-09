@@ -62,7 +62,11 @@ export const getElementsWithAnyDirective = (): ElementWithDirectives[] => {
       }
     }
 
-    return { content: element, directives }
+    return {
+      content: element,
+      visible: false,
+      directives,
+    }
   })
 }
 
@@ -113,8 +117,9 @@ export const changeViewWithMode = (mode: string): ToggleElementVisibility => {
 /**
  * Show element using CSS display property.
  */
-export const displayShowElement: ShowElement = ({ content: element }) => {
-  element.style.display = 'revert'
+export const displayShowElement: ShowElement = (element) => {
+  element.content.style.display = 'revert'
+  element.visible = true
 
   return true
 }
@@ -122,8 +127,9 @@ export const displayShowElement: ShowElement = ({ content: element }) => {
 /**
  * Hide element using CSS display property.
  */
-export const displayHideElement: HideElement = ({ content: element }) => {
-  element.style.display = 'none'
+export const displayHideElement: HideElement = (element) => {
+  element.content.style.display = 'none'
+  element.visible = false
 
   return false
 }
@@ -145,6 +151,7 @@ export const replaceTemplateWithElement: ShowElement = (element) => {
 
   element.content.replaceWith(content)
   element.content = content
+  element.visible = true
 
   return true
 }
@@ -164,6 +171,7 @@ export const replaceElementWithTemplate: HideElement = (element) => {
 
   element.content.replaceWith(template)
   element.content = template
+  element.visible = false
 
   return false
 }

@@ -30,8 +30,8 @@ describe('directives', () => {
 
   it('should list directives', () => {
     // given
-    defineDirective('test1', { factory: null })
-    defineDirective('test2', { factory: null })
+    defineDirective('test1')
+    defineDirective('test2')
 
     // when
     const directives = getDirectives()
@@ -60,8 +60,8 @@ describe('directives', () => {
 
   it('should get selector to find elements with any directive', () => {
     // given
-    defineDirective('test1', { factory: null })
-    defineDirective('test2', { factory: null })
+    defineDirective('test1')
+    defineDirective('test2')
 
     // when
     const selector = getDirectivesAsSelector()
@@ -72,8 +72,8 @@ describe('directives', () => {
 
   it('should clear directives', () => {
     // given
-    defineDirective('test1', { factory: null })
-    defineDirective('test2', { factory: null })
+    defineDirective('test1')
+    defineDirective('test2')
 
     // when
     const directivesBeforeClear = getDirectives()

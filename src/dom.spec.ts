@@ -149,6 +149,7 @@ describe('dom', () => {
 
     // then
     expect(element.content.style.display).toEqual('revert')
+    expect(element.visible).toBeTruthy()
   })
 
   it('should hide element using CSS display property', () => {
@@ -163,32 +164,30 @@ describe('dom', () => {
 
     // then
     expect(element.content.style.display).toEqual('none')
+    expect(element.visible).toBeFalsy()
   })
 
   it('should replace HTMLTemplateElement with HTMLElement', () => {
     // given
-    const elements = getElementsWithAnyDirective()
-
     const template = document.createElement('template')
     template.setAttribute(DIRECTIVE_NAME, DIRECTIVE_VALUE)
     template.content.append(ELEMENTS[0])
 
     document.body.prepend(template)
 
-    const element = getElementsWithDirective(elements, DIRECTIVE_NAME)[0]
+    const element = getElementsWithDirective(getElementsWithAnyDirective(), DIRECTIVE_NAME)[0]
 
     // when
     replaceTemplateWithElement(element)
 
     // then
     expect(element.content.isEqualNode(ELEMENTS[0])).toBeTruthy()
+    expect(element.visible).toBeTruthy()
   })
 
   it('should replace HTMLElement with HTMLTemplateElement', () => {
     // given
-    const elements = getElementsWithAnyDirective()
-
-    const element = getElementsWithDirective(elements, DIRECTIVE_NAME)[0]
+    const element = getElementsWithDirective(getElementsWithAnyDirective(), DIRECTIVE_NAME)[0]
 
     // when
     replaceElementWithTemplate(element)
@@ -201,6 +200,7 @@ describe('dom', () => {
     expect(template.content.firstElementChild!.isEqualNode(ELEMENTS[0])).toBeTruthy()
     expect(template.content.firstElementChild!.hasAttribute('data-test')).toBeTruthy()
     expect(template.content.firstElementChild!.getAttribute('data-test')).toEqual('test')
+    expect(element.visible).toBeFalsy()
   })
 })
 

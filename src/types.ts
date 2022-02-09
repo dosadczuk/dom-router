@@ -27,6 +27,11 @@ export type ElementWithDirectives<T extends Element = HTMLElement> = {
   content: T
 
   /**
+   * Is page currently visible.
+   */
+  visible: boolean
+
+  /**
    * Directives on the HTML element.
    */
   directives: ReadonlyMap<string, string>
