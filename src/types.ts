@@ -45,7 +45,7 @@ export type HideElement = (element: ElementWithDirectives) => boolean
 export type Subscriber = (data?: any) => void
 export type Unsubscriber = () => void
 
-export type ViewChangedState = {
+export type ViewChangedPayload = {
   /**
    * Current page.
    */

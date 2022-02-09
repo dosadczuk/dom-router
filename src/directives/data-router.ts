@@ -38,6 +38,9 @@ defineDirective(Directive.Init, {
 
       history.pushState(null, '', route)
 
+      // let client subscribe to event "page-changed"
+      dispatchToElement(document, ExternalEvent.PageChanged, route)
+
       dispatch(InternalEvent.ViewChange, changeViewWithMode(mode))
     })
 

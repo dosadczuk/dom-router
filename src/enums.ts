@@ -21,7 +21,7 @@ export enum InternalEvent {
 export enum ExternalEvent {
   Initialize = 'router:initialize',
   Initialized = 'router:initialized',
-
+  PageChanged = 'router:page-changed',
   ViewChanged = 'router:view-changed'
 }
 

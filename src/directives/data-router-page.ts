@@ -3,7 +3,7 @@ import { defineDirective } from '@router/directives'
 import { getFirstElementWithDirective } from '@router/dom'
 import { Directive, ExternalEvent, InternalEvent } from '@router/enums'
 import { dispatchToElement, subscribe } from '@router/events'
-import type { ElementWithDirectives, ToggleElementVisibility, ViewChangedState } from '@router/types'
+import type { ElementWithDirectives, ToggleElementVisibility, ViewChangedPayload } from '@router/types'
 import { isMatchingURL } from '@router/url'
 
 /**
@@ -40,7 +40,7 @@ defineDirective(Directive.Page, {
 
     // update page visibility after firing up view change event
     subscribe(InternalEvent.ViewChange, (toggleElementVisibility: ToggleElementVisibility) => {
-      const state: ViewChangedState = {
+      const payload: ViewChangedPayload = {
         page: null,
         route: null,
       }
@@ -48,19 +48,20 @@ defineDirective(Directive.Page, {
       for (const [ route, page ] of pages.entries()) {
         const isPageVisible = toggleElementVisibility(page, isMatchingURL(route))
         if (isPageVisible) {
-          state.page = page.content
-          state.route = route
+          payload.page = page.content
+          payload.route = route
         }
       }
 
-      if (state.page == null && fallback != null) {
+      if (payload.page == null && fallback != null) {
         const isPageVisible = toggleElementVisibility(fallback, true)
         if (isPageVisible) {
-          state.page = fallback.content
+          payload.page = fallback.content
         }
       }
 
-      dispatchToElement(document, ExternalEvent.ViewChanged, state)
+      // let client subscribe to event "view-changed"
+      dispatchToElement(document, ExternalEvent.ViewChanged, payload)
     })
   },
   options: {
