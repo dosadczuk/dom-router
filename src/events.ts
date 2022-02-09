@@ -40,7 +40,7 @@ export const subscribeToElement = (element: EventTarget, event: string, handler:
 /**
  * Dispatch external event with given data.
  */
-export const dispatchToElement = (element: EventTarget, event: string, data?: any): void => {
+export const dispatchToElement = <T = any>(element: EventTarget, event: string, data?: T): void => {
   element.dispatchEvent(
     new CustomEvent(event, {
       detail: data,
