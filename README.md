@@ -1,4 +1,4 @@
-# DOM Router (WiP)
+# DOM Router
 
 Very basic, zero configuration router for single HTML file websites.
 
@@ -7,19 +7,18 @@ Very basic, zero configuration router for single HTML file websites.
 ```html
 <!-- Add <script> tag at the end of the <body> ... -->
 <body>
-  ...
   <script src="path_to_dom-router.js"></script>
 </body>
 
 <!-- ... OR in the <head> -->
 <head>
-  <script defer src="path_to_dom-router.js"></script>
+  <script src="path_to_dom-router.js" defer></script>
 </head>
 ```
 
 ## Directives
 
-Directives are HTML attributes and provide router functionality in simple and self-descriptive way. Directives start
+Directive are HTML attributes and provide functionality in simple and self-descriptive way. Directives start
 with `data-router` and are _W3C Validation Service_ friendly.
 
 ### `data-router`
@@ -27,37 +26,37 @@ with `data-router` and are _W3C Validation Service_ friendly.
 Main directive, enables and configures router. Without the directive, router will not work.
 
 ```html
-
-<html lang="en" data-router>
-  ...
-</html>
+<!-- activate router -->
+<html data-router></html>
 ```
 
 Router provides two methods to toggle pages visibility:
 
-1. **display** - using CSS `display` property (default)
-2. **template** - using HTML `<template>` tag
-
-You can set it by yourself using the directive:
+1. **display** - uses CSS `display` property, toggles between `none` and `revert` value (default),
+2. **template** - uses HTML `<template>` tag to hide elements.
 
 ```html
-<!-- Set "display" mode -->
-<html lang="en" data-router="display">
-  ...
-</html>
+<!-- set "display" mode -->
+<html data-router="display"></html>
 
-<!-- Set "template" mode -->
-<html lang="en" data-router="template">
-  ...
-</html>
+<!-- set "template" mode -->
+<html data-router="template"></html>
 ```
 
 ### `data-router-page`
 
-Marks HTML tag as page. Value of the directive must be a valid path name or pattern. It will be converted into regular
-expression and matched with current url. Result of matching will determine if page can be visible or not.
+Marks HTML tag as a page. Value of the directive must be a valid pathname or pattern, which will be converted to regular
+expression. Algorithm is trying to find a page with pattern matching current URL, result will determine if page can be
+visible or not.
 
-There are a few valid path patterns:
+```html
+<!-- page definition -->
+<section data-router-page="/sample-route">
+  <!-- page content -->
+</section>
+```
+
+There are a few valid patterns, e.g.:
 
 * static: `/users`, `/books`, `/books/titles`
 * with parameter: `/users/:id`, `/books/:genre/:title`
@@ -65,19 +64,13 @@ There are a few valid path patterns:
 * with parameter (optional): `/users/:name?`, `/books/:genre?`
 * with wildcards: `/users/*`, `/books/:genre/*`
 
-```html
-<!-- basic path name -->
-<section data-router-page="/page">
-  <!-- page content -->
-</section>
-```
-
 ### `data-router-page-fallback`
 
-Marks page to be a fallback when no page is matching URL.
+Marks a page as `404 Not Found`. When no page is matching current URL, page with this directive will be shown instead.
+Website can have only one fallback page. If there are many of them, the first one will be chosen.
 
 ```html
-<!-- path name and fallback -->
+<!-- fallback page definition -->
 <section data-router-page="/404" data-router-page-fallback>
   <!-- page content -->
 </section>
@@ -85,81 +78,80 @@ Marks page to be a fallback when no page is matching URL.
 
 ### `data-router-link`
 
-Marks HTML tag as link to a page. It should be an anchor, but can be any other valid HTML element. Directive **does
-not** require value for `<a>` tag if
-`href` attribute is present. In any other case, value is required. If link is an anchor and has both _href_ and _
-directive value_ - _href_ has higher priority.
+Marks HTML tag as a link to a page. It should be an anchor, but any tag can be used.
+
+Directive value is not required for an anchor, value of `href` will be used instead.
 
 ```html
-<!-- on an anchor -->
-<a data-router-link href="/page">
-  ...
-</a>
+<!-- link to page using anchor tag -->
+<a data-router-link href="/sample-route"></a>
+```
 
-<!-- on any other element -->
-<button data-router-link="/page" type="button">
-  ...
-</button>
+For any other tag, directive value is required, otherwise tag will not be a valid link.
+
+```html
+<!-- link to page using any other tag -->
+<button data-router-link="/sample-route"></button>
 ```
 
 ### `data-router-link-active`
 
-Adds additional class to a link when current page matches it. Directive value is a class name, which will be added to a
-link. If directive exists on an element but value is empty - default 'active' class will be used.
+Adds a class to a link, if current URL matches it. Directive value is a class name which will be used. If not provided,
+default `active` will be used instead.
 
-The directive works only with `data-router-link`. Otherwise, it is ignored.
+The directive works only with `data-router-link`.
 
 ```html
-<!-- default 'active' class will be used -->
-<a data-router-link href="/path" data-router-link-active>
-  ...
-</a>
+<!-- 'active' class name will be used -->
+<a data-router-link href="/sample-route" data-router-link-active></a>
 
-<!-- 'my-special-class' will be used as class name -->
-<a data-router-link href="/path" data-router-link-active="my-special-class">
-  ...
-</a>
+<!-- 'special-class-name' class name will be used -->
+<a data-router-link href="/sample-route" data-router-link-active="special-class-name"></a>
 ```
 
 ### `data-router-title`
 
-Provides a way to change page title. It can be used in two ways:
+Provides a way to set different document title for every page. It can be used in two ways:
 
-1. on `<html>` tag - creates title template, `{title}` is the place where page title will be put
-2. on element with `data-router-page` directive - creates title for the page
+1. as a page title, it works only with `data-router-page` directive,
 
 ```html
-<!-- create template for page title -->
-<html lang="en" data-router data-router-title="{title} | Sample website">
-  ...
-</html>
-
-<!-- create title for page -->
-<section data-router-page="/page" data-router-title="Sample page">
-  ...
+<!-- set page title -->
+<section data-router-page="/sample-route" data-router-title="Sample page title">
+  <!-- page content -->
 </section>
+```
+
+2. as a title template, it works only on `<html>` tag and `{title}` can be used to mark a place where page title will be
+   put.
+
+```html
+<!-- set template title -->
+<html data-router data-router-title="{title} | Sample website""></html>
 ```
 
 ### `data-router-title-default`
 
-Provides a way to set page default title. When page has no title provided - default value will be used. 
-The directive can only be placed on `<html>` tag.
+Provides a way to set default document title. If page has no title - value of this directive will be used instead. The
+directive can only be used on `<html>` tag.
 
 ```html
-<html lang="en" data-router data-router-title-default="Value of default title">
-  ...
-</html>
+<!-- set default title -->
+<html data-router data-router-title-default="Default page title"></html>
 ```
 
 ### `data-router-sitemap`
 
-Marks HTML tag as sitemap placeholder. Sitemap is generated automatically and consists of `<ol>` and `<li>` tags.
+Marks a tag as sitemap placeholder. Sitemap is generated automatically, based of registered pages, and consist of `ul`
+and `li` tags.
 
-Element (page) will be included in sitemap if:
-  - has `data-router-page` directive
-  - has `data-router-title` directive
+Element (page) will be included in sitemap only if:
+
+* has `data-router-page` directive,
+* has `data-router-title` directive
 
 ```html
+<!-- create page with sitemap -->
 <section data-router-page="/sitemap">
   <div data-router-sitemap>
     <!-- sitemap will be generated here -->
@@ -167,47 +159,96 @@ Element (page) will be included in sitemap if:
 </section>
 ```
 
-Directive will not be removed, so sitemap can be styled easily with CSS:
+Directive will not be removed, so it can be styled easily with CSS:
 
 ```css
 [data-router-sitemap] ol {
-  /* list styles goes here */
+    /* list styles goes here */
 }
 
 [data-router-sitemap] ol li {
-  /* list item styles goes here */
+    /* list item styles goes here */
 }
 ```
 
 ### `data-router-sitemap-ignore`
 
-Marks page to be excluded from sitemap.
+Marks a page to excluded from sitemap. It works only with `data-router-page` directive.
 
 ```html
-<section data-router-page="/page" data-router-sitemap-ignore>
+<!-- exclude page from sitemap -->
+<section data-router-page="/sample-route" data-router-sitemap-ignore>
   <!-- page content -->
 </section>
 ```
 
 ### `data-router-cloak`
 
-Prevents blinking effect on the very first page load. By default, every page is visible. The directive can be used to
-hide them, prepare and show the only one which matches url.
+Prevents from pages blinking effect on the very first website load. By default, every page is visible and will hide if
+current URL is not matching page's pattern. The directive can be used to hide every single page and show only the
+matching one.
 
 HTML file:
 
 ```html
-<!-- mark page to be hidden -->
-<section data-router-cloak data-router-page="/page">
-  ...
+<!-- hide page by default -->
+<section data-router-cloak data-router-page="/sample-route">
+  <!-- page content -->
 </section>
 ```
 
 CSS file:
 
 ```css
-/* hide the pages */
 [data-router-cloak] {
     display: none !important;
 }
+```
+
+## Events
+
+Router emits the events, so client can subscribe to state changes.
+
+### `router:initialize`
+
+Event is emitted just before router initialization. It does not contain any payload.
+
+```typescript
+document.addEventListener('router:initialize', (event: CustomEvent) => {
+  // do something  
+})
+```
+
+### `router:initialized`
+
+Event is emitted just after router initialization. It does not contain any payload.
+
+```typescript
+document.addEventListener('router:initialized', (event: CustomEvent) => {
+  // do something
+})
+```
+
+### `router:page-changed`
+
+Event is emitted after URL change. It contains current route (`string`) as payload.
+
+```typescript
+document.addEventListener('router:page-changed', (event: CustomEvent) => {
+  const { detail: route } = event
+
+  // do something with route  
+})
+```
+
+### `router:view-changed`
+
+Event is emitted after view change. It contains current route (`string`) and page (`HTMLElement`) as payload.
+
+```typescript
+document.addEventListener('router:view-changed', (event: CustomEvent) => {
+  const { detail: { route, page } } = event
+
+  // do something with route and page
+})
 ```
