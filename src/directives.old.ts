@@ -1,4 +1,4 @@
-import { getElementsWithDirective, removeDirectiveFromElements } from '@router/dom'
+import { getElementsWithDirective, removeDirectiveFromElements } from '@router/dom.old'
 import type { DirectiveDefinition, ElementWithDirectives, Nullable } from '@router/types'
 
 const directivesOld = new Map<string, Nullable<DirectiveDefinition>>()

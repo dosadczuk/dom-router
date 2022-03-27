@@ -1,6 +1,6 @@
 import { isEmptyString } from '@router/asserts.old'
 import { defineDirective } from '@router/directives.old'
-import { getFirstElementWithDirective } from '@router/dom'
+import { getFirstElementWithDirective } from '@router/dom.old'
 import { Directive, ExternalEvent, InternalEvent } from '@router/enums'
 import { dispatchToElement, subscribe } from '@router/events.old'
 import type { ElementWithDirectives, ToggleElementVisibility, ViewChangedPayload } from '@router/types'

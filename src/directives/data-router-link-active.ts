@@ -1,7 +1,7 @@
 import { isEmptyString } from '@router/asserts.old'
 import { defineDirective } from '@router/directives.old'
 import { getRouteFromLink } from '@router/directives/data-router-link'
-import { appendClassNamesToElement, removeClassNamesFromElement } from '@router/dom'
+import { appendClassNamesToElement, removeClassNamesFromElement } from '@router/dom.old'
 import { Directive, InternalEvent } from '@router/enums'
 import { subscribe } from '@router/events.old'
 import { isMatchingURL } from '@router/url'

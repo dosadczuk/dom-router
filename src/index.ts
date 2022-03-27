@@ -1,6 +1,6 @@
 import { setUpDirectives } from '@router/directives.old'
 import '@router/directives/index'
-import { getElementsWithAnyDirective, hasRootElementDirective } from '@router/dom'
+import { getElementsWithAnyDirective, hasRootElementDirective } from '@router/dom.old'
 import { Directive } from '@router/enums'
 
 const Router = () => {

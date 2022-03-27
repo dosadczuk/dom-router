@@ -1,133 +1,119 @@
-import { defineDirective } from '@router/directives.old'
+import { isDirective } from '@router/asserts'
+import { defineDirective, Directive } from '@router/directives'
 import {
   displayHideElement,
   displayShowElement,
   getElementsWithAnyDirective,
   getElementsWithDirective,
-  getFirstElementWithDirective,
-  getRootElementDirective,
-  hasRootElementDirective,
+  getElementWithDirective,
+  getRoot,
   removeDirectiveFromElements,
-  removeDirectiveFromRootElement,
   replaceElementWithTemplate,
   replaceTemplateWithElement,
-  root,
+  setRoot,
 } from '@router/dom'
-import { afterEach, beforeAll, beforeEach, describe, expect, fn, it } from 'vitest'
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  fn,
+  it,
+} from 'vitest'
 
 describe('dom', () => {
 
-  let ELEMENTS: HTMLElement[] = []
+  let DOM_ROOT = document.documentElement
+  let DOM_ELEMENTS: HTMLElement[] = []
 
-  const DIRECTIVE_NAME = 'data-test'
+  const DIRECTIVE_NAME = Directive.Initialize
   const DIRECTIVE_VALUE = 'test'
+  const DIRECTIVE_FACTORY = fn()
 
   beforeAll(() => {
-    defineDirective('data-test', { factory: fn() })
+    setRoot(DOM_ROOT)
 
-    ELEMENTS = Array.from({ length: 5 }, () => {
+    defineDirective(DIRECTIVE_NAME, { factory: DIRECTIVE_FACTORY })
+
+    DOM_ELEMENTS = Array.from({ length }, () => {
       return createElementWithDirective(DIRECTIVE_NAME, DIRECTIVE_VALUE)
     })
   })
 
   beforeEach(() => {
-    // clear root HTMLElement from directives
-    for (const { name } of Array.from(root.attributes)) {
-      root.removeAttribute(name)
+    for (const { name } of Array.from(DOM_ROOT.attributes)) {
+      if (isDirective(name)) {
+        DOM_ROOT.removeAttribute(name)
+      }
     }
 
-    document.body.append(...ELEMENTS)
+    DOM_ROOT.append(...DOM_ELEMENTS)
   })
 
   afterEach(() => {
-    document.body.innerHTML = ''
+    DOM_ROOT.innerHTML = ''
   })
 
-  it('should get directive from root HTMLElement', () => {
+  it('should set Root element', () => {
     // given
-    root.setAttribute(DIRECTIVE_NAME, DIRECTIVE_VALUE)
+    const element = DOM_ELEMENTS[0]
 
     // when
-    const directive = getRootElementDirective(DIRECTIVE_NAME)
+    const oldRoot = getRoot()
+    setRoot(element)
+    const newRoot = getRoot()
 
     // then
-    expect(directive).toEqual(DIRECTIVE_VALUE)
+    expect(oldRoot).toBe(DOM_ROOT)
+    expect(newRoot).toBe(element)
+    expect(newRoot).not.toBe(oldRoot)
   })
 
-  it('should check if root HTMLElement contains directive', () => {
-    // given
-    root.setAttribute(DIRECTIVE_NAME, DIRECTIVE_VALUE)
-
-    // when
-    const withDirective = hasRootElementDirective(DIRECTIVE_NAME)
-    const withoutDirective = hasRootElementDirective('not-existing')
-
-    // then
-    expect(withDirective).toBeTruthy()
-    expect(withoutDirective).toBeFalsy()
-  })
-
-  it('should remove directive from root HTMLElement', () => {
-    // given
-    root.setAttribute(DIRECTIVE_NAME, DIRECTIVE_VALUE)
-
-    // when
-    const hasDirectiveBeforeRemove = hasRootElementDirective(DIRECTIVE_NAME)
-    removeDirectiveFromRootElement(DIRECTIVE_NAME)
-    const hasDirectiveAfterRemove = hasRootElementDirective(DIRECTIVE_NAME)
-
-    // then
-    expect(hasDirectiveBeforeRemove).toBeTruthy()
-    expect(hasDirectiveAfterRemove).toBeFalsy()
-  })
-
-  it('should get HTMLElements with any directive', () => {
+  it('should get elements with any directive', () => {
     // when
     const elementsWithAnyDirective = getElementsWithAnyDirective()
 
     // then
-    expect(elementsWithAnyDirective).length(ELEMENTS.length)
+    expect(elementsWithAnyDirective).toHaveLength(DOM_ELEMENTS.length)
   })
 
-  it('should get HTMLElements with directive', () => {
+  it('should get elements with directive', () => {
     // given
     const elements = getElementsWithAnyDirective()
-    const elementWithTestDirective = ELEMENTS[0]
+    const elementWithTestDirective = DOM_ELEMENTS[0]
 
     // when
-    const { content, directives } = getElementsWithDirective(elements, DIRECTIVE_NAME)[0]
+    const elementWithDirective = getElementsWithDirective(elements, DIRECTIVE_NAME)[0]
 
     // then
-    expect(content.isEqualNode(elementWithTestDirective)).toBeTruthy()
-    expect(directives.size).toEqual(1)
-    expect(directives.has('data-test')).toBeTruthy()
-    expect(directives.get('data-test')).toEqual('test')
+    expect(elementWithDirective.element.isEqualNode(elementWithTestDirective)).toBeTruthy()
+    expect(elementWithDirective.directives).toHaveLength(1)
+    expect(elementWithDirective.directives.has(DIRECTIVE_NAME)).toBeTruthy()
+    expect(elementWithDirective.directives.get(DIRECTIVE_NAME)).toBe(DIRECTIVE_VALUE)
   })
 
-  it('should get first HTMLElement with directive', () => {
+  it('should get first element with directive', () => {
     // given
     const elements = getElementsWithAnyDirective()
-    const elementWithTestDirective = ELEMENTS[0]
+    const elementWithTestDirective = DOM_ELEMENTS[0]
 
     // when
-    const element = getFirstElementWithDirective(elements, DIRECTIVE_NAME)
-    const { content, directives } = element!
+    const elementWithDirective = getElementWithDirective(elements, DIRECTIVE_NAME)!
 
     // then
-    expect(content.isEqualNode(elementWithTestDirective)).toBeTruthy()
-    expect(directives.size).toEqual(1)
-    expect(directives.has('data-test')).toBeTruthy()
-    expect(directives.get('data-test')).toEqual('test')
+    expect(elementWithDirective.element.isEqualNode(elementWithTestDirective)).toBeTruthy()
+    expect(elementWithDirective.directives).toHaveLength(1)
+    expect(elementWithDirective.directives.has(DIRECTIVE_NAME)).toBeTruthy()
+    expect(elementWithDirective.directives.get(DIRECTIVE_NAME)).toBe(DIRECTIVE_VALUE)
   })
 
-  it('should remove directive from HTMLElement', () => {
-    document.body.innerHTML = ''
-
+  it('should remove directive from element', () => {
     // given
     const element1 = createElementWithDirective(DIRECTIVE_NAME, DIRECTIVE_VALUE)
     const element2 = createElementWithDirective(DIRECTIVE_NAME, DIRECTIVE_VALUE)
 
-    document.body.append(element1, element2)
+    DOM_ROOT.append(element1, element2)
 
     // when
     removeDirectiveFromElements(getElementsWithAnyDirective(), DIRECTIVE_NAME)
@@ -142,13 +128,13 @@ describe('dom', () => {
     const elements = getElementsWithAnyDirective()
 
     const element = getElementsWithDirective(elements, DIRECTIVE_NAME)[0]
-    element.content.style.display = 'none'
+    element.element.style.display = 'none'
 
     // when
     displayShowElement(element)
 
     // then
-    expect(element.content.style.display).toEqual('revert')
+    expect(element.element.style.display).toBe('revert')
     expect(element.visible).toBeTruthy()
   })
 
@@ -157,23 +143,23 @@ describe('dom', () => {
     const elements = getElementsWithAnyDirective()
 
     const element = getElementsWithDirective(elements, DIRECTIVE_NAME)[0]
-    element.content.style.display = 'block'
+    element.element.style.display = 'block'
 
     // when
     displayHideElement(element)
 
     // then
-    expect(element.content.style.display).toEqual('none')
+    expect(element.element.style.display).toBe('none')
     expect(element.visible).toBeFalsy()
   })
 
-  it('should replace HTMLTemplateElement with HTMLElement', () => {
+  it('should replace template with element', () => {
     // given
     const template = document.createElement('template')
     template.setAttribute(DIRECTIVE_NAME, DIRECTIVE_VALUE)
-    template.content.append(ELEMENTS[0])
+    template.content.append(DOM_ELEMENTS[0])
 
-    document.body.prepend(template)
+    DOM_ROOT.prepend(template)
 
     const element = getElementsWithDirective(getElementsWithAnyDirective(), DIRECTIVE_NAME)[0]
 
@@ -181,11 +167,11 @@ describe('dom', () => {
     replaceTemplateWithElement(element)
 
     // then
-    expect(element.content.isEqualNode(ELEMENTS[0])).toBeTruthy()
+    expect(element.element.isEqualNode(DOM_ELEMENTS[0])).toBeTruthy()
     expect(element.visible).toBeTruthy()
   })
 
-  it('should replace HTMLElement with HTMLTemplateElement', () => {
+  it('should replace element with template', () => {
     // given
     const element = getElementsWithDirective(getElementsWithAnyDirective(), DIRECTIVE_NAME)[0]
 
@@ -193,20 +179,20 @@ describe('dom', () => {
     replaceElementWithTemplate(element)
 
     // then
-    const template = element.content as HTMLTemplateElement
+    const template = element.element as HTMLTemplateElement
 
     expect(template).instanceof(HTMLTemplateElement)
     expect(template.content.firstElementChild).not.toBeNull()
-    expect(template.content.firstElementChild!.isEqualNode(ELEMENTS[0])).toBeTruthy()
+    expect(template.content.firstElementChild!.isEqualNode(DOM_ELEMENTS[0])).toBeTruthy()
     expect(template.content.firstElementChild!.hasAttribute('data-test')).toBeTruthy()
     expect(template.content.firstElementChild!.getAttribute('data-test')).toEqual('test')
     expect(element.visible).toBeFalsy()
   })
 })
 
-const createElementWithDirective = (name: string, value: string): HTMLElement => {
+const createElementWithDirective = (directive: Directive, value: string): HTMLElement => {
   const element = document.createElement('div')
-  element.setAttribute(name, value)
+  element.setAttribute(directive, value)
 
   return element
 }

@@ -4,7 +4,7 @@ import {
   getElementsWithDirective,
   getRootElementDirectives,
   removeDirectivesFromRootElement,
-} from '@router/dom'
+} from '@router/dom.old'
 import { Directive, InternalEvent } from '@router/enums'
 import { subscribe } from '@router/events.old'
 import { isMatchingURL } from '@router/url'
