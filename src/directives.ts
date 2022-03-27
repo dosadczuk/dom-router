@@ -1,4 +1,4 @@
-import { getElementsWithDirective, removeDirectiveFromElements } from '@router/dom'
+import { removeDirectiveFromElements } from '@router/dom'
 import type { Nullable } from '@router/types'
 
 export enum Directive {
@@ -20,7 +20,7 @@ export enum Directive {
 }
 
 // -----------------------------------------------------------------------------
-// -- Functions
+// -- Definition
 // -----------------------------------------------------------------------------
 
 const DirectiveRegistry = new Map<Directive, Nullable<DirectiveDefinition>>()
@@ -45,7 +45,7 @@ export const processDirectives = (elements: ElementWithDirectives[], directives:
     const { factory, options } = definition
 
     if (factory != null) {
-      const cleanup = factory(elements, getElementsWithDirective(elements, directive), options)
+      const cleanup = factory(elements, options)
       if (cleanup != null) {
         cleanup() // cleanup after directive set up
       }
@@ -87,7 +87,7 @@ export const clearDirectives = (): void => {
 /**
  * A directive is a function that does something for a specific element.
  */
-export type DirectiveDefinition = {
+type DirectiveDefinition = {
   /**
    * Directive factory function to prepare DOM.
    */
@@ -102,17 +102,17 @@ export type DirectiveDefinition = {
 /**
  * A directive factory function to prepare DOM.
  */
-export type DirectiveFactory = (elements: ElementWithDirectives[], elementsWithDirective: ElementWithDirectives[], options: Nullable<DirectiveOptions>) => DirectiveCleanup | void
+type DirectiveFactory = (elements: ElementWithDirectives[], options: Nullable<DirectiveOptions>) => DirectiveCleanup | void
 
 /**
  * A directive cleanup function to clean up after set up.
  */
-export type DirectiveCleanup = () => void
+type DirectiveCleanup = () => void
 
 /**
  * A directive options.
  */
-export type DirectiveOptions = {
+type DirectiveOptions = {
   /**
    * Remove directive from element after set up.
    */
@@ -122,7 +122,7 @@ export type DirectiveOptions = {
 /**
  * Definition of an element with the directives attached.
  */
-export type ElementWithDirectives<T extends Element = HTMLElement> = {
+export type ElementWithDirectives<T extends HTMLElement = HTMLElement> = {
   /**
    * The element to which the directives are attached.
    */

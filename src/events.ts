@@ -1,3 +1,5 @@
+import type { Nullable } from '@router/types'
+
 /**
  * Events to be emitted internally. For library usage only.
  */
@@ -98,11 +100,26 @@ export const prevent = (fn: EventListener): EventListener => {
 // -----------------------------------------------------------------------------
 
 /**
+ * Payload sent with "view-updated" event.
+ */
+export type ViewUpdatedPayload = {
+  /**
+   * Matching route.
+   */
+  route: Nullable<string>
+
+  /**
+   * Element visible for route.
+   */
+  element: Nullable<HTMLElement>
+}
+
+/**
  * Event subscriber.
  */
-export type Subscriber = (data?: any) => void
+type Subscriber = (data?: any) => void
 
 /**
  * Event unsubscriber.
  */
-export type Unsubscriber = () => void
+type Unsubscriber = () => void

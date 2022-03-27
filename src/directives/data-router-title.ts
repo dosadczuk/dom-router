@@ -1,29 +1,28 @@
 import { isEmptyString } from '@router/asserts'
 import { defineDirective, Directive } from '@router/directives'
-import { getElementsWithDirective, getRootDirectives, removeRootDirectives } from '@router/dom'
+import { getRouteToPage } from '@router/directives/data-router-page.model'
+import { getRootDirectives, removeRootDirectives } from '@router/dom'
 import { InternalEvent, subscribe } from '@router/events'
-import { isMatchingURL } from '@router/url'
+import { getCurrentURL, isMatchingURL } from '@router/url'
 
 defineDirective(Directive.Title, {
   factory: (elements) => {
-    const elementsWithPage = getElementsWithDirective(elements, Directive.Page)
-    if (elementsWithPage.length === 0) {
-      return // nothing to process
+    const routeToPage = getRouteToPage(elements)
+    if (routeToPage.size === 0) {
+      return // no page found
     }
 
     const [ titleTemplate, titleFallback ] = getRootDirectives([ Directive.Title, Directive.TitleDefault ])
 
     subscribe(InternalEvent.ViewChange, () => {
-      for (const page of elementsWithPage) {
-        const route = page.directives.get(Directive.Page)
-        const title = page.directives.get(Directive.Title) ?? titleFallback
-
-        if (isEmptyString(route) || isEmptyString(title)) {
-          continue // no way to set title if neither route nor title are set
+      for (const [ route, page ] of routeToPage) {
+        if (!isMatchingURL(route, getCurrentURL())) {
+          continue // skip if not matching
         }
 
-        if (!isMatchingURL(route)) {
-          continue // not the current route
+        const title = page.directives.get(Directive.Title) ?? titleFallback
+        if (isEmptyString(title)) {
+          continue // no title for current page
         }
 
         if (titleTemplate != null) {
@@ -32,7 +31,7 @@ defineDirective(Directive.Title, {
           document.title = title
         }
 
-        break // only set the title once
+        break // stop on first match
       }
     })
 

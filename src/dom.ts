@@ -9,7 +9,7 @@ export enum ToggleMode {
 }
 
 // -----------------------------------------------------------------------------
-// -- Functions
+// -- Definition
 // -----------------------------------------------------------------------------
 
 /**
@@ -113,7 +113,7 @@ export const removeDirectiveFromElements = (elements: ElementWithDirectives[], d
 /**
  * Toggles elements visibility.
  */
-export const toggleViewWithMode = (mode: ToggleMode): ToggleElementVisibility => {
+export const toggleViewWithMode = (mode: ToggleMode): ToggleView => {
   return (element, visible) => {
     switch (mode) {
       case ToggleMode.Display:
@@ -212,14 +212,14 @@ export const removeClassNameFromElement = (element: ElementWithDirectives, class
 /**
  * Mount/unmount element from DOM.
  */
-export type ToggleElementVisibility = (element: ElementWithDirectives, visible: boolean) => boolean
+export type ToggleView = (element: ElementWithDirectives, visible: boolean) => boolean
 
 /**
  * Mount element in DOM.
  */
-export type ShowElement = (element: ElementWithDirectives) => boolean
+type ShowElement = (element: ElementWithDirectives) => boolean
 
 /**
  * Unmount element from DOM.
  */
-export type HideElement = (element: ElementWithDirectives) => boolean
+type HideElement = (element: ElementWithDirectives) => boolean

@@ -1,41 +1,37 @@
-import { isEmptyString } from '@router/asserts'
-import type { ElementWithDirectives } from '@router/directives'
 import { defineDirective, Directive } from '@router/directives'
-import type { ToggleElementVisibility } from '@router/dom'
+import { getRouteToPage } from '@router/directives/data-router-page.model'
+import type { ToggleView } from '@router/dom'
 import { getElementWithDirective } from '@router/dom'
+import type { ViewUpdatedPayload } from '@router/events'
 import { dispatchTo, ExternalEvent, InternalEvent, subscribe } from '@router/events'
-import type { Nullable } from '@router/types'
 import { isMatchingURL } from '@router/url'
 
 defineDirective(Directive.Page, {
-  factory: (elements, elementsWithPage) => {
-    const pages = getRoutePages(elements)
-    if (pages.size === 0) {
-      return // no pages
+  factory: (elements) => {
+    const routeToPage = getRouteToPage(elements)
+    if (routeToPage.size === 0) {
+      return // no page found
     }
 
-    const fallback = getElementWithDirective(elementsWithPage, Directive.PageFallback)
+    const fallback = getElementWithDirective(elements, Directive.PageFallback)
 
-    subscribe(InternalEvent.ViewChange, (toggleElementVisibility: ToggleElementVisibility) => {
-      const payload = {
-        route: null as Nullable<string>,
-        element: null as Nullable<Element>,
-      }
+    subscribe(InternalEvent.ViewChange, (toggleView: ToggleView) => {
+      const payload: ViewUpdatedPayload = { route: null, element: null }
 
       // let client subscribe to event "before-view-update"
-      dispatchTo(document, ExternalEvent.BeforeViewUpdate, payload)
+      dispatchTo(document, ExternalEvent.BeforeViewUpdate)
 
-      // change pages visibility
-      for (const [ route, page ] of pages) {
-        if (toggleElementVisibility(page, isMatchingURL(route))) {
+      for (const [ route, page ] of routeToPage) {
+        // find page with matching route and set it visible
+        if (toggleView(page, isMatchingURL(route))) {
           payload.route = route
           payload.element = page.element
         }
       }
 
-      // if page is not found, show fallback (if exists)
       if (payload.element == null && fallback != null) {
-        if (toggleElementVisibility(fallback, true)) {
+        // if page is not found, set fallback page visible
+        if (toggleView(fallback, true)) {
           payload.element = fallback.element
         }
       }
@@ -48,21 +44,3 @@ defineDirective(Directive.Page, {
     removable: true,
   },
 })
-
-/**
- * Get all pages with their routes.
- */
-const getRoutePages = (elements: ElementWithDirectives[]): Map<string, ElementWithDirectives> => {
-  const pages = new Map<string, ElementWithDirectives>()
-
-  for (const element of elements) {
-    const route = element.directives.get(Directive.Page)
-    if (isEmptyString(route)) {
-      continue // // nowhere to go
-    }
-
-    pages.set(route, element)
-  }
-
-  return pages
-}
