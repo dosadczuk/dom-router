@@ -6,7 +6,7 @@ import {
   removeDirectivesFromRootElement,
 } from '@router/dom'
 import { Directive, InternalEvent } from '@router/enums'
-import { subscribe } from '@router/events'
+import { subscribe } from '@router/events.old'
 import { isMatchingURL } from '@router/url'
 
 /**

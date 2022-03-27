@@ -1,35 +1,42 @@
-import { dispatch, dispatchToElement, subscribe } from '@router/events'
+import {
+  dispatch,
+  dispatchTo,
+  ExternalEvent,
+  InternalEvent,
+  subscribe,
+  subscribeTo,
+} from '@router/events'
 import { describe, expect, fn, it } from 'vitest'
 
 describe('events', () => {
 
-  it('should dispatch internal event', () => {
+  it('should dispatch an internal event', () => {
     // given
-    const eventHandler = fn()
-    const eventName = 'custom-event'
+    const eventFn = fn()
+    const eventName = InternalEvent.PageChanged
     const eventData = { test: 123 }
 
-    subscribe(eventName, eventHandler)
+    subscribe(eventName, eventFn)
 
     // when
     dispatch(eventName, eventData)
 
     // then
-    expect(eventHandler).toBeCalledTimes(1)
+    expect(eventFn).toBeCalledTimes(1)
   })
 
-  it('should dispatch external event', () => {
+  it('should dispatch an external event', () => {
     // given
-    const eventHandler = fn()
-    const eventName = 'custom-event'
+    const eventFn = fn()
+    const eventName = ExternalEvent.BeforeMount
     const eventData = { test: 123 }
 
-    document.addEventListener(eventName, eventHandler)
+    subscribeTo(document, eventName, eventFn)
 
     // when
-    dispatchToElement(document, eventName, eventData)
+    dispatchTo(document, eventName, eventData)
 
     // then
-    expect(eventHandler).toBeCalledTimes(1)
+    expect(eventFn).toBeCalledTimes(1)
   })
 })

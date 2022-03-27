@@ -3,7 +3,7 @@ import { defineDirective } from '@router/directives'
 import { getRouteFromLink } from '@router/directives/data-router-link'
 import { appendClassNamesToElement, removeClassNamesFromElement } from '@router/dom'
 import { Directive, InternalEvent } from '@router/enums'
-import { subscribe } from '@router/events'
+import { subscribe } from '@router/events.old'
 import { isMatchingURL } from '@router/url'
 
 /**

@@ -1,7 +1,7 @@
 import { isEmptyString, isHTMLAnchorElement } from '@router/asserts'
 import { defineDirective } from '@router/directives'
 import { Directive, InternalEvent } from '@router/enums'
-import { dispatch, prevented } from '@router/events'
+import { dispatch, prevented } from '@router/events.old'
 import type { ElementWithDirectives, Nullable } from '@router/types'
 
 /**

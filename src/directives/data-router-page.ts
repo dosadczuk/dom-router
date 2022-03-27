@@ -2,7 +2,7 @@ import { isEmptyString } from '@router/asserts'
 import { defineDirective } from '@router/directives'
 import { getFirstElementWithDirective } from '@router/dom'
 import { Directive, ExternalEvent, InternalEvent } from '@router/enums'
-import { dispatchToElement, subscribe } from '@router/events'
+import { dispatchToElement, subscribe } from '@router/events.old'
 import type { ElementWithDirectives, ToggleElementVisibility, ViewChangedPayload } from '@router/types'
 import { isMatchingURL } from '@router/url'
 
