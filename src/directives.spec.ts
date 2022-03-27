@@ -1,87 +1,67 @@
+import { isDirective } from '@router/asserts'
 import {
   clearDirectives,
   defineDirective,
+  Directive,
   getDirectives,
   getDirectivesAsSelector,
-  isDirective,
-  setUpDirectives,
 } from '@router/directives'
-import type { DirectiveCleanup, DirectiveFactory } from '@router/types'
-import { afterEach, describe, expect, fn, it } from 'vitest'
+import { beforeEach, describe, expect, fn, it } from 'vitest'
 
 describe('directives', () => {
 
-  afterEach(() => {
+  beforeEach(() => {
     clearDirectives()
   })
 
   it('should define directive', () => {
     // given
-    const directiveName = 'test'
+    const directiveName = Directive.Initialize
     const directiveFactory = fn()
 
     // when
     defineDirective(directiveName, { factory: directiveFactory })
 
     // then
-    expect(isDirective(directiveName)).toBeTruthy()
-    expect(directiveFactory).toBeCalledTimes(0)
+    expect(isDirective(directiveName)).toBe(true)
+    expect(directiveFactory).not.toHaveBeenCalled()
   })
 
-  it('should list directives', () => {
+  it('should get all registered directives', () => {
     // given
-    defineDirective('test1')
-    defineDirective('test2')
+    defineDirective(Directive.Initialize)
 
     // when
     const directives = getDirectives()
 
     // then
-    expect(directives).length(2)
-  })
-
-  it('should set up directives with factory function', () => {
-    // given
-    const directiveName = 'test1'
-    const directiveCleanup: DirectiveCleanup = fn()
-    const directiveFactory: DirectiveFactory = fn(() => directiveCleanup)
-
-    defineDirective(directiveName, {
-      factory: directiveFactory,
-    })
-
-    // when
-    setUpDirectives([], [ directiveName ])
-
-    // then
-    expect(directiveFactory).toBeCalledTimes(1)
-    expect(directiveCleanup).toBeCalledTimes(1)
+    expect(directives).toHaveLength(1)
   })
 
   it('should get selector to find elements with any directive', () => {
     // given
-    defineDirective('test1')
-    defineDirective('test2')
+    const directiveName = Directive.Initialize
+
+    defineDirective(directiveName)
 
     // when
     const selector = getDirectivesAsSelector()
 
     // then
-    expect(selector, '[test1], [test2]')
+    expect(selector).toBe(`[${directiveName}]`)
   })
 
-  it('should clear directives', () => {
+  it('should unregister all directives', () => {
     // given
-    defineDirective('test1')
-    defineDirective('test2')
+    defineDirective(Directive.Initialize)
 
     // when
-    const directivesBeforeClear = getDirectives()
+    const beforeUnregister = getDirectives()
     clearDirectives()
-    const directivesAfterClear = getDirectives()
+    const afterUnregister = getDirectives()
 
     // then
-    expect(directivesBeforeClear).length(2)
-    expect(directivesAfterClear).length(0)
+    expect(beforeUnregister).toHaveLength(1)
+    expect(afterUnregister).toHaveLength(0)
   })
 })

@@ -1,4 +1,4 @@
-import { defineDirective } from '@router/directives'
+import { defineDirective } from '@router/directives.old'
 import {
   displayHideElement,
   displayShowElement,

@@ -1,68 +1,98 @@
-import { getElementsWithDirective, removeDirectiveFromElements } from '@router/dom'
-import type { DirectiveDefinition, ElementWithDirectives, Nullable } from '@router/types'
+import type { Nullable } from '@router/types'
 
-const directives = new Map<string, Nullable<DirectiveDefinition>>()
+export enum Directive {
+  Initialize = 'data-router',
+}
+
+// -----------------------------------------------------------------------------
+// -- Functions
+// -----------------------------------------------------------------------------
+
+const DirectiveRegistry = new Map<Directive, Nullable<DirectiveDefinition>>()
 
 /**
- * Register directive with given factory function.
+ * Registers a directive.
  */
-export const defineDirective = (name: string, definition?: DirectiveDefinition): void => {
-  directives.set(name, definition ?? null)
+export const defineDirective = (directive: Directive, definition?: DirectiveDefinition): void => {
+  DirectiveRegistry.set(directive, definition ?? null)
 }
 
 /**
- * Set up directives in given order.
+ * Returns registered directives.
  */
-export const setUpDirectives = (elements: ElementWithDirectives[], names: string[]): void => {
-  for (const name of names) {
-    const definition = directives.get(name)
-    if (definition == null) {
-      continue
-    }
-
-    const { factory, options } = definition
-
-    // check factory
-    if (factory != null) {
-      const cleanup = factory(elements, getElementsWithDirective(elements, name), options)
-      if (cleanup != null) {
-        cleanup() // cleanup after set up
-      }
-    }
-
-    // check options
-    if (options != null) {
-      if (options.removable) {
-        removeDirectiveFromElements(elements, name)
-      }
-    }
-  }
+export const getDirectives = (): Directive[] => {
+  return Array.from(DirectiveRegistry.keys())
 }
 
 /**
- * Check if name is registered as directive.
- */
-export const isDirective = (name: string): boolean => {
-  return getDirectives().includes(name)
-}
-
-/**
- * Get list of registered directives.
- */
-export const getDirectives = (): string[] => {
-  return Array.from(directives.keys())
-}
-
-/**
- * Get selector to find elements with any directive.
+ * Returns a selector to find elements with any directive.
  */
 export const getDirectivesAsSelector = (): string => {
-  return getDirectives().map(it => `[${it}]`).join(', ')
+  return getDirectives().map(directive => `[${directive}]`).join(', ')
 }
 
 /**
- * Remove all registered directives.
+ * Unregisters the directives.
  */
 export const clearDirectives = (): void => {
-  directives.clear()
+  DirectiveRegistry.clear()
+}
+
+// -----------------------------------------------------------------------------
+// -- Types
+// -----------------------------------------------------------------------------
+
+/**
+ * A directive is a function that does something for a specific element.
+ */
+export type DirectiveDefinition = {
+  /**
+   * Directive factory function to prepare DOM.
+   */
+  factory: Nullable<DirectiveFactory>
+
+  /**
+   * Directive options.
+   */
+  options?: DirectiveOptions
+}
+
+/**
+ * A directive factory function to prepare DOM.
+ */
+export type DirectiveFactory = (elements: ElementWithDirectives[], elementsWithDirective: ElementWithDirectives[], options: Nullable<DirectiveOptions>) => DirectiveCleanup | void
+
+/**
+ * A directive cleanup function to clean up after set up.
+ */
+export type DirectiveCleanup = () => void
+
+/**
+ * A directive options.
+ */
+export type DirectiveOptions = {
+  /**
+   * Remove directive from element after set up.
+   */
+  removable: boolean
+}
+
+/**
+ * Definition of an element with the directives attached.
+ */
+export type ElementWithDirectives<T extends Element = HTMLElement> = {
+  /**
+   * The element to which the directives are attached.
+   */
+  element: T
+
+  /**
+   * Is the element currently attached to the DOM?
+   */
+  visible: boolean
+
+  /**
+   * The directives attached to the element.
+   */
+  directives: ReadonlyMap<Directive, string>
 }

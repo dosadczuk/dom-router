@@ -1,5 +1,5 @@
 import { isEmptyString } from '@router/asserts.old'
-import { defineDirective } from '@router/directives'
+import { defineDirective } from '@router/directives.old'
 import { getRouteFromLink } from '@router/directives/data-router-link'
 import { appendClassNamesToElement, removeClassNamesFromElement } from '@router/dom'
 import { Directive, InternalEvent } from '@router/enums'

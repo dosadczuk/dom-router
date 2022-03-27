@@ -1,5 +1,5 @@
 import { isEmptyString } from '@router/asserts.old'
-import { defineDirective } from '@router/directives'
+import { defineDirective } from '@router/directives.old'
 import { getFirstElementWithDirective, getElementsWithDirective } from '@router/dom'
 import { Directive } from '@router/enums'
 

@@ -1,3 +1,4 @@
+import { Directive, getDirectives } from '@router/directives'
 import type { Nullable } from '@router/types'
 
 // -----------------------------------------------------------------------------
@@ -27,6 +28,17 @@ export const isEmptyString = (value: unknown): value is Nullable<string> => {
  */
 export const isEnum = (value: unknown, enumObject: object): value is keyof typeof enumObject => {
   return Object.values(enumObject).includes(String(value))
+}
+
+// -----------------------------------------------------------------------------
+// -- Directive
+// -----------------------------------------------------------------------------
+
+/**
+ * Asserts that the given value is a directive.
+ */
+export const isDirective = (value: unknown): value is Directive => {
+  return isEnum(value, Directive) && getDirectives().includes(value)
 }
 
 // -----------------------------------------------------------------------------

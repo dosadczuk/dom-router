@@ -1,5 +1,5 @@
 import { isEnumValue } from '@router/asserts.old'
-import { defineDirective } from '@router/directives'
+import { defineDirective } from '@router/directives.old'
 import { changeViewWithMode, getRootElementDirective, removeDirectiveFromRootElement } from '@router/dom'
 import { Directive, ExternalEvent, InternalEvent, Mode } from '@router/enums'
 import { dispatch, dispatchToElement, subscribe, subscribeToElement } from '@router/events.old'

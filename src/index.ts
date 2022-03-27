@@ -1,4 +1,4 @@
-import { setUpDirectives } from '@router/directives'
+import { setUpDirectives } from '@router/directives.old'
 import '@router/directives/index'
 import { getElementsWithAnyDirective, hasRootElementDirective } from '@router/dom'
 import { Directive } from '@router/enums'
