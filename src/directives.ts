@@ -1,7 +1,22 @@
+import { getElementsWithDirective, removeDirectiveFromElements } from '@router/dom'
 import type { Nullable } from '@router/types'
 
 export enum Directive {
   Initialize = 'data-router',
+
+  Cloak = 'data-router-cloak',
+
+  Title = 'data-router-title',
+  TitleDefault = 'data-router-title-default',
+
+  Link = 'data-router-link',
+  LinkActive = 'data-router-link-active',
+
+  Page = 'data-router-page',
+  PageFallback = 'data-router-page-fallback',
+
+  Sitemap = 'data-router-sitemap',
+  SitemapIgnore = 'data-router-sitemap-ignore',
 }
 
 // -----------------------------------------------------------------------------
@@ -15,6 +30,33 @@ const DirectiveRegistry = new Map<Directive, Nullable<DirectiveDefinition>>()
  */
 export const defineDirective = (directive: Directive, definition?: DirectiveDefinition): void => {
   DirectiveRegistry.set(directive, definition ?? null)
+}
+
+/**
+ * Processes directives on the given elements.
+ */
+export const processDirectives = (elements: ElementWithDirectives[], directives: Directive[]) => {
+  for (const directive of directives) {
+    const definition = DirectiveRegistry.get(directive)
+    if (definition == null) {
+      continue // directive not defined
+    }
+
+    const { factory, options } = definition
+
+    if (factory != null) {
+      const cleanup = factory(elements, getElementsWithDirective(elements, directive), options)
+      if (cleanup != null) {
+        cleanup() // cleanup after directive set up
+      }
+    }
+
+    if (options != null) {
+      if (options.removable) {
+        removeDirectiveFromElements(elements, directive)
+      }
+    }
+  }
 }
 
 /**

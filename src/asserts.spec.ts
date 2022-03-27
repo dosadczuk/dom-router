@@ -1,10 +1,4 @@
-import {
-  isEmptyString,
-  isEnum,
-  isHTMLAnchorElement,
-  isHTMLTemplateElement,
-  isString,
-} from '@router/asserts'
+import { isEmptyString, isEnum, isHTMLAnchorElement, isHTMLTemplateElement, isString } from '@router/asserts'
 import { describe, expect, it } from 'vitest'
 
 describe('asserts', () => {

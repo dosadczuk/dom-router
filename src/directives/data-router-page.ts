@@ -1,67 +1,47 @@
-import { isEmptyString } from '@router/asserts.old'
-import { defineDirective } from '@router/directives.old'
-import { getFirstElementWithDirective } from '@router/dom.old'
-import { Directive, ExternalEvent, InternalEvent } from '@router/enums'
-import { dispatchToElement, subscribe } from '@router/events.old'
-import type { ElementWithDirectives, ToggleElementVisibility, ViewChangedPayload } from '@router/types'
+import { isEmptyString } from '@router/asserts'
+import type { ElementWithDirectives } from '@router/directives'
+import { defineDirective, Directive } from '@router/directives'
+import type { ToggleElementVisibility } from '@router/dom'
+import { getElementWithDirective } from '@router/dom'
+import { dispatchTo, ExternalEvent, InternalEvent, subscribe } from '@router/events'
+import type { Nullable } from '@router/types'
 import { isMatchingURL } from '@router/url'
 
-/**
- * Directive:   data-router-page
- *
- * Description:
- *  Marks HTML tag as page. Value of the directive must be a valid path name or pattern.
- *  It will be converted into regular expression and matched with current url.
- *  Result of matching will determine if page can be visible or not.
- *
- *  There are a few valid path patterns:
- *    - static                    : /users, /books, /books/titles
- *    - with parameter            : /users/:id, /books/:genre/:title
- *    - with parameter (suffix)   : /videos/:id.mov, /images/:id.(jpeg|png)
- *    - with parameter(optional)  : /users/:name?, /books/:genre?
- *    - with wildcards            : /users/*, /books/:genre/*
- *
- * Values:
- *  - page path name
- *
- * Usage:
- *  <section data-router-page="/page">
- *    <!-- page content -->
- *  </section>
- */
 defineDirective(Directive.Page, {
-  factory: (_, elementsWithPage) => {
-    const pages = mapRoutesWithPages(elementsWithPage)
+  factory: (elements, elementsWithPage) => {
+    const pages = getRoutePages(elements)
     if (pages.size === 0) {
-      return // no pages registered
+      return // no pages
     }
 
-    const fallback = getFirstElementWithDirective(elementsWithPage, Directive.PageFallback)
+    const fallback = getElementWithDirective(elementsWithPage, Directive.PageFallback)
 
-    // update page visibility after firing up view change event
     subscribe(InternalEvent.ViewChange, (toggleElementVisibility: ToggleElementVisibility) => {
-      const payload: ViewChangedPayload = {
-        page: null,
-        route: null,
+      const payload = {
+        route: null as Nullable<string>,
+        element: null as Nullable<Element>,
       }
 
-      for (const [ route, page ] of pages.entries()) {
-        const isPageVisible = toggleElementVisibility(page, isMatchingURL(route))
-        if (isPageVisible) {
-          payload.page = page.content
+      // let client subscribe to event "before-view-update"
+      dispatchTo(document, ExternalEvent.BeforeViewUpdate, payload)
+
+      // change pages visibility
+      for (const [ route, page ] of pages) {
+        if (toggleElementVisibility(page, isMatchingURL(route))) {
           payload.route = route
+          payload.element = page.element
         }
       }
 
-      if (payload.page == null && fallback != null) {
-        const isPageVisible = toggleElementVisibility(fallback, true)
-        if (isPageVisible) {
-          payload.page = fallback.content
+      // if page is not found, show fallback (if exists)
+      if (payload.element == null && fallback != null) {
+        if (toggleElementVisibility(fallback, true)) {
+          payload.element = fallback.element
         }
       }
 
-      // let client subscribe to event "view-changed"
-      dispatchToElement(document, ExternalEvent.ViewChanged, payload)
+      // let client subscribe to event "view-updated"
+      dispatchTo(document, ExternalEvent.ViewUpdated, payload)
     })
   },
   options: {
@@ -69,13 +49,16 @@ defineDirective(Directive.Page, {
   },
 })
 
-const mapRoutesWithPages = (elements: ElementWithDirectives[]): Map<string, ElementWithDirectives> => {
+/**
+ * Get all pages with their routes.
+ */
+const getRoutePages = (elements: ElementWithDirectives[]): Map<string, ElementWithDirectives> => {
   const pages = new Map<string, ElementWithDirectives>()
 
   for (const element of elements) {
     const route = element.directives.get(Directive.Page)
     if (isEmptyString(route)) {
-      continue
+      continue // // nowhere to go
     }
 
     pages.set(route, element)

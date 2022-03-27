@@ -1,17 +1,5 @@
-import { defineDirective } from '@router/directives.old'
-import { Directive } from '@router/enums'
+import { defineDirective, Directive } from '@router/directives'
 
-/**
- * Directive:   data-router-page-fallback
- *
- * Description:
- *  Marks page as fallback when no page is matching URL.
- *
- * Usage:
- *  <section data-router-page="/404" data-router-page-fallback>
- *    <!-- page content -->
- *  </section>
- */
 defineDirective(Directive.PageFallback, {
   factory: null,
   options: {

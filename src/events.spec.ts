@@ -1,11 +1,4 @@
-import {
-  dispatch,
-  dispatchTo,
-  ExternalEvent,
-  InternalEvent,
-  subscribe,
-  subscribeTo,
-} from '@router/events'
+import { dispatch, dispatchTo, ExternalEvent, InternalEvent, subscribe, subscribeTo } from '@router/events'
 import { describe, expect, fn, it } from 'vitest'
 
 describe('events', () => {
@@ -13,7 +6,7 @@ describe('events', () => {
   it('should dispatch an internal event', () => {
     // given
     const eventFn = fn()
-    const eventName = InternalEvent.PageChanged
+    const eventName = InternalEvent.PageChange
     const eventData = { test: 123 }
 
     subscribe(eventName, eventFn)

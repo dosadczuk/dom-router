@@ -1,12 +1,11 @@
-import { setUpDirectives } from '@router/directives.old'
-import '@router/directives/index'
-import { getElementsWithAnyDirective, hasRootElementDirective } from '@router/dom.old'
-import { Directive } from '@router/enums'
+import { Directive, processDirectives } from '@router/directives'
+import * as directives from '@router/directives/index'
+import { getElementsWithAnyDirective, hasRootDirective } from '@router/dom'
 
-const Router = () => {
-  const canInitialize = hasRootElementDirective(Directive.Init)
+(function Router() {
+  const canInitialize = hasRootDirective(Directive.Initialize)
   if (!canInitialize) {
-    throw new Error(`Router cannot be initialized. Add '${Directive.Init}' attribute to <html></html> tag.`)
+    throw new Error(`Router cannot be initialized. Add '${Directive.Initialize}' attribute to root element.`)
   }
 
   const elements = getElementsWithAnyDirective()
@@ -14,18 +13,5 @@ const Router = () => {
     throw new Error(`Router cannot be initialized. No directive found.`)
   }
 
-  setUpDirectives(elements, [
-    Directive.Cloak,
-    Directive.Title,
-    Directive.TitleDefault,
-    Directive.Page,
-    Directive.PageFallback,
-    Directive.Sitemap,
-    Directive.SitemapIgnore,
-    Directive.Link,
-    Directive.LinkActive,
-    Directive.Init,
-  ])
-}
-
-Router()
+  processDirectives(elements, directives.definition)
+})()

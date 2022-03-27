@@ -2,8 +2,8 @@
  * Events to be emitted internally. For library usage only.
  */
 export enum InternalEvent {
-  PageChanged,
-  ViewChanged
+  PageChange,
+  ViewChange
 }
 
 /**
@@ -13,8 +13,11 @@ export enum ExternalEvent {
   BeforeMount = 'router:before-mount',
   Mounted = 'router:mounted',
 
-  BeforeUpdate = 'router:before-update',
-  Updated = 'router:updated',
+  BeforePageUpdate = 'router:before-page-update',
+  PageUpdated = 'router:page-updated',
+
+  BeforeViewUpdate = 'router:before-view-update',
+  ViewUpdated = 'router:view-updated',
 }
 
 // -----------------------------------------------------------------------------
@@ -41,7 +44,7 @@ export const subscribe = (event: InternalEvent, fn: Subscriber): Unsubscriber =>
 /**
  * Dispatch an internal event with data.
  */
-export const dispatch = <T = unknown>(event: InternalEvent, data?: T): void => {
+export const dispatch = (event: InternalEvent, data?: unknown): void => {
   EventBus.get(event)?.forEach(fn => fn(data))
 }
 
@@ -52,7 +55,7 @@ export const dispatch = <T = unknown>(event: InternalEvent, data?: T): void => {
 /**
  * Subscribe to an external event with handler.
  */
-export const subscribeTo = (target: EventTarget, event: ExternalEvent, fn: Subscriber): Unsubscriber => {
+export const subscribeTo = (target: EventTarget, event: ExternalEvent | string, fn: Subscriber): Unsubscriber => {
   target.addEventListener(String(event), fn)
 
   return () => {
@@ -63,7 +66,7 @@ export const subscribeTo = (target: EventTarget, event: ExternalEvent, fn: Subsc
 /**
  * Dispatch an external event with data.
  */
-export const dispatchTo = <T = unknown>(target: EventTarget, event: ExternalEvent, data?: T): void => {
+export const dispatchTo = (target: EventTarget, event: ExternalEvent | string, data?: unknown): void => {
   target.dispatchEvent(
     new CustomEvent(String(event), {
       detail: data,
@@ -97,7 +100,7 @@ export const prevent = (fn: EventListener): EventListener => {
 /**
  * Event subscriber.
  */
-export type Subscriber = <T>(data?: T) => void
+export type Subscriber = (data?: any) => void
 
 /**
  * Event unsubscriber.

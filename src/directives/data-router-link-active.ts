@@ -1,46 +1,28 @@
-import { isEmptyString } from '@router/asserts.old'
-import { defineDirective } from '@router/directives.old'
-import { getRouteFromLink } from '@router/directives/data-router-link'
-import { appendClassNamesToElement, removeClassNamesFromElement } from '@router/dom.old'
-import { Directive, InternalEvent } from '@router/enums'
-import { subscribe } from '@router/events.old'
+import { isEmptyString } from '@router/asserts'
+import { defineDirective, Directive } from '@router/directives'
+import { getRoute } from '@router/directives/data-router-link'
+import { appendClassNameToElement, removeClassNameFromElement } from '@router/dom'
+import { InternalEvent, subscribe } from '@router/events'
 import { isMatchingURL } from '@router/url'
 
-/**
- * Directive:   data-router-link-active
- *
- * Description:
- *  Adds additional class to a link when current page matches it. Directive value
- *  is a class name, which will be added to a link. If directive exists on an element
- *  but value is empty - default 'active' class will be used.
- *
- * Values:
- *  - no value      : 'active' class will be added
- *  - class name
- *
- * Usage:
- *  <a data-router-link href="/path" data-router-link-active></a>
- *  <a data-router-link href="/path" data-router-link-active="my-special-class"></a>
- */
 defineDirective(Directive.LinkActive, {
   factory: (_, elementsWithLinkActive) => {
-    // update link active after firing up view change event
     subscribe(InternalEvent.ViewChange, () => {
       for (const link of elementsWithLinkActive) {
-        const route = getRouteFromLink(link)
+        const route = getRoute(link)
         if (isEmptyString(route)) {
-          continue
+          continue // nowhere to go
         }
 
         let className = link.directives.get(Directive.LinkActive)
         if (isEmptyString(className)) {
-          className = 'active' // default class 'active'
+          className = 'active'
         }
 
         if (isMatchingURL(route)) {
-          appendClassNamesToElement(link, className.split(' '))
+          appendClassNameToElement(link, className.split(' '))
         } else {
-          removeClassNamesFromElement(link, className.split(' '))
+          removeClassNameFromElement(link, className.split(' '))
         }
       }
     })

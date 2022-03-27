@@ -28,6 +28,41 @@ export const getRoot = () => Root
 export const setRoot = (root: HTMLElement) => { Root = root }
 
 /**
+ * Return root's directive value.
+ */
+export const getRootDirective = (directive: Directive, defaultValue?: string): Nullable<string> => {
+  return Root.getAttribute(String(directive)) ?? defaultValue
+}
+
+/**
+ * Returns root's directives values.
+ */
+export const getRootDirectives = (directives: Directive[]): Nullable<string>[] => {
+  return directives.map(directive => getRootDirective(directive))
+}
+
+/**
+ * Checks if root has directive.
+ */
+export const hasRootDirective = (directive: Directive): boolean => {
+  return Root.hasAttribute(String(directive))
+}
+
+/**
+ * Removes root's directive.
+ */
+export const removeRootDirective = (directive: Directive): void => {
+  Root.removeAttribute(String(directive))
+}
+
+/**
+ * Removes root's directives.
+ */
+export const removeRootDirectives = (directives: Directive[]): void => {
+  directives.forEach(directive => removeRootDirective(directive))
+}
+
+/**
  * Return router root's children elements with directives.
  */
 export const getElementsWithAnyDirective = (): ElementWithDirectives[] => {
@@ -82,13 +117,13 @@ export const toggleViewWithMode = (mode: ToggleMode): ToggleElementVisibility =>
   return (element, visible) => {
     switch (mode) {
       case ToggleMode.Display:
-        visible
+        element.visible = visible
           ? displayShowElement(element)
           : displayHideElement(element)
         break
 
       case ToggleMode.Template:
-        visible
+        element.visible = visible
           ? replaceTemplateWithElement(element)
           : replaceElementWithTemplate(element)
         break
@@ -103,7 +138,8 @@ export const toggleViewWithMode = (mode: ToggleMode): ToggleElementVisibility =>
  */
 export const displayShowElement: ShowElement = (element) => {
   element.element.style.display = 'revert'
-  element.visible = true
+
+  return true
 }
 
 /**
@@ -111,7 +147,8 @@ export const displayShowElement: ShowElement = (element) => {
  */
 export const displayHideElement: HideElement = (element) => {
   element.element.style.display = 'none'
-  element.visible = false
+
+  return false
 }
 
 /**
@@ -121,17 +158,18 @@ export const replaceTemplateWithElement: ShowElement = (element) => {
   const { element: elementToHide } = element
 
   if (!isHTMLTemplateElement(elementToHide)) {
-    return // already shown
+    return true // already shown
   }
 
   const elementToShow = elementToHide.content.firstElementChild as Nullable<HTMLElement>
   if (elementToShow == null) {
-    return // nothing to replace with
+    return false // nothing to replace with
   }
 
   element.element.replaceWith(elementToShow)
   element.element = elementToShow
-  element.visible = true
+
+  return true
 }
 
 /**
@@ -141,7 +179,7 @@ export const replaceElementWithTemplate: HideElement = (element) => {
   const { element: elementToHide } = element
 
   if (isHTMLTemplateElement(elementToHide)) {
-    return // already hidden
+    return false // already hidden
   }
 
   const elementToShow = document.createElement('template')
@@ -149,20 +187,21 @@ export const replaceElementWithTemplate: HideElement = (element) => {
 
   element.element.replaceWith(elementToShow)
   element.element = elementToShow
-  element.visible = false
+
+  return false
 }
 
 /**
  * Applies classes to element.
  */
-export const appendClassesToElement = (element: ElementWithDirectives, classes: string[]): void => {
+export const appendClassNameToElement = (element: ElementWithDirectives, classes: string[]): void => {
   element.element.classList.add(...classes)
 }
 
 /**
  * Removes classes from element.
  */
-export const removeClassesFromElement = (element: ElementWithDirectives, classes: string[]): void => {
+export const removeClassNameFromElement = (element: ElementWithDirectives, classes: string[]): void => {
   element.element.classList.remove(...classes)
 }
 
@@ -178,9 +217,9 @@ export type ToggleElementVisibility = (element: ElementWithDirectives, visible: 
 /**
  * Mount element in DOM.
  */
-export type ShowElement = (element: ElementWithDirectives) => void
+export type ShowElement = (element: ElementWithDirectives) => boolean
 
 /**
  * Unmount element from DOM.
  */
-export type HideElement = (element: ElementWithDirectives) => void
+export type HideElement = (element: ElementWithDirectives) => boolean

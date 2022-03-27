@@ -12,15 +12,7 @@ import {
   replaceTemplateWithElement,
   setRoot,
 } from '@router/dom'
-import {
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  fn,
-  it,
-} from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, fn, it } from 'vitest'
 
 describe('dom', () => {
 

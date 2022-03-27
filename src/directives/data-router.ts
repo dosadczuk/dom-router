@@ -1,61 +1,48 @@
-import { isEnumValue } from '@router/asserts.old'
-import { defineDirective } from '@router/directives.old'
-import { changeViewWithMode, getRootElementDirective, removeDirectiveFromRootElement } from '@router/dom.old'
-import { Directive, ExternalEvent, InternalEvent, Mode } from '@router/enums'
-import { dispatch, dispatchToElement, subscribe, subscribeToElement } from '@router/events.old'
+import { isEnum } from '@router/asserts'
+import { defineDirective, Directive } from '@router/directives'
+import { getRootDirective, ToggleMode, toggleViewWithMode } from '@router/dom'
+import { dispatch, dispatchTo, ExternalEvent, InternalEvent, subscribe, subscribeTo } from '@router/events'
 import { getCurrentURL, isMatchingURL } from '@router/url'
 
-/**
- * Directive:   data-router
- *
- * Description:
- *  Main directive, enables and configures router. Without the directive, router will not work.
- *
- * Values:
- *  - display   : show/hide pages using CSS display property [default]
- *  - template  : show/hide pages using HTML <template> tag
- *
- * Usage:
- *  <html lang="en" data-router></html>
- *  <html lang="en" data-router="display"></html>
- *  <html lang="en" data-router="template"></html>
- */
-defineDirective(Directive.Init, {
+defineDirective(Directive.Initialize, {
   factory: () => {
-    let mode = getRootElementDirective(Directive.Init) ?? ''
-    if (!isEnumValue(Mode, mode)) {
-      mode = Mode.Display // default mode
+    let mode = getRootDirective(Directive.Initialize, '') as ToggleMode
+    if (!isEnum(mode, ToggleMode)) {
+      mode = ToggleMode.Display // default mode
     }
 
-    // let client subscribe to event "initialize"
-    dispatchToElement(document, ExternalEvent.Initialize)
+    // let client subscribe to event "before-mount"
+    dispatchTo(document, ExternalEvent.BeforeMount)
 
     // update forced by internal mechanism
-    subscribe(InternalEvent.PageChange, (route) => {
+    subscribe(InternalEvent.PageChange, (route: any) => {
       if (isMatchingURL(route, getCurrentURL())) {
         return // same page, no need to change
       }
 
+      // let client subscribe to event "before-page-update"
+      dispatchTo(document, ExternalEvent.BeforePageUpdate)
+
       history.pushState(null, '', route)
 
-      // let client subscribe to event "page-changed"
-      dispatchToElement(document, ExternalEvent.PageChanged, route)
+      // let client subscribe to event "page-updated"
+      dispatchTo(document, ExternalEvent.PageUpdated)
 
-      dispatch(InternalEvent.ViewChange, changeViewWithMode(mode))
+      dispatch(InternalEvent.ViewChange, toggleViewWithMode(mode))
     })
 
-    // update forced by History API
-    subscribeToElement(window, 'popstate', () => {
-      dispatch(InternalEvent.ViewChange, changeViewWithMode(mode))
+    // update forced by external mechanism
+    subscribeTo(window, 'popstate', () => {
+      dispatch(InternalEvent.ViewChange, toggleViewWithMode(mode))
     })
 
-    // initial view change
-    dispatch(InternalEvent.ViewChange, changeViewWithMode(mode))
+    // force initial view change
+    dispatch(InternalEvent.ViewChange, toggleViewWithMode(mode))
 
-    // remove before "initialized" event
-    removeDirectiveFromRootElement(Directive.Init)
-
-    // let client subscribe to event "initialized"
-    dispatchToElement(document, ExternalEvent.Initialized)
+    // let client subscribe to event "mounted"
+    dispatchTo(document, ExternalEvent.Mounted)
+  },
+  options: {
+    removable: true,
   },
 })
