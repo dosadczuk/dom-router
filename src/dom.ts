@@ -1,4 +1,4 @@
-import { isHTMLTemplateElement } from '@router/asserts'
+import { isHTMLTemplateElement } from '@router/asserts.old'
 import { getDirectivesAsSelector, isDirective } from '@router/directives'
 import { Mode } from '@router/enums'
 import type { ElementWithDirectives, HideElement, Nullable, ShowElement, ToggleElementVisibility } from '@router/types'

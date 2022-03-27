@@ -1,97 +1,118 @@
-import { isEmptyString, isEnumValue, isHTMLAnchorElement, isHTMLTemplateElement, isString } from '@router/asserts'
+import {
+  isEmptyString,
+  isEnum,
+  isHTMLAnchorElement,
+  isHTMLTemplateElement,
+  isString,
+} from '@router/asserts'
 import { describe, expect, it } from 'vitest'
 
 describe('asserts', () => {
 
-  it('should assert empty string', () => {
-    // given
-    const notEmptyString = 'sample string'
-    const realEmptyString = ''
-    const undfEmptyString = undefined
-    const nullEmptyString = null
-
-    // when
-    const isNotEmptyString = isEmptyString(notEmptyString)
-    const isEmptyString1 = isEmptyString(realEmptyString)
-    const isEmptyString2 = isEmptyString(undfEmptyString)
-    const isEmptyString3 = isEmptyString(nullEmptyString)
-
-    // then
-    expect(isNotEmptyString).toBeFalsy()
-    expect(isEmptyString1).toBeTruthy()
-    expect(isEmptyString2).toBeTruthy()
-    expect(isEmptyString3).toBeTruthy()
-  })
-
-  it('should assert is string', () => {
-    // given
-    const string = 'samples string'
-    const number = 123
-
-    // when
-    const isValidString = isString(string)
-    const isInvalidString = isString(number)
-
-    // then
-    expect(isValidString).toBeTruthy()
-    expect(isInvalidString).toBeFalsy()
-  })
-
-  it('should assert is enum value', () => {
-    // given
-    enum Test {
-      Value = 'value'
+  it('should assert string', () => {
+    type TestCase = {
+      input: unknown
+      expected: boolean
     }
 
-    const value = 'value'
+    const testCases: TestCase[] = [
+      { input: '', expected: true },
+      { input: 'test', expected: true },
+      { input: 1, expected: false },
+      { input: {}, expected: false },
+      { input: [], expected: false },
+      { input: null, expected: false },
+      { input: undefined, expected: false },
+      { input: true, expected: false },
+      { input: false, expected: false },
+    ]
 
-    // when
-    const isEnum = isEnumValue(Test, value)
-
-    // then
-    expect(isEnum).toBeTruthy()
+    testCases.forEach(({ input, expected }) => {
+      expect(isString(input)).toEqual(expected)
+    })
   })
 
-  it('should assert is not enum value', () => {
-    // given
-    enum Test {
-      Value = 'value'
+  it('should assert an empty string', () => {
+    type TestCase = {
+      input: unknown
+      expected: boolean
     }
 
-    const value = 'test'
+    const testCases: TestCase[] = [
+      { input: '', expected: true },
+      { input: 'test', expected: false },
+      { input: 1, expected: false },
+      { input: {}, expected: false },
+      { input: [], expected: false },
+      { input: null, expected: true },
+      { input: undefined, expected: true },
+      { input: true, expected: false },
+      { input: false, expected: false },
+    ]
 
-    // when
-    const isEnum = isEnumValue(Test, value)
-
-    // then
-    expect(isEnum).toBeFalsy()
+    testCases.forEach(({ input, expected }) => {
+      expect(isEmptyString(input)).toEqual(expected)
+    })
   })
 
-  it('should assert is HTMLTemplateElement', () => {
-    // given
-    const randomElement = document.createElement('div')
-    const templateElement = document.createElement('template')
+  it('should assert enum value', () => {
+    type TestCase = {
+      input: unknown
+      expected: boolean
+    }
 
-    // when
-    const isRandomElementHTMLTemplateElement = isHTMLTemplateElement(randomElement)
-    const isTemplateElementHTMLTemplateElement = isHTMLTemplateElement(templateElement)
+    enum TestEnum {
+      A = 'a',
+      B = 'b',
+    }
 
-    // then
-    expect(isRandomElementHTMLTemplateElement).toBeFalsy()
-    expect(isTemplateElementHTMLTemplateElement).toBeTruthy()
+    const testCases: TestCase[] = [
+      { input: TestEnum.A, expected: true },
+      { input: TestEnum.B, expected: true },
+      { input: 'a', expected: true },
+      { input: 'b', expected: true },
+      { input: 'c', expected: false },
+      { input: 'd', expected: false },
+    ]
+
+    testCases.forEach(({ input, expected }) => {
+      expect(isEnum(input, TestEnum)).toEqual(expected)
+    })
   })
 
-  it('should assert is HTMLAnchorElement', () => {
-    // given
-    const randomElement = document.createElement('div')
-    const anchorElement = document.createElement('a')
+  it('should asserts HTMLAnchorElement', () => {
+    type TestCase = {
+      input: HTMLElement
+      expected: boolean
+    }
 
-    // when
-    const isRandomElementHTMLAnchorElement = isHTMLAnchorElement(randomElement)
-    const isAnchorElementHTMLAnchorElement = isHTMLAnchorElement(anchorElement)
+    const testCases: TestCase[] = [
+      { input: document.createElement('a'), expected: true },
+      { input: document.createElement('div'), expected: false },
+      { input: document.createElement('input'), expected: false },
+      { input: document.createElement('button'), expected: false },
+    ]
 
-    // then
-    expect(isRandomElementHTMLAnchorElement).toBeFalsy()
-    expect(isAnchorElementHTMLAnchorElement).toBeTruthy()
+    testCases.forEach(({ input, expected }) => {
+      expect(isHTMLAnchorElement(input)).toEqual(expected)
+    })
+  })
+
+  it('should assert HTMLTemplateElement', () => {
+    type TestCase = {
+      input: HTMLElement
+      expected: boolean
+    }
+
+    const testCases: TestCase[] = [
+      { input: document.createElement('template'), expected: true },
+      { input: document.createElement('div'), expected: false },
+      { input: document.createElement('input'), expected: false },
+      { input: document.createElement('button'), expected: false },
+    ]
+
+    testCases.forEach(({ input, expected }) => {
+      expect(isHTMLTemplateElement(input)).toEqual(expected)
+    })
   })
 })

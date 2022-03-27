@@ -1,36 +1,48 @@
 import type { Nullable } from '@router/types'
 
+// -----------------------------------------------------------------------------
+// -- String assertion functions
+// -----------------------------------------------------------------------------
+
 /**
- * Check if given value is type of string.
+ * Asserts that the given value is a string.
  */
-export const isString = (value: any): value is string => {
-  return typeof value === 'string'
+export const isString = (value: unknown): value is string => {
+  return typeof value === 'string' || value instanceof String
 }
 
 /**
- * Check if given value is an empty string.
+ * Asserts that the given value is an empty string (or null).
  */
-export const isEmptyString = (value: any): value is Nullable<string> => {
+export const isEmptyString = (value: unknown): value is Nullable<string> => {
   return value == null || (isString(value) && value.length === 0)
 }
 
+// -----------------------------------------------------------------------------
+// -- Enum
+// -----------------------------------------------------------------------------
+
 /**
- * Check if given value is a value of given enum.
+ * Asserts that the given value is an enum.
  */
-export const isEnumValue = (enumObject: object, value: any): boolean => {
-  return Object.values(enumObject).includes(value)
+export const isEnum = (value: unknown, enumObject: object): value is keyof typeof enumObject => {
+  return Object.values(enumObject).includes(String(value))
+}
+
+// -----------------------------------------------------------------------------
+// -- HTML element assertion functions
+// -----------------------------------------------------------------------------
+
+/**
+ * Asserts that the given value is a DOM anchor element.
+ */
+export const isHTMLAnchorElement = (value: unknown): value is HTMLAnchorElement => {
+  return value instanceof HTMLAnchorElement
 }
 
 /**
- * Check if given HTMLElement is HTMLTemplateElement (<template>).
+ * Asserts that the given value is a DOM template element.
  */
-export const isHTMLTemplateElement = (element: HTMLElement): element is HTMLTemplateElement => {
-  return element instanceof HTMLTemplateElement
-}
-
-/**
- * Check if given HTMLElement is HTMLAnchorElement (<a>).
- */
-export const isHTMLAnchorElement = (element: HTMLElement): element is HTMLAnchorElement => {
-  return element instanceof HTMLAnchorElement
+export const isHTMLTemplateElement = (value: unknown): value is HTMLTemplateElement => {
+  return value instanceof HTMLTemplateElement
 }
