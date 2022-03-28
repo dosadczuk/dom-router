@@ -18,7 +18,7 @@ Very basic, zero configuration router for single HTML file websites.
 
 ## Directives
 
-Directive are HTML attributes and provide functionality in simple and self-descriptive way. Directives start
+Directives are HTML attributes and provide functionality in simple and self-descriptive way. Directives start
 with `data-router` and are _W3C Validation Service_ friendly.
 
 ### `data-router`
@@ -209,46 +209,66 @@ CSS file:
 
 Router emits the events, so client can subscribe to state changes.
 
-### `router:initialize`
+### `router:before-mount`
 
 Event is emitted just before router initialization. It does not contain any payload.
 
 ```typescript
-document.addEventListener('router:initialize', (event: CustomEvent) => {
+document.addEventListener('router:before-mount', (event: CustomEvent) => {
   // do something  
 })
 ```
 
-### `router:initialized`
+### `router:mounted`
 
 Event is emitted just after router initialization. It does not contain any payload.
 
 ```typescript
-document.addEventListener('router:initialized', (event: CustomEvent) => {
+document.addEventListener('router:mounted', (event: CustomEvent) => {
   // do something
 })
 ```
 
-### `router:page-changed`
+### `router:before-page-update`
+
+Event is emitted before URL change. It does not contain any payload.
+
+```typescript
+document.addEventListener('router:before-page-update', (event: CustomEvent) => {
+  // do something  
+})
+```
+
+### `router:page-updated`
 
 Event is emitted after URL change. It contains current route (`string`) as payload.
 
 ```typescript
-document.addEventListener('router:page-changed', (event: CustomEvent) => {
+document.addEventListener('router:page-updated', (event: CustomEvent) => {
   const { detail: route } = event
 
   // do something with route  
 })
 ```
 
-### `router:view-changed`
+### `router:before-view-update`
 
-Event is emitted after view change. It contains current route (`string`) and page (`HTMLElement`) as payload.
+Event is emitted before view change. It does not contain any payload.
 
 ```typescript
-document.addEventListener('router:view-changed', (event: CustomEvent) => {
-  const { detail: { route, page } } = event
+document.addEventListener('router:before-view-update', (event: CustomEvent) => {
+  // do something
+})
+```
 
-  // do something with route and page
+### `router:view-updated`
+
+Event is emitted after view change. It contains current route (`string`) and element (`HTMLElement`) as payload.
+
+```typescript
+document.addEventListener('router:view-updated', (event: CustomEvent) => {
+  const { detail: { route, element } } = event
+
+  // do something with route and element
 })
 ```

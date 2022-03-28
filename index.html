@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en" data-router="template" data-router-title="{{title}} | DOM Router" data-router-title-default="Default title">
   <head>
-    <meta charset="UTF-8"/>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>DOM Router</title>
 
@@ -69,5 +69,13 @@
     </section>
 
     <script type="module" src="/src/index.ts"></script>
+    <script>
+      document.addEventListener('router:before-mount', e => { console.log(Date.now(), 'before-mount', e.detail) });
+      document.addEventListener('router:mounted', e => { console.log(Date.now(), 'mounted', e.detail) });
+      document.addEventListener('router:before-page-update', e => { console.log(Date.now(), 'before-page-update', e.detail) });
+      document.addEventListener('router:page-updated', e => { console.log(Date.now(), 'page-updated', e.detail) });
+      document.addEventListener('router:before-view-update', e => { console.log(Date.now(), 'before-view-update', e.detail) });
+      document.addEventListener('router:view-updated', e => { console.log(Date.now(), 'view-updated', e.detail) });
+    </script>
   </body>
 </html>

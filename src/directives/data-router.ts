@@ -26,7 +26,7 @@ defineDirective(Directive.Initialize, {
       history.pushState(null, '', route)
 
       // let client subscribe to event "page-updated"
-      dispatchTo(document, ExternalEvent.PageUpdated)
+      dispatchTo(document, ExternalEvent.PageUpdated, route)
 
       dispatch(InternalEvent.ViewChange, toggleViewWithMode(mode))
     })
