@@ -1,9 +1,9 @@
 import { Directive, processDirectives } from '@router/directives'
 import * as directives from '@router/directives/index'
-import { getElementsWithAnyDirective, hasRootDirective } from '@router/dom'
+import { getElementsWithAnyDirective, hasDocumentDirective } from '@router/dom'
 
 (function Router() {
-  const canInitialize = hasRootDirective(Directive.Initialize)
+  const canInitialize = hasDocumentDirective(Directive.Initialize)
   if (!canInitialize) {
     throw new Error(`Router cannot be initialized. Add '${Directive.Initialize}' attribute to root element.`)
   }

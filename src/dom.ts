@@ -15,12 +15,12 @@ export enum ToggleMode {
 /**
  * Router root element.
  */
-let Root = document.documentElement
+let Root: HTMLElement = document.body
 
 /**
  * Returns router root element.
  */
-export const getRoot = () => Root
+export const getRoot = (): HTMLElement => Root
 
 /**
  * Sets router root element.
@@ -28,38 +28,38 @@ export const getRoot = () => Root
 export const setRoot = (root: HTMLElement) => { Root = root }
 
 /**
- * Return root's directive value.
+ * Returns document's directive value.
  */
-export const getRootDirective = (directive: Directive, defaultValue?: string): Nullable<string> => {
-  return Root.getAttribute(String(directive)) ?? defaultValue
+export const getDocumentDirective = (directive: Directive, defaultValue?: string): Nullable<string> => {
+  return document.documentElement.getAttribute(String(directive)) ?? defaultValue
 }
 
 /**
- * Returns root's directives values.
+ * Returns document's directives values.
  */
-export const getRootDirectives = (directives: Directive[]): Nullable<string>[] => {
-  return directives.map(directive => getRootDirective(directive))
+export const getDocumentDirectives = (directives: Directive[]): Nullable<string>[] => {
+  return directives.map(directive => getDocumentDirective(directive))
 }
 
 /**
- * Checks if root has directive.
+ * Checks if document has directive.
  */
-export const hasRootDirective = (directive: Directive): boolean => {
-  return Root.hasAttribute(String(directive))
+export const hasDocumentDirective = (directive: Directive): boolean => {
+  return document.documentElement.hasAttribute(String(directive))
 }
 
 /**
- * Removes root's directive.
+ * Removes document's directive.
  */
-export const removeRootDirective = (directive: Directive): void => {
-  Root.removeAttribute(String(directive))
+export const removeDocumentDirective = (directive: Directive): void => {
+  document.documentElement.removeAttribute(String(directive))
 }
 
 /**
- * Removes root's directives.
+ * Removes document's directives.
  */
-export const removeRootDirectives = (directives: Directive[]): void => {
-  directives.forEach(directive => removeRootDirective(directive))
+export const removeDocumentDirectives = (directives: Directive[]): void => {
+  directives.forEach(directives => removeDocumentDirective(directives))
 }
 
 /**
@@ -117,16 +117,14 @@ export const toggleViewWithMode = (mode: ToggleMode): ToggleView => {
   return (element, visible) => {
     switch (mode) {
       case ToggleMode.Display:
-        element.visible = visible
+        return visible
           ? displayShowElement(element)
           : displayHideElement(element)
-        break
 
       case ToggleMode.Template:
-        element.visible = visible
+        return visible
           ? replaceTemplateWithElement(element)
           : replaceElementWithTemplate(element)
-        break
     }
 
     return element.visible
@@ -138,6 +136,7 @@ export const toggleViewWithMode = (mode: ToggleMode): ToggleView => {
  */
 export const displayShowElement: ShowElement = (element) => {
   element.element.style.display = 'revert'
+  element.visible = true
 
   return true
 }
@@ -147,6 +146,7 @@ export const displayShowElement: ShowElement = (element) => {
  */
 export const displayHideElement: HideElement = (element) => {
   element.element.style.display = 'none'
+  element.visible = false
 
   return false
 }
@@ -168,6 +168,7 @@ export const replaceTemplateWithElement: ShowElement = (element) => {
 
   element.element.replaceWith(elementToShow)
   element.element = elementToShow
+  element.visible = true
 
   return true
 }
@@ -187,6 +188,7 @@ export const replaceElementWithTemplate: HideElement = (element) => {
 
   element.element.replaceWith(elementToShow)
   element.element = elementToShow
+  element.visible = false
 
   return false
 }

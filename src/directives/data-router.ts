@@ -1,12 +1,12 @@
 import { isEnum } from '@router/asserts'
 import { defineDirective, Directive } from '@router/directives'
-import { getRootDirective, ToggleMode, toggleViewWithMode } from '@router/dom'
+import { getDocumentDirective, ToggleMode, toggleViewWithMode } from '@router/dom'
 import { dispatch, dispatchTo, ExternalEvent, InternalEvent, subscribe, subscribeTo } from '@router/events'
 import { getCurrentURL, isMatchingURL } from '@router/url'
 
 defineDirective(Directive.Initialize, {
   factory: () => {
-    let mode = getRootDirective(Directive.Initialize, '') as ToggleMode
+    let mode = getDocumentDirective(Directive.Initialize, '') as ToggleMode
     if (!isEnum(mode, ToggleMode)) {
       mode = ToggleMode.Display // default mode
     }

@@ -1,7 +1,7 @@
 import { isEmptyString } from '@router/asserts'
 import { defineDirective, Directive } from '@router/directives'
 import { getRouteToPage } from '@router/directives/data-router-page.model'
-import { getRootDirectives, removeRootDirectives } from '@router/dom'
+import { getDocumentDirectives, removeDocumentDirectives } from '@router/dom'
 import { InternalEvent, subscribe } from '@router/events'
 import { getCurrentURL, isMatchingURL } from '@router/url'
 
@@ -12,7 +12,7 @@ defineDirective(Directive.Title, {
       return // no page found
     }
 
-    const [ titleTemplate, titleFallback ] = getRootDirectives([ Directive.Title, Directive.TitleDefault ])
+    const [ titleTemplate, titleFallback ] = getDocumentDirectives([ Directive.Title, Directive.TitleDefault ])
 
     subscribe(InternalEvent.ViewChange, () => {
       for (const [ route, page ] of routeToPage) {
@@ -36,7 +36,7 @@ defineDirective(Directive.Title, {
     })
 
     return () => {
-      removeRootDirectives([ Directive.Title, Directive.TitleDefault ])
+      removeDocumentDirectives([ Directive.Title, Directive.TitleDefault ])
     }
   },
   options: {
