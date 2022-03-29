@@ -122,12 +122,12 @@ Provides a way to set different document title for every page. It can be used in
 </section>
 ```
 
-2. as a title template, it works only on `<html>` tag and `{title}` can be used to mark a place where page title will be
-   put.
+2. as a title template, it works only on `<html>` tag and `{{title}}` can be used to mark a place where page title will
+   be put.
 
 ```html
 <!-- set template title -->
-<html data-router data-router-title="{title} | Sample website""></html>
+<html data-router data-router-title="{{title}} | Sample website""></html>
 ```
 
 ### `data-router-title-default`
@@ -173,7 +173,7 @@ Directive will not be removed, so it can be styled easily with CSS:
 
 ### `data-router-sitemap-ignore`
 
-Marks a page to excluded from sitemap. It works only with `data-router-page` directive.
+Marks a page to be excluded from sitemap. It works only with `data-router-page` directive.
 
 ```html
 <!-- exclude page from sitemap -->
