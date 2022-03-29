@@ -20,7 +20,7 @@ export const isEmptyString = (value: unknown): value is Nullable<string> => {
 }
 
 // -----------------------------------------------------------------------------
-// -- Enum
+// -- Enum assertion functions
 // -----------------------------------------------------------------------------
 
 /**
@@ -31,7 +31,7 @@ export const isEnum = (value: unknown, enumObject: object): value is keyof typeo
 }
 
 // -----------------------------------------------------------------------------
-// -- Directive
+// -- Directive assertion functions
 // -----------------------------------------------------------------------------
 
 /**

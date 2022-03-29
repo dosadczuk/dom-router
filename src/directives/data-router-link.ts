@@ -9,8 +9,8 @@ defineDirective(Directive.Link, {
       return // no link found
     }
 
-    for (const [ route, link ] of routeToLink) {
-      link.element.addEventListener('click', prevent(() => {
+    for (const [ route, { element: link } ] of routeToLink) {
+      link.addEventListener('click', prevent(() => {
         dispatch(InternalEvent.PageChange, route)
       }))
     }

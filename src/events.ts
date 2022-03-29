@@ -89,7 +89,6 @@ export const dispatchTo = (target: EventTarget, event: ExternalEvent | string, d
 export const prevent = (fn: EventListener): EventListener => {
   return event => {
     event.preventDefault()
-    event.stopPropagation()
 
     fn(event)
   }
