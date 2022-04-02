@@ -3,7 +3,7 @@ import { defineDirective, Directive } from '@router/directives'
 import { getRouteToPage } from '@router/directives/data-router-page.model'
 import { getDocumentDirectives, removeDocumentDirectives } from '@router/dom'
 import { InternalEvent, subscribe } from '@router/events'
-import { getCurrentURL, isMatchingURL } from '@router/url'
+import { isMatchingURL } from '@router/url'
 
 defineDirective(Directive.Title, {
   factory: (elements) => {
@@ -16,7 +16,7 @@ defineDirective(Directive.Title, {
 
     subscribe(InternalEvent.ViewChange, () => {
       for (const [ route, page ] of routeToPage) {
-        if (!isMatchingURL(route, getCurrentURL())) {
+        if (!isMatchingURL(route)) {
           continue // skip if not matching
         }
 

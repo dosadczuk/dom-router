@@ -23,13 +23,13 @@ export enum Directive {
 // -- Definition
 // -----------------------------------------------------------------------------
 
-const DirectiveRegistry = new Map<Directive, Nullable<DirectiveDefinition>>()
+const DirectiveRegistry = new Map<Directive, DirectiveDefinition>()
 
 /**
  * Registers a directive.
  */
-export const defineDirective = (directive: Directive, definition?: DirectiveDefinition): void => {
-  DirectiveRegistry.set(directive, definition ?? null)
+export const defineDirective = (directive: Directive, definition: DirectiveDefinition): void => {
+  DirectiveRegistry.set(directive, definition)
 }
 
 /**

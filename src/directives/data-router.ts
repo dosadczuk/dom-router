@@ -2,7 +2,7 @@ import { isEnum } from '@router/asserts'
 import { defineDirective, Directive } from '@router/directives'
 import { getDocumentDirective, ToggleMode, toggleViewWithMode } from '@router/dom'
 import { dispatch, dispatchTo, ExternalEvent, InternalEvent, subscribe, subscribeTo } from '@router/events'
-import { getCurrentURL, isMatchingURL } from '@router/url'
+import { isMatchingURL } from '@router/url'
 
 defineDirective(Directive.Initialize, {
   factory: () => {
@@ -15,8 +15,8 @@ defineDirective(Directive.Initialize, {
     dispatchTo(document, ExternalEvent.BeforeMount)
 
     // update forced by internal mechanism
-    subscribe(InternalEvent.PageChange, (route: any) => {
-      if (isMatchingURL(route, getCurrentURL())) {
+    subscribe(InternalEvent.PageChange, (route: string) => {
+      if (isMatchingURL(route)) {
         return // same page, no need to change
       }
 

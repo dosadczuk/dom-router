@@ -29,7 +29,7 @@ describe('directives', () => {
 
   it('should get all registered directives', () => {
     // given
-    defineDirective(Directive.Initialize)
+    defineDirective(Directive.Initialize, { factory: fn() })
 
     // when
     const directives = getDirectives()
@@ -42,7 +42,7 @@ describe('directives', () => {
     // given
     const directiveName = Directive.Initialize
 
-    defineDirective(directiveName)
+    defineDirective(directiveName, { factory: fn() })
 
     // when
     const selector = getDirectivesAsSelector()
@@ -53,7 +53,7 @@ describe('directives', () => {
 
   it('should unregister all directives', () => {
     // given
-    defineDirective(Directive.Initialize)
+    defineDirective(Directive.Initialize, { factory: fn() })
 
     // when
     const beforeUnregister = getDirectives()
