@@ -1,5 +1,5 @@
 import { Directive, getDirectives } from '@router/directives'
-import type { Nullable } from '@router/types'
+import type { Optional } from '@router/types'
 
 // -----------------------------------------------------------------------------
 // -- String assertion functions
@@ -15,7 +15,7 @@ export const isString = (value: unknown): value is string => {
 /**
  * Asserts that the given value is an empty string (or null).
  */
-export const isEmptyString = (value: unknown): value is Nullable<string> => {
+export const isEmptyString = (value: unknown): value is Optional<string> => {
   return value == null || (isString(value) && value.length === 0)
 }
 

@@ -19,7 +19,7 @@ export const getRouteToPage = (elements: ElementWithDirectives[]): RouteToPage =
   for (const element of elements) {
     const route = element.directives.get(Directive.Page)
     if (isEmptyString(route)) {
-      continue
+      continue // not a page or invalid page
     }
 
     PageRegistry.set(route, element)

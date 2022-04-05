@@ -1,7 +1,7 @@
 import { isDirective, isHTMLTemplateElement } from '@router/asserts'
 import type { ElementWithDirectives } from '@router/directives'
 import { Directive, getDirectivesAsSelector } from '@router/directives'
-import type { Nullable } from '@router/types'
+import type { Optional } from '@router/types'
 
 export enum ToggleMode {
   Display = 'display',
@@ -30,14 +30,14 @@ export const setRoot = (root: HTMLElement) => { Root = root }
 /**
  * Returns document's directive value.
  */
-export const getDocumentDirective = (directive: Directive, defaultValue?: string): Nullable<string> => {
+export const getDocumentDirective = (directive: Directive, defaultValue?: string): Optional<string> => {
   return document.documentElement.getAttribute(String(directive)) ?? defaultValue
 }
 
 /**
  * Returns document's directives values.
  */
-export const getDocumentDirectives = (directives: Directive[]): Nullable<string>[] => {
+export const getDocumentDirectives = (directives: Directive[]): Optional<string>[] => {
   return directives.map(directive => getDocumentDirective(directive))
 }
 
@@ -99,7 +99,7 @@ export const getElementsWithDirective = (elements: ElementWithDirectives[], dire
 /**
  * Returns first element with directive.
  */
-export const getElementWithDirective = (elements: ElementWithDirectives[], directive: Directive): Nullable<ElementWithDirectives> => {
+export const getElementWithDirective = (elements: ElementWithDirectives[], directive: Directive): Optional<ElementWithDirectives> => {
   return elements.find(element => element.directives.has(directive)) ?? null
 }
 
@@ -161,7 +161,7 @@ export const replaceTemplateWithElement: ShowElement = (element) => {
     return true // already shown
   }
 
-  const elementToShow = elementToHide.content.firstElementChild as Nullable<HTMLElement>
+  const elementToShow = elementToHide.content.firstElementChild as Optional<HTMLElement>
   if (elementToShow == null) {
     return false // nothing to replace with
   }

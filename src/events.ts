@@ -1,4 +1,4 @@
-import type { Nullable } from '@router/types'
+import type { Optional } from '@router/types'
 
 /**
  * Events to be emitted internally. For library usage only.
@@ -105,12 +105,12 @@ export type ViewUpdatedPayload = {
   /**
    * Matching route.
    */
-  route: Nullable<string>
+  route: Optional<string>
 
   /**
    * Element visible for route.
    */
-  element: Nullable<HTMLElement>
+  element: Optional<HTMLElement>
 }
 
 /**

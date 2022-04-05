@@ -1,5 +1,4 @@
 import { removeDirectiveFromElements } from '@router/dom'
-import type { Nullable } from '@router/types'
 
 export enum Directive {
   Initialize = 'data-router',
@@ -45,7 +44,7 @@ export const processDirectives = (elements: ElementWithDirectives[], directives:
     const { factory, options } = definition
 
     if (factory != null) {
-      const cleanup = factory(elements, options)
+      const cleanup = factory(elements)
       if (cleanup != null) {
         cleanup() // cleanup after directive set up
       }
@@ -91,7 +90,7 @@ type DirectiveDefinition = {
   /**
    * Directive factory function to prepare DOM.
    */
-  factory: Nullable<DirectiveFactory>
+  factory?: DirectiveFactory
 
   /**
    * Directive options.
@@ -102,7 +101,7 @@ type DirectiveDefinition = {
 /**
  * A directive factory function to prepare DOM.
  */
-type DirectiveFactory = (elements: ElementWithDirectives[], options: Nullable<DirectiveOptions>) => DirectiveCleanup | void
+type DirectiveFactory = (elements: ElementWithDirectives[]) => DirectiveCleanup | void
 
 /**
  * A directive cleanup function to clean up after set up.

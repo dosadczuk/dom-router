@@ -1,7 +1,7 @@
 import { isEmptyString, isHTMLAnchorElement } from '@router/asserts'
 import type { ElementWithDirectives } from '@router/directives'
 import { Directive } from '@router/directives'
-import type { Nullable } from '@router/types'
+import type { Optional } from '@router/types'
 
 // -----------------------------------------------------------------------------
 // -- Definition
@@ -20,7 +20,7 @@ export const getRouteToLink = (elements: ElementWithDirectives[]): RouteToLink =
   for (const element of elements) {
     const route = getRouteFromLink(element)
     if (isEmptyString(route)) {
-      continue // invalid link
+      continue // not a link or invalid link
     }
 
     LinkRegistry.set(route, element)
@@ -29,7 +29,7 @@ export const getRouteToLink = (elements: ElementWithDirectives[]): RouteToLink =
   return LinkRegistry
 }
 
-const getRouteFromLink = (element: ElementWithDirectives): Nullable<string> => {
+const getRouteFromLink = (element: ElementWithDirectives): Optional<string> => {
   const { element: link, directives } = element
 
   if (isHTMLAnchorElement(link) && !isEmptyString(link.href)) {
