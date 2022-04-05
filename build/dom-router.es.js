@@ -135,7 +135,7 @@ var Directive = /* @__PURE__ */ ((Directive2) => {
 })(Directive || {});
 const DirectiveRegistry = /* @__PURE__ */ new Map();
 const defineDirective = (directive, definition2) => {
-  DirectiveRegistry.set(directive, definition2 != null ? definition2 : null);
+  DirectiveRegistry.set(directive, definition2);
 };
 const processDirectives = (elements, directives) => {
   for (const directive of directives) {
@@ -145,7 +145,7 @@ const processDirectives = (elements, directives) => {
     }
     const { factory, options } = definition2;
     if (factory != null) {
-      const cleanup = factory(elements, options);
+      const cleanup = factory(elements);
       if (cleanup != null) {
         cleanup();
       }
@@ -208,7 +208,6 @@ const dispatchTo = (target, event, data) => {
 const prevent = (fn) => {
   return (event) => {
     event.preventDefault();
-    event.stopPropagation();
     fn(event);
   };
 };
@@ -252,12 +251,12 @@ defineDirective(Directive.Initialize, {
     }
     dispatchTo(document, ExternalEvent.BeforeMount);
     subscribe(InternalEvent.PageChange, (route) => {
-      if (isMatchingURL(route, getCurrentURL())) {
+      if (isMatchingURL(route)) {
         return;
       }
       dispatchTo(document, ExternalEvent.BeforePageUpdate);
       history.pushState(null, "", route);
-      dispatchTo(document, ExternalEvent.PageUpdated);
+      dispatchTo(document, ExternalEvent.PageUpdated, route);
       dispatch(InternalEvent.ViewChange, toggleViewWithMode(mode));
     });
     subscribeTo(window, "popstate", () => {
@@ -271,10 +270,7 @@ defineDirective(Directive.Initialize, {
   }
 });
 defineDirective(Directive.Cloak, {
-  factory: null,
-  options: {
-    removable: true
-  }
+  options: { removable: true }
 });
 const LinkRegistry = /* @__PURE__ */ new Map();
 const getRouteToLink = (elements) => {
@@ -304,8 +300,8 @@ defineDirective(Directive.Link, {
     if (routeToLink.size === 0) {
       return;
     }
-    for (const [route, link] of routeToLink) {
-      link.element.addEventListener("click", prevent(() => {
+    for (const [route, { element: link }] of routeToLink) {
+      link.addEventListener("click", prevent(() => {
         dispatch(InternalEvent.PageChange, route);
       }));
     }
@@ -381,10 +377,7 @@ defineDirective(Directive.Page, {
   }
 });
 defineDirective(Directive.PageFallback, {
-  factory: null,
-  options: {
-    removable: true
-  }
+  options: { removable: true }
 });
 defineDirective(Directive.Sitemap, {
   factory: (elements) => {
@@ -419,10 +412,7 @@ defineDirective(Directive.Sitemap, {
   }
 });
 defineDirective(Directive.SitemapIgnore, {
-  factory: null,
-  options: {
-    removable: true
-  }
+  options: { removable: true }
 });
 defineDirective(Directive.Title, {
   factory: (elements) => {
@@ -434,7 +424,7 @@ defineDirective(Directive.Title, {
     subscribe(InternalEvent.ViewChange, () => {
       var _a;
       for (const [route, page] of routeToPage) {
-        if (!isMatchingURL(route, getCurrentURL())) {
+        if (!isMatchingURL(route)) {
           continue;
         }
         const title = (_a = page.directives.get(Directive.Title)) != null ? _a : titleFallback;
@@ -458,10 +448,7 @@ defineDirective(Directive.Title, {
   }
 });
 defineDirective(Directive.TitleDefault, {
-  factory: null,
-  options: {
-    removable: true
-  }
+  options: { removable: true }
 });
 const definition = [
   Directive.Cloak,
