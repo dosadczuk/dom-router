@@ -1,18 +1,20 @@
 import { defineDirective, Directive } from '@router/directives'
-import { getRouteToLink } from '@router/directives/data-router-link.model'
+import { getRouteToLinks } from '@router/directives/data-router-link.model'
 import { dispatch, InternalEvent, prevent } from '@router/events'
 
 defineDirective(Directive.Link, {
   factory: (elements) => {
-    const routeToLink = getRouteToLink(elements)
-    if (routeToLink.size === 0) {
+    const routeToLinks = getRouteToLinks(elements)
+    if (routeToLinks.size === 0) {
       return // no link found
     }
 
-    for (const [ route, { element: link } ] of routeToLink) {
-      link.addEventListener('click', prevent(() => {
-        dispatch(InternalEvent.PageChange, route)
-      }))
+    for (const [ route, links ] of routeToLinks) {
+      for (const { element: link } of links) {
+        link.addEventListener('click', prevent(() => {
+          dispatch(InternalEvent.PageChange, route)
+        }))
+      }
     }
   },
   options: {

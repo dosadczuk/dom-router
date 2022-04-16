@@ -7,12 +7,12 @@ import type { Optional } from '@router/types'
 // -- Definition
 // -----------------------------------------------------------------------------
 
-const LinkRegistry = new Map<string, ElementWithDirectives>()
+const LinkRegistry = new Map<string, Set<ElementWithDirectives>>()
 
 /**
  * Returns links for routes.
  */
-export const getRouteToLink = (elements: ElementWithDirectives[]): RouteToLink => {
+export const getRouteToLinks = (elements: ElementWithDirectives[]): RouteToLink => {
   if (LinkRegistry.size > 0) {
     return LinkRegistry // already created
   }
@@ -23,7 +23,11 @@ export const getRouteToLink = (elements: ElementWithDirectives[]): RouteToLink =
       continue // not a link or invalid link
     }
 
-    LinkRegistry.set(route, element)
+    if (!LinkRegistry.has(route)) {
+      LinkRegistry.set(route, new Set())
+    }
+
+    LinkRegistry.get(route)!.add(element)
   }
 
   return LinkRegistry
@@ -43,4 +47,4 @@ const getRouteFromLink = (element: ElementWithDirectives): Optional<string> => {
 // -- Types
 // -----------------------------------------------------------------------------
 
-type RouteToLink = Map<string, ElementWithDirectives>
+type RouteToLink = Map<string, Set<ElementWithDirectives>>

@@ -273,7 +273,7 @@ defineDirective(Directive.Cloak, {
   options: { removable: true }
 });
 const LinkRegistry = /* @__PURE__ */ new Map();
-const getRouteToLink = (elements) => {
+const getRouteToLinks = (elements) => {
   if (LinkRegistry.size > 0) {
     return LinkRegistry;
   }
@@ -282,7 +282,10 @@ const getRouteToLink = (elements) => {
     if (isEmptyString(route)) {
       continue;
     }
-    LinkRegistry.set(route, element);
+    if (!LinkRegistry.has(route)) {
+      LinkRegistry.set(route, /* @__PURE__ */ new Set());
+    }
+    LinkRegistry.get(route).add(element);
   }
   return LinkRegistry;
 };
@@ -296,14 +299,16 @@ const getRouteFromLink = (element) => {
 };
 defineDirective(Directive.Link, {
   factory: (elements) => {
-    const routeToLink = getRouteToLink(elements);
-    if (routeToLink.size === 0) {
+    const routeToLinks = getRouteToLinks(elements);
+    if (routeToLinks.size === 0) {
       return;
     }
-    for (const [route, { element: link }] of routeToLink) {
-      link.addEventListener("click", prevent(() => {
-        dispatch(InternalEvent.PageChange, route);
-      }));
+    for (const [route, links] of routeToLinks) {
+      for (const { element: link } of links) {
+        link.addEventListener("click", prevent(() => {
+          dispatch(InternalEvent.PageChange, route);
+        }));
+      }
     }
   },
   options: {
@@ -312,20 +317,22 @@ defineDirective(Directive.Link, {
 });
 defineDirective(Directive.LinkActive, {
   factory: (elements) => {
-    const routeToLink = getRouteToLink(elements);
-    if (routeToLink.size === 0) {
+    const routeToLinks = getRouteToLinks(elements);
+    if (routeToLinks.size === 0) {
       return;
     }
     subscribe(InternalEvent.ViewChange, () => {
-      for (const [route, link] of routeToLink) {
-        let className = link.directives.get(Directive.LinkActive);
-        if (isEmptyString(className)) {
-          className = "active";
-        }
-        if (isMatchingURL(route)) {
-          appendClassNameToElement(link, className.split(" "));
-        } else {
-          removeClassNameFromElement(link, className.split(" "));
+      for (const [route, links] of routeToLinks) {
+        for (const link of links) {
+          let className = link.directives.get(Directive.LinkActive);
+          if (isEmptyString(className)) {
+            className = "active";
+          }
+          if (isMatchingURL(route)) {
+            appendClassNameToElement(link, className.split(" "));
+          } else {
+            removeClassNameFromElement(link, className.split(" "));
+          }
         }
       }
     });
