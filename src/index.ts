@@ -10,8 +10,8 @@ import { getElementsWithAnyDirective, hasDocumentDirective } from '@router/dom'
 
   const elements = getElementsWithAnyDirective()
   if (elements.length === 0) {
-    throw new Error(`Router cannot be initialized. No directive found.`)
+    throw new Error(`Router cannot be initialized. No element with directive found.`)
   }
 
-  processDirectives(elements, directives.definition)
+  processDirectives(elements, directives.order)
 })()

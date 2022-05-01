@@ -13,7 +13,7 @@ import '@router/directives/data-router-title-default'
 /**
  * Directives to be executed in the order.
  */
-export const definition = [
+export const order = [
   Directive.Cloak,
 
   Directive.TitleDefault,
