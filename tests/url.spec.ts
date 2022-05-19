@@ -1,4 +1,4 @@
-import { getCurrentURL } from '@router/url'
+import { getCurrentURL } from '../src/url'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 describe('url', () => {

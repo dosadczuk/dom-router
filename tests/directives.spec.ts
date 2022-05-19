@@ -1,11 +1,11 @@
-import { isDirective } from '@router/asserts'
+import { isDirective } from '../src/asserts'
 import {
   clearDirectives,
   defineDirective,
   Directive,
   getDirectives,
   getDirectivesAsSelector,
-} from '@router/directives'
+} from '../src/directives'
 import { beforeEach, describe, expect, fn, it } from 'vitest'
 
 describe('directives', () => {

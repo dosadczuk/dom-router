@@ -1,4 +1,4 @@
-import { defineDirective, Directive } from '@router/directives'
+import { defineDirective, Directive } from '../src/directives'
 import {
   displayHideElement,
   displayShowElement,
@@ -9,7 +9,7 @@ import {
   removeDirectiveFromElements,
   replaceElementWithTemplate,
   replaceTemplateWithElement,
-} from '@router/dom'
+} from '../src/dom'
 import { afterEach, beforeAll, beforeEach, describe, expect, fn, it } from 'vitest'
 
 describe('dom', () => {

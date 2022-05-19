@@ -1,4 +1,4 @@
-import { dispatch, dispatchTo, ExternalEvent, InternalEvent, subscribe, subscribeTo } from '@router/events'
+import { dispatch, dispatchTo, ExternalEvent, InternalEvent, subscribe, subscribeTo } from '../src/events'
 import { describe, expect, fn, it } from 'vitest'
 
 describe('events', () => {
