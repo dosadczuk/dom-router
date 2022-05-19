@@ -134,16 +134,16 @@ var Directive = /* @__PURE__ */ ((Directive2) => {
   return Directive2;
 })(Directive || {});
 const DirectiveRegistry = /* @__PURE__ */ new Map();
-const defineDirective = (directive, definition2) => {
-  DirectiveRegistry.set(directive, definition2);
+const defineDirective = (directive, definition) => {
+  DirectiveRegistry.set(directive, definition);
 };
 const processDirectives = (elements, directives) => {
   for (const directive of directives) {
-    const definition2 = DirectiveRegistry.get(directive);
-    if (definition2 == null) {
+    const definition = DirectiveRegistry.get(directive);
+    if (definition == null) {
       continue;
     }
-    const { factory, options } = definition2;
+    const { factory, options } = definition;
     if (factory != null) {
       const cleanup = factory(elements);
       if (cleanup != null) {
@@ -457,7 +457,7 @@ defineDirective(Directive.Title, {
 defineDirective(Directive.TitleDefault, {
   options: { removable: true }
 });
-const definition = [
+const order = [
   Directive.Cloak,
   Directive.TitleDefault,
   Directive.Title,
@@ -476,7 +476,7 @@ const definition = [
   }
   const elements = getElementsWithAnyDirective();
   if (elements.length === 0) {
-    throw new Error(`Router cannot be initialized. No directive found.`);
+    throw new Error(`Router cannot be initialized. No element with directive found.`);
   }
-  processDirectives(elements, definition);
+  processDirectives(elements, order);
 })();
