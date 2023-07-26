@@ -1,4 +1,10 @@
-import { isEmptyString, isEnum, isHTMLAnchorElement, isHTMLTemplateElement, isString } from '../src/asserts'
+import {
+  isEmptyString,
+  isEnum,
+  isHTMLAnchorElement,
+  isHTMLTemplateElement,
+  isString
+} from '../src/asserts'
 import { describe, expect, it } from 'vitest'
 
 describe('asserts', () => {

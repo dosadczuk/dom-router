@@ -10,7 +10,7 @@ import {
   replaceElementWithTemplate,
   replaceTemplateWithElement,
 } from '../src/dom'
-import { afterEach, beforeAll, beforeEach, describe, expect, fn, it } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, vi, it } from 'vitest'
 
 describe('dom', () => {
 
@@ -18,7 +18,7 @@ describe('dom', () => {
 
   const DIRECTIVE_NAME = Directive.Initialize
   const DIRECTIVE_VALUE = 'test'
-  const DIRECTIVE_FACTORY = fn()
+  const DIRECTIVE_FACTORY = vi.fn()
 
   beforeAll(() => {
     defineDirective(DIRECTIVE_NAME, { factory: DIRECTIVE_FACTORY })

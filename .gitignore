@@ -117,6 +117,9 @@ dist
 .pnp.*
 yarn.lock
 
+# pnpm
+pnpm-lock.yaml
+
 # JetBrains
 .idea
 

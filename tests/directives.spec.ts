@@ -4,9 +4,9 @@ import {
   defineDirective,
   Directive,
   getDirectives,
-  getDirectivesAsSelector,
+  getDirectivesAsSelector
 } from '../src/directives'
-import { beforeEach, describe, expect, fn, it } from 'vitest'
+import { beforeEach, describe, expect, vi, it } from 'vitest'
 
 describe('directives', () => {
 
@@ -17,7 +17,7 @@ describe('directives', () => {
   it('should define directive', () => {
     // given
     const directiveName = Directive.Initialize
-    const directiveFactory = fn()
+    const directiveFactory = vi.fn()
 
     // when
     defineDirective(directiveName, { factory: directiveFactory })
@@ -29,7 +29,7 @@ describe('directives', () => {
 
   it('should get all registered directives', () => {
     // given
-    defineDirective(Directive.Initialize, { factory: fn() })
+    defineDirective(Directive.Initialize, { factory: vi.fn() })
 
     // when
     const directives = getDirectives()
@@ -42,7 +42,7 @@ describe('directives', () => {
     // given
     const directiveName = Directive.Initialize
 
-    defineDirective(directiveName, { factory: fn() })
+    defineDirective(directiveName, { factory: vi.fn() })
 
     // when
     const selector = getDirectivesAsSelector()
@@ -53,7 +53,7 @@ describe('directives', () => {
 
   it('should unregister all directives', () => {
     // given
-    defineDirective(Directive.Initialize, { factory: fn() })
+    defineDirective(Directive.Initialize, { factory: vi.fn() })
 
     // when
     const beforeUnregister = getDirectives()
